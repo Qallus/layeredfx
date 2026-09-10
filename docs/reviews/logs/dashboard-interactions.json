@@ -1,0 +1,70 @@
+{
+  "checks": [
+    {
+      "name": "Source order creation form",
+      "visible": true,
+      "headingSpacing": "normal"
+    },
+    {
+      "name": "designers form",
+      "visible": true
+    },
+    {
+      "name": "installers form",
+      "visible": true
+    },
+    {
+      "name": "CMI Jobs List",
+      "visible": true
+    },
+    {
+      "name": "CMI Jobs Table",
+      "visible": true
+    },
+    {
+      "name": "CMI Jobs Card",
+      "visible": true
+    },
+    {
+      "name": "CMI Jobs Kanban",
+      "visible": true
+    },
+    {
+      "name": "CMI Jobs Calendar",
+      "visible": true
+    },
+    {
+      "name": "New Job Clients",
+      "visible": true
+    },
+    {
+      "name": "New Job Internal Users",
+      "visible": true
+    },
+    {
+      "name": "New Job Subs / Vendors",
+      "visible": true
+    },
+    {
+      "name": "New Job Advanced Settings",
+      "visible": true
+    },
+    {
+      "name": "New Job Insurance / Risk",
+      "visible": true
+    },
+    {
+      "name": "New Job Job Details",
+      "visible": true
+    },
+    {
+      "name": "Job save reports unavailable integration, retains form",
+      "passed": true
+    },
+    {
+      "name": "CMI Jobs map mounts",
+      "passed": true
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,1582 @@
+// Adapted from CTRL+P 015a7b58b80e63ef87c73bec549a23242b88f3e3: components/admin/admin-payments.tsx
+"use client";
+import { Badge } from "@/ctrlp/components/ui/badge";
+import { Button } from "@/ctrlp/components/ui/button";
+import { Card,CardContent,CardDescription,CardHeader,CardTitle } from "@/ctrlp/components/ui/card";
+import { DatePicker } from "@/ctrlp/components/ui/date-picker";
+import { Dialog,DialogContent,DialogDescription,DialogHeader,DialogTitle } from "@/ctrlp/components/ui/dialog";
+import { Input } from "@/ctrlp/components/ui/input";
+import { Select,SelectContent,SelectItem,SelectTrigger,SelectValue } from "@/ctrlp/components/ui/select";
+import { Sheet,SheetContent,SheetDescription,SheetHeader,SheetTitle } from "@/ctrlp/components/ui/sheet";
+import { Table,TableBody,TableCell,TableHead,TableHeader,TableRow } from "@/ctrlp/components/ui/table";
+import { createAdminInvoice,createSquareCardPayment,createSquarePaymentLink,createSquareRefund,deliverPaymentDocument,getCurrentAdminProfile,loadAdminDashboardData,loadSquarePaymentConfig,updateAdminInvoice } from "@/ctrlp/lib/admin/admin-api";
+import type { AdminDashboardData,Order,Payment,Product } from "@/ctrlp/lib/admin/types";
+import { getSupabaseBrowserClient } from "@/ctrlp/lib/supabase/browser";
+import { cn } from "@/ctrlp/lib/utils";
+import { CircleDollarSign,CreditCard,FileText,ReceiptText,WalletCards } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useEffect,useMemo,useRef,useState } from "react";
+import { createPortal } from "react-dom";
+const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+type SquareCardElement={attach(element:HTMLDivElement):Promise<void>;destroy():Promise<void>;tokenize():Promise<{status:string;token?:string;errors?:{message:string}[]}>};
+type SquarePayments={card():Promise<SquareCardElement>};
+type SquareCard={card:SquareCardElement;config:Awaited<ReturnType<typeof loadSquarePaymentConfig>>;payments:SquarePayments};
+type SquareWindow=Window&{Square?:{payments(applicationId:string,locationId:string):SquarePayments}};
+function human(value: string | null | undefined) {
+    return String(value || "unknown").replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+function numberValue(value: number | string | null | undefined) {
+    return Number(value || 0);
+}
+function statusTone(status: string) {
+    if (["paid", "completed"].includes(status))
+        return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
+    if (["pending", "partially_paid"].includes(status))
+        return "border-primary/20 bg-primary/15 text-lime-800 dark:text-lime-200";
+    if (["failed", "unpaid", "refunded", "partially_refunded"].includes(status))
+        return "border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-300";
+    return "border-border bg-secondary text-secondary-foreground";
+}
+async function handleSignOut() {
+    const db = getSupabaseBrowserClient();
+    if (db)
+        await db.auth.signOut();
+    window.location.href = "/login";
+}
+export function AdminPayments() {
+    const pathname = usePathname();
+    const [theme, setTheme] = useState<"light" | "dark">("dark");
+    const [authState, setAuthState] = useState<"checking" | "allowed" | "denied">("checking");
+    const [data, setData] = useState<AdminDashboardData | null>(null);
+    const [invoiceOpen, setInvoiceOpen] = useState(false);
+    const [paymentOpen, setPaymentOpen] = useState(false);
+    const [refundPayment, setRefundPayment] = useState<Payment | null>(null);
+    const [editPayment, setEditPayment] = useState<Payment | null>(null);
+    const [sendMenuId, setSendMenuId] = useState<string | null>(null);
+    const [notice, setNotice] = useState("");
+    useEffect(() => {
+        async function boot() {
+            const profile = await getCurrentAdminProfile();
+            if (!profile && process.env.NEXT_PUBLIC_SUPABASE_URL) {
+                setAuthState("denied");
+                return;
+            }
+            setAuthState("allowed");
+            setData(await loadAdminDashboardData());
+        }
+        boot();
+    }, []);
+    useEffect(() => {
+        if (!sendMenuId)
+            return;
+        function close() { setSendMenuId(null); }
+        document.addEventListener("click", close, { capture: true, once: true });
+        return () => document.removeEventListener("click", close, { capture: true });
+    }, [sendMenuId]);
+    const orders = data?.orders ?? [];
+    const payments = data?.payments ?? [];
+    const messages = data?.messages ?? [];
+    const paidTotal = payments.filter((payment) => payment.status === "paid").reduce((sum, payment) => sum + numberValue(payment.amount), 0);
+    const pendingTotal = payments.filter((payment) => ["pending", "unpaid", "partially_paid"].includes(payment.status)).reduce((sum, payment) => sum + numberValue(payment.amount), 0);
+    const processorBreakdown = useMemo(() => breakdownByProvider(payments), [payments]);
+    async function refreshPayments() {
+        setData(await loadAdminDashboardData());
+    }
+    function openPaymentDocument(paymentId: string, kind: "invoice" | "receipt") {
+        window.open(`/api/payments/${paymentId}/document?kind=${kind}`, "_blank", "noopener,noreferrer");
+    }
+    async function sendPaymentDocument(payment: Payment, kind: "invoice" | "receipt", channel: "email" | "sms") {
+        setSendMenuId(null);
+        setNotice(`Sending ${kind} by ${channel}...`);
+        try {
+            await deliverPaymentDocument({ paymentId: payment.id, kind, channel });
+            setNotice(`${human(kind)} sent by ${channel}.`);
+            await refreshPayments();
+        }
+        catch (error) {
+            setNotice(error instanceof Error ? error.message : `Could not send ${kind}.`);
+        }
+    }
+    return (<div className="source-module">
+      <div className="min-h-full bg-background text-foreground">
+        <></>
+
+        <></>
+
+        <main className="px-4 py-5  ">
+          {authState === "checking" && <Card><CardContent className="p-5 text-sm text-muted-foreground">Checking admin access...</CardContent></Card>}
+          {authState === "denied" && (<Card className="border-red-500/30">
+              <CardContent className="p-5">
+                <div className="font-semibold text-red-600 dark:text-red-300">Admin access required</div>
+                <p className="mt-2 text-sm text-muted-foreground">Sign in with an active staff or admin account before opening payments.</p>
+                <Button className="mt-4" asChild><a href="/login?redirect=/admin/payments">Go to login</a></Button>
+              </CardContent>
+            </Card>)}
+          {authState === "allowed" && (<>
+              <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <h1 className="text-[25px] font-semibold tracking-tight">Payments command center</h1>
+                  <p className="mt-1 max-w-3xl text-sm leading-5 text-muted-foreground">
+                    Customer payments, billing, referral and reseller payouts, invoices, receipts, credits, cards, ACH, Stripe, PayPal, and Square workflows.
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={() => setInvoiceOpen(true)}><ReceiptText className="h-4 w-4"/> New invoice</Button>
+                  <Button variant="outline" onClick={() => setPaymentOpen(true)}><CreditCard className="h-4 w-4"/> Process payment</Button>
+                </div>
+              </div>
+
+              <section className="mb-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                <PaymentStat icon={<CircleDollarSign />} label="Collected" value={money.format(paidTotal)} hint={`${payments.filter((p) => p.status === "paid").length} paid records`}/>
+                <PaymentStat icon={<WalletCards />} label="Pending" value={money.format(pendingTotal)} hint="Open invoices and partials"/>
+                <PaymentStat icon={<ReceiptText />} label="Invoices" value={String(payments.length)} hint="Payment records tracked"/>
+                <PaymentStat icon={<CreditCard />} label="Cards / ACH" value={String(processorBreakdown.cardAch)} hint="Manual, card, ACH lanes"/>
+                <PaymentStat icon={<FileText />} label="PDF exports" value="PDFX" hint="Invoices and receipts planned"/>
+              </section>
+
+              <section className="mb-4 grid gap-4 xl:grid-cols-[1fr_360px]">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">Payment activity</CardTitle>
+                    <CardDescription>Recent charges, invoices, manual payments, refunds, and processor status</CardDescription>
+                    {notice && <div className="rounded-md border bg-background/50 px-3 py-2 text-xs text-muted-foreground">{notice}</div>}
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="pl-4">Payment</TableHead>
+                          <TableHead>Processor</TableHead>
+                          <TableHead>Method</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Amount</TableHead>
+                          <TableHead className="text-right pr-4">Documents</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {payments.map((payment) => (<TableRow key={payment.id}>
+                            <TableCell className="pl-4 font-mono text-xs">{payment.id.slice(0, 8)}</TableCell>
+                            <TableCell>{human(payment.provider)}</TableCell>
+                            <TableCell>{human(payment.method)}</TableCell>
+                            <TableCell><Badge className={cn("border", statusTone(payment.status))}>{human(payment.status)}</Badge></TableCell>
+                            <TableCell className="text-right font-semibold">{money.format(numberValue(payment.amount))}</TableCell>
+                            <TableCell className="pr-4">
+                              <div className="flex justify-end gap-1">
+                                <Button size="sm" variant="outline" onClick={() => setEditPayment(payment)}>Edit</Button>
+                                <Button size="sm" variant="outline" onClick={() => openPaymentDocument(payment.id, "invoice")}>View</Button>
+                                <Button size="sm" variant="outline" onClick={() => window.open(`/api/payments/${payment.id}/document?kind=invoice&autoprint=1`, "_blank", "noopener,noreferrer")}>Download PDF</Button>
+                                <SendFab id={payment.id} label="Send" open={sendMenuId === payment.id} onToggle={() => setSendMenuId(sendMenuId === payment.id ? null : payment.id)} onEmail={() => sendPaymentDocument(payment, "invoice", "email")} onSms={() => sendPaymentDocument(payment, "invoice", "sms")}/>
+                                {payment.status === "paid" && (<>
+                                    <Button size="sm" variant="outline" onClick={() => openPaymentDocument(payment.id, "receipt")}>Receipt</Button>
+                                    <SendFab id={`${payment.id}-receipt`} label="Send receipt" open={sendMenuId === `${payment.id}-receipt`} onToggle={() => setSendMenuId(sendMenuId === `${payment.id}-receipt` ? null : `${payment.id}-receipt`)} onEmail={() => sendPaymentDocument(payment, "receipt", "email")} onSms={() => sendPaymentDocument(payment, "receipt", "sms")}/>
+                                    {payment.provider === "square" && (<Button size="sm" variant="outline" className="text-red-600 hover:text-red-600 dark:text-red-400" onClick={() => setRefundPayment(payment)}>Refund</Button>)}
+                                  </>)}
+                              </div>
+                            </TableCell>
+                          </TableRow>))}
+                        {!payments.length && (<TableRow>
+                            <TableCell className="p-6 text-center text-muted-foreground" colSpan={6}>No live payment records yet.</TableCell>
+                          </TableRow>)}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">Processor lanes</CardTitle>
+                    <CardDescription>Stripe, PayPal, Square, cards, ACH, and manual payments</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {processorBreakdown.rows.map((row) => (<div key={row.label} className="rounded-lg border bg-background/35 p-3">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="font-medium">{row.label}</span>
+                          <Badge variant="outline">{money.format(row.amount)}</Badge>
+                        </div>
+                        <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary">
+                          <div className="h-full rounded-full bg-primary" style={{ width: `${row.width}%` }}/>
+                        </div>
+                      </div>))}
+                  </CardContent>
+                </Card>
+              </section>
+
+              <section className="grid gap-4 xl:grid-cols-3">
+                <WorkflowCard title="Customer billing" items={["Invoices", "Receipts", "Credits", "Refunds"]}/>
+                <WorkflowCard title="Partner payouts" items={["Referral rewards", "Reseller commissions", "Vendor payments", "1099-ready history"]}/>
+                <WorkflowCard title="PDF documents" items={["PDFX invoice template", "Receipt downloads", "Quote PDFs", "Proof packets"]}/>
+              </section>
+            </>)}
+        </main>
+        <EditInvoiceSheet payment={editPayment} open={!!editPayment} onOpenChange={(open) => { if (!open)
+        setEditPayment(null); }} onSaved={refreshPayments}/>
+        <RefundDialog payment={refundPayment} onClose={() => setRefundPayment(null)} onRefunded={refreshPayments}/>
+        <NewInvoiceSheet open={invoiceOpen} onOpenChange={setInvoiceOpen} orders={orders} products={data?.products ?? []} onCreated={refreshPayments}/>
+        <ProcessPaymentSheet open={paymentOpen} onOpenChange={setPaymentOpen} orders={orders} products={data?.products ?? []} onCreated={refreshPayments}/>
+      </div>
+    </div>);
+}
+function SendFab({ id, label, open, onToggle, onEmail, onSms, }: {
+    id: string;
+    label: string;
+    open: boolean;
+    onToggle: () => void;
+    onEmail: () => void;
+    onSms: () => void;
+}) {
+    const btnRef = useRef<HTMLButtonElement>(null);
+    const [pos, setPos] = useState<{
+        bottom: number;
+        right: number;
+    } | null>(null);
+    function handleToggle() {
+        if (!open && btnRef.current) {
+            const rect = btnRef.current.getBoundingClientRect();
+            setPos({
+                bottom: window.innerHeight - rect.top + 8,
+                right: window.innerWidth - rect.right,
+            });
+        }
+        onToggle();
+    }
+    return (<div onClick={(e) => e.stopPropagation()}>
+      {open && pos && createPortal(<div style={{ position: "fixed", bottom: pos.bottom, right: pos.right, zIndex: 9999 }} className="flex flex-col items-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+          <button onClick={onEmail} className="flex items-center whitespace-nowrap rounded-full border bg-card px-3 py-1.5 text-xs font-medium shadow-lg hover:bg-accent">
+            Email
+          </button>
+          <button onClick={onSms} className="flex items-center whitespace-nowrap rounded-full border bg-card px-3 py-1.5 text-xs font-medium shadow-lg hover:bg-accent">
+            SMS
+          </button>
+        </div>, document.body)}
+      <Button ref={btnRef} size="sm" variant={open ? "default" : "outline"} onClick={handleToggle}>
+        {label}
+      </Button>
+    </div>);
+}
+function breakdownByProvider(payments: Payment[]) {
+    const totals = new Map<string, number>();
+    let cardAch = 0;
+    for (const payment of payments) {
+        const provider = human(payment.provider || "manual");
+        totals.set(provider, (totals.get(provider) || 0) + numberValue(payment.amount));
+        if (["card", "card_terminal", "ach"].includes(String(payment.method || "")))
+            cardAch += 1;
+    }
+    const max = Math.max(1, ...Array.from(totals.values()));
+    const rows = Array.from(totals.entries()).map(([label, amount]) => ({
+        label,
+        amount,
+        width: Math.max(8, Math.round((amount / max) * 100)),
+    }));
+    return {
+        cardAch,
+        rows: rows.length ? rows : [
+            { label: "Stripe", amount: 0, width: 8 },
+            { label: "PayPal", amount: 0, width: 8 },
+            { label: "Square", amount: 0, width: 8 },
+            { label: "Manual", amount: 0, width: 8 },
+        ],
+    };
+}
+function PaymentStat({ icon, label, value, hint }: {
+    icon: React.ReactNode;
+    label: string;
+    value: string;
+    hint: string;
+}) {
+    return (<Card>
+      <CardContent className="p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+          <div className="text-primary [&_svg]:h-4 [&_svg]:w-4">{icon}</div>
+        </div>
+        <div className="text-[22px] font-semibold leading-none">{value}</div>
+        <div className="mt-2 text-[11px] text-muted-foreground">{hint}</div>
+      </CardContent>
+    </Card>);
+}
+function WorkflowCard({ title, items }: {
+    title: string;
+    items: string[];
+}) {
+    return (<Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {items.map((item) => (<div key={item} className="rounded-lg border bg-background/35 px-3 py-2 text-sm">{item}</div>))}
+      </CardContent>
+    </Card>);
+}
+function orderLabel(order: Order) {
+    const customer = order.users?.full_name || order.company || order.customer_email || "Guest customer";
+    return `#${order.order_number || order.id.slice(0, 8)} - ${customer}`;
+}
+type InvoiceLine = {
+    id: string;
+    sku: string;
+    description: string;
+    quantity: number;
+    unit_price: number;
+    line_total: number;
+};
+function ProcessPaymentSheet({ open, onOpenChange, orders, products, onCreated, }: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    orders: Order[];
+    products: Product[];
+    onCreated: () => Promise<void>;
+}) {
+    const manualOrderId = "__manual__";
+    const payableOrders = useMemo(() => orders.filter((order) => order.id), [orders]);
+    const cardContainerRef = useRef<HTMLDivElement | null>(null);
+    const squareCardRef = useRef<SquareCard|null>(null);
+    const [orderId, setOrderId] = useState(manualOrderId);
+    const [mode, setMode] = useState<"link" | "card">("link");
+    const [amount, setAmount] = useState("");
+    const [description, setDescription] = useState("LayeredFX order payment");
+    const [customerEmail, setCustomerEmail] = useState("");
+    const [customerPhone, setCustomerPhone] = useState("");
+    const [cardholderName, setCardholderName] = useState("");
+    const [addressLine1, setAddressLine1] = useState("");
+    const [addressLine2, setAddressLine2] = useState("");
+    const [locality, setLocality] = useState("");
+    const [stateCode, setStateCode] = useState("");
+    const [postalCode, setPostalCode] = useState("");
+    const [country, setCountry] = useState("US");
+    const [lineItemSource, setLineItemSource] = useState("manual");
+    const [selectedProductId, setSelectedProductId] = useState("");
+    const [lineQuantity, setLineQuantity] = useState("1");
+    const [lineUnitPrice, setLineUnitPrice] = useState("");
+    const [serviceName, setServiceName] = useState("");
+    const [deliveryMethod, setDeliveryMethod] = useState("link_only");
+    const [notes, setNotes] = useState("");
+    const [saving, setSaving] = useState(false);
+    const [cardReady, setCardReady] = useState(false);
+    const [cardLoading, setCardLoading] = useState(false);
+    const [message, setMessage] = useState("");
+    const [paymentLink, setPaymentLink] = useState("");
+    const selectedOrder = orderId === manualOrderId ? null : payableOrders.find((order) => order.id === orderId) ?? null;
+    const parsedAmount = Number(amount || 0);
+    const canCreate = Boolean(orderId) && Number.isFinite(parsedAmount) && parsedAmount > 0 && !saving && (orderId !== manualOrderId || Boolean(customerEmail || customerPhone));
+    useEffect(() => {
+        if (!open)
+            return;
+        const first = payableOrders[0] ?? null;
+        hydrateOrder(first, { fallbackToManual: true });
+        setMode("link");
+        setDeliveryMethod("link_only");
+        setNotes("");
+        setMessage("");
+        setPaymentLink("");
+        setCardReady(false);
+    }, [open, payableOrders]);
+    useEffect(() => {
+        if (!open || mode !== "card")
+            return;
+        let cancelled = false;
+        async function mountCard() {
+            setCardLoading(true);
+            setMessage("");
+            try {
+                const config = await loadSquarePaymentConfig();
+                await loadSquareScript(config.scriptUrl);
+                if (cancelled)
+                    return;
+                const square = (window as SquareWindow).Square;
+                if (!square)
+                    throw new Error("Square Web Payments SDK did not load.");
+                const payments = square.payments(config.applicationId, config.locationId);
+                const card = await payments.card();
+                if (!cardContainerRef.current || cancelled)
+                    return;
+                cardContainerRef.current.innerHTML = "";
+                await card.attach(cardContainerRef.current);
+                squareCardRef.current = { card, config, payments };
+                setCardReady(true);
+            }
+            catch (error) {
+                setMessage(error instanceof Error ? error.message : "Could not load Square card form.");
+            }
+            finally {
+                if (!cancelled)
+                    setCardLoading(false);
+            }
+        }
+        mountCard();
+        return () => {
+            cancelled = true;
+            squareCardRef.current?.card?.destroy?.();
+            squareCardRef.current = null;
+            setCardReady(false);
+        };
+    }, [open, mode]);
+    function hydrateOrder(order: Order | null, options?: {
+        fallbackToManual?: boolean;
+    }) {
+        setOrderId(order?.id ?? (options?.fallbackToManual ? manualOrderId : ""));
+        setAmount(order?.total ? Number(order.total).toFixed(2) : "");
+        setDescription(order?.order_number ? `ControlP.io order ${order.order_number}` : "LayeredFX order payment");
+        setCustomerEmail(order?.customer_email || "");
+        setCustomerPhone(order?.customer_phone || "");
+    }
+    function handleOrderChange(nextOrderId: string) {
+        if (nextOrderId === manualOrderId) {
+            setOrderId(manualOrderId);
+            setDescription("LayeredFX customer payment");
+            return;
+        }
+        hydrateOrder(payableOrders.find((order) => order.id === nextOrderId) ?? null);
+    }
+    function handleProductChange(nextProductId: string) {
+        setSelectedProductId(nextProductId);
+        const product = products.find((item) => item.id === nextProductId);
+        if (!product)
+            return;
+        const price = Number(product.sale_price || product.base_price || product.base_cost || 0);
+        setLineUnitPrice(price ? price.toFixed(2) : "");
+        const quantity = Number(lineQuantity || 1);
+        setAmount((price * quantity).toFixed(2));
+        setDescription(`${product.name} payment`);
+    }
+    function recomputeProductAmount(nextQuantity = lineQuantity, nextUnitPrice = lineUnitPrice) {
+        const quantity = Math.max(1, Number(nextQuantity || 1));
+        const unit = Number(nextUnitPrice || 0);
+        if (Number.isFinite(quantity) && Number.isFinite(unit) && unit > 0) {
+            setAmount((quantity * unit).toFixed(2));
+        }
+    }
+    function selectedProductPayload() {
+        const product = products.find((item) => item.id === selectedProductId);
+        const quantity = Math.max(1, Number(lineQuantity || 1));
+        const unitPrice = Number(lineUnitPrice || amount || 0);
+        return {
+            productId: lineItemSource === "product" ? selectedProductId || undefined : undefined,
+            productName: lineItemSource === "product" ? product?.name : serviceName || description,
+            quantity,
+            unitPrice,
+        };
+    }
+    async function copyPaymentLink() {
+        if (!paymentLink || !navigator.clipboard)
+            return;
+        await navigator.clipboard.writeText(paymentLink);
+        setMessage("Payment link copied.");
+    }
+    async function processPayment() {
+        setSaving(true);
+        setMessage("Creating Square payment link...");
+        setPaymentLink("");
+        try {
+            const result = await createSquarePaymentLink({
+                orderId: orderId === manualOrderId ? undefined : orderId,
+                amount: parsedAmount,
+                description,
+                customerEmail,
+                customerPhone,
+                notes,
+                deliveryMethod,
+                ...selectedProductPayload(),
+            });
+            if (deliveryMethod !== "link_only") {
+                await deliverPaymentDocument({
+                    paymentId: result.payment.id,
+                    kind: "invoice",
+                    channel: deliveryMethod === "both" ? "both" : deliveryMethod === "sms" ? "sms" : "email",
+                    recipientEmail: customerEmail,
+                    recipientPhone: customerPhone,
+                });
+            }
+            setPaymentLink(result.square.url);
+            setMessage(deliveryMethod === "link_only"
+                ? `Square ${human(result.square.environment)} payment link created.`
+                : `Square ${human(result.square.environment)} payment link created and sent.`);
+            await onCreated();
+        }
+        catch (error) {
+            setMessage(error instanceof Error ? error.message : "Could not create Square payment link.");
+        }
+        finally {
+            setSaving(false);
+        }
+    }
+    async function processCardPayment() {
+        setSaving(true);
+        setMessage("Tokenizing card with Square...");
+        setPaymentLink("");
+        try {
+            if (!squareCardRef.current?.card)
+                throw new Error("Square card form is not ready.");
+            const tokenResult = await squareCardRef.current.card.tokenize();
+            if (tokenResult.status !== "OK" || !tokenResult.token) {
+                throw new Error(tokenResult.errors?.[0]?.message || "Square could not tokenize the card.");
+            }
+            setMessage("Processing card payment...");
+            const result = await createSquareCardPayment({
+                sourceId: tokenResult.token,
+                orderId: orderId === manualOrderId ? undefined : orderId,
+                amount: parsedAmount,
+                description,
+                customerEmail,
+                customerPhone,
+                cardholderName,
+                addressLine1,
+                addressLine2,
+                locality,
+                administrativeDistrictLevel1: stateCode,
+                postalCode,
+                country,
+                notes,
+                ...selectedProductPayload(),
+            });
+            setMessage(`Square card payment ${human(result.payment.status)}.`);
+            await onCreated();
+        }
+        catch (error) {
+            setMessage(error instanceof Error ? error.message : "Could not process Square card payment.");
+        }
+        finally {
+            setSaving(false);
+        }
+    }
+    return (<Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="overflow-y-auto sm:max-w-[60rem]">
+        <SheetHeader>
+          <SheetTitle>Process payment</SheetTitle>
+          <SheetDescription>Create a Square hosted checkout link for a customer payment.</SheetDescription>
+        </SheetHeader>
+
+        <div className="mt-6 space-y-4">
+          <div className="rounded-lg border bg-secondary/30 p-3 text-sm text-muted-foreground">
+            Use a Square hosted checkout link or process a card now with Square secure fields. Raw card details never touch ControlP.io servers.
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 rounded-lg border bg-background/35 p-1">
+            <Button type="button" variant={mode === "link" ? "default" : "ghost"} onClick={() => setMode("link")}>Create payment link</Button>
+            <Button type="button" variant={mode === "card" ? "default" : "ghost"} onClick={() => setMode("card")}>Process card now</Button>
+          </div>
+
+          <div>
+            <div className="mb-1.5 text-xs font-medium text-muted-foreground">Order</div>
+            <Select value={orderId} onValueChange={handleOrderChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select order"/>
+              </SelectTrigger>
+              <SelectContent className="w-[var(--radix-select-trigger-width)]">
+                <SelectItem value={manualOrderId}>Manual customer payment</SelectItem>
+                {payableOrders.map((order) => (<SelectItem key={order.id} value={order.id}>{orderLabel(order)}</SelectItem>))}
+              </SelectContent>
+            </Select>
+            {!payableOrders.length && (<div className="mt-2 text-xs text-muted-foreground">No live orders are loaded yet. Use a manual customer payment to create a payment-linked order.</div>)}
+          </div>
+
+          {selectedOrder && (<div className="grid gap-3 sm:grid-cols-2">
+              <SummaryTile label="Customer">{selectedOrder.users?.full_name || selectedOrder.company || selectedOrder.customer_email || "Guest customer"}</SummaryTile>
+              <SummaryTile label="Order total">{money.format(numberValue(selectedOrder.total))}</SummaryTile>
+              <SummaryTile label="Payment status">{human(selectedOrder.payment_status)}</SummaryTile>
+              <SummaryTile label="Order number">#{selectedOrder.order_number || selectedOrder.id.slice(0, 8)}</SummaryTile>
+            </div>)}
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Payment amount</div>
+              <Input inputMode="decimal" placeholder="0.00" value={amount} onChange={(event) => setAmount(event.target.value)}/>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Delivery method</div>
+              <Select value={deliveryMethod} onValueChange={setDeliveryMethod}>
+                <SelectTrigger><SelectValue placeholder="Delivery method"/></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="link_only">Create link only</SelectItem>
+                  <SelectItem value="email">Prepare email link</SelectItem>
+                  <SelectItem value="sms">Prepare SMS link</SelectItem>
+                  <SelectItem value="both">Prepare email and SMS</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Customer email</div>
+              <Input type="email" placeholder="customer@example.com" value={customerEmail} onChange={(event) => setCustomerEmail(event.target.value)}/>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Customer phone</div>
+              <Input placeholder="+16025550123" value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value)}/>
+            </div>
+          </div>
+
+          <div className="rounded-lg border bg-background/35 p-3">
+            <h3 className="text-sm font-semibold">Product or service</h3>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Line item type</div>
+                <Select value={lineItemSource} onValueChange={setLineItemSource}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="manual">Manual service</SelectItem>
+                    <SelectItem value="product">Catalog product</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {lineItemSource === "product" ? (<div>
+                  <div className="mb-1.5 text-xs font-medium text-muted-foreground">Product</div>
+                  <Select value={selectedProductId} onValueChange={handleProductChange}>
+                    <SelectTrigger><SelectValue placeholder="Select product"/></SelectTrigger>
+                    <SelectContent className="w-[var(--radix-select-trigger-width)]">
+                      {products.map((product) => (<SelectItem key={product.id} value={product.id}>{product.name} - {money.format(numberValue(product.sale_price || product.base_price || product.base_cost))}</SelectItem>))}
+                    </SelectContent>
+                  </Select>
+                </div>) : (<div>
+                  <div className="mb-1.5 text-xs font-medium text-muted-foreground">Service</div>
+                  <Input placeholder="Design setup, deposit, balance..." value={serviceName} onChange={(event) => setServiceName(event.target.value)}/>
+                </div>)}
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Quantity</div>
+                <Input inputMode="decimal" value={lineQuantity} onChange={(event) => { setLineQuantity(event.target.value); recomputeProductAmount(event.target.value); }}/>
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Unit price</div>
+                <Input inputMode="decimal" value={lineUnitPrice} onChange={(event) => { setLineUnitPrice(event.target.value); recomputeProductAmount(lineQuantity, event.target.value); }}/>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div className="mb-1.5 text-xs font-medium text-muted-foreground">Checkout description</div>
+            <Input value={description} onChange={(event) => setDescription(event.target.value)}/>
+          </div>
+
+          <div>
+            <div className="mb-1.5 text-xs font-medium text-muted-foreground">Internal notes</div>
+            <Input placeholder="Square checkout link for deposit, balance, or full order payment" value={notes} onChange={(event) => setNotes(event.target.value)}/>
+          </div>
+
+          {mode === "card" && (<div className="rounded-lg border bg-background/35 p-3">
+              <h3 className="text-sm font-semibold">Card details</h3>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div>
+                  <div className="mb-1.5 text-xs font-medium text-muted-foreground">Cardholder name</div>
+                  <Input value={cardholderName} onChange={(event) => setCardholderName(event.target.value)} placeholder="Name on card"/>
+                </div>
+                <div>
+                  <div className="mb-1.5 text-xs font-medium text-muted-foreground">Country</div>
+                  <Input value={country} onChange={(event) => setCountry(event.target.value.toUpperCase())} placeholder="US"/>
+                </div>
+                <div className="sm:col-span-2">
+                  <div className="mb-1.5 text-xs font-medium text-muted-foreground">Secure card form</div>
+                  <div ref={cardContainerRef} className="min-h-[48px] rounded-md border bg-background px-3 py-3"/>
+                  <div className="mt-1 text-xs text-muted-foreground">{cardLoading ? "Loading Square card fields..." : cardReady ? "Square secure card fields are ready." : "Switch to Process card now to load secure fields."}</div>
+                </div>
+                <div>
+                  <div className="mb-1.5 text-xs font-medium text-muted-foreground">Address line 1</div>
+                  <Input value={addressLine1} onChange={(event) => setAddressLine1(event.target.value)}/>
+                </div>
+                <div>
+                  <div className="mb-1.5 text-xs font-medium text-muted-foreground">Address line 2</div>
+                  <Input value={addressLine2} onChange={(event) => setAddressLine2(event.target.value)}/>
+                </div>
+                <div>
+                  <div className="mb-1.5 text-xs font-medium text-muted-foreground">City</div>
+                  <Input value={locality} onChange={(event) => setLocality(event.target.value)}/>
+                </div>
+                <div>
+                  <div className="mb-1.5 text-xs font-medium text-muted-foreground">State</div>
+                  <Input value={stateCode} onChange={(event) => setStateCode(event.target.value.toUpperCase())}/>
+                </div>
+                <div>
+                  <div className="mb-1.5 text-xs font-medium text-muted-foreground">Postal code</div>
+                  <Input value={postalCode} onChange={(event) => setPostalCode(event.target.value)}/>
+                </div>
+              </div>
+            </div>)}
+
+          {paymentLink && (<div className="rounded-lg border bg-background/35 p-3">
+              <div className="text-xs font-semibold uppercase text-muted-foreground">Square checkout link</div>
+              <a className="mt-2 block break-all text-sm font-medium text-primary underline-offset-4 hover:underline" href={paymentLink} target="_blank" rel="noreferrer">
+                {paymentLink}
+              </a>
+              <div className="mt-3 flex gap-2">
+                <Button variant="outline" onClick={copyPaymentLink}>Copy link</Button>
+                <Button variant="outline" asChild><a href={paymentLink} target="_blank" rel="noreferrer">Open checkout</a></Button>
+              </div>
+            </div>)}
+
+          {message && <div className="rounded-lg border bg-background/35 p-3 text-sm text-muted-foreground">{message}</div>}
+          {orderId === manualOrderId && !customerEmail && !customerPhone && (<div className="rounded-lg border bg-background/35 p-3 text-sm text-muted-foreground">
+              Add a customer email or phone before creating a manual Square payment link.
+            </div>)}
+
+          <div className="flex gap-2">
+            {mode === "link" ? (<Button className="flex-1" disabled={!canCreate} onClick={processPayment}>
+                {saving ? "Creating..." : "Create Square payment link"}
+              </Button>) : (<Button className="flex-1" disabled={!canCreate || !cardReady} onClick={processCardPayment}>
+                {saving ? "Processing..." : "Process card payment"}
+              </Button>)}
+            <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>);
+}
+function loadSquareScript(src: string) {
+    return new Promise<void>((resolve, reject) => {
+        const existing = document.querySelector<HTMLScriptElement>(`script[src="${src}"]`);
+        if (existing) {
+            if ((window as SquareWindow).Square)
+                resolve();
+            else
+                existing.addEventListener("load", () => resolve(), { once: true });
+            return;
+        }
+        const script = document.createElement("script");
+        script.src = src;
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error("Could not load Square Web Payments SDK."));
+        document.head.appendChild(script);
+    });
+}
+function NewInvoiceSheet({ open, onOpenChange, orders, products, onCreated, }: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    orders: Order[];
+    products: Product[];
+    onCreated: () => Promise<void>;
+}) {
+    const invoiceableOrders = useMemo(() => orders.filter((order) => order.id), [orders]);
+    // Order
+    const [orderId, setOrderId] = useState("");
+    const [orderTotal, setOrderTotal] = useState("");
+    const [invoiceStatus, setInvoiceStatus] = useState("pending");
+    const [productionStatus, setProductionStatus] = useState("pending");
+    // Sender
+    const [senderLogoUrl, setSenderLogoUrl] = useState("https://controlp.io/logos/ctrl-p-logo-dark.svg");
+    const [senderName, setSenderName] = useState("LayeredFX");
+    const [senderPhone, setSenderPhone] = useState("");
+    const [senderEmail, setSenderEmail] = useState("hello@controlp.io");
+    const [senderWebsite, setSenderWebsite] = useState("https://www.controlp.io");
+    const [senderAddress, setSenderAddress] = useState("");
+    // Client
+    const [clientFirstName, setClientFirstName] = useState("");
+    const [clientLastName, setClientLastName] = useState("");
+    const [clientCompany, setClientCompany] = useState("");
+    const [clientWebsite, setClientWebsite] = useState("");
+    const [clientEmail, setClientEmail] = useState("");
+    const [clientPhone, setClientPhone] = useState("");
+    const [clientAddress, setClientAddress] = useState("");
+    // Invoice details
+    const [invoiceNumber, setInvoiceNumber] = useState("");
+    const [dueAt, setDueAt] = useState("");
+    const [terms, setTerms] = useState("Due on receipt");
+    const [processor, setProcessor] = useState("manual");
+    const [deliveryStatus, setDeliveryStatus] = useState("draft");
+    // Delivery
+    const [deliveryMethod, setDeliveryMethod] = useState("none");
+    const [deliveryEmail, setDeliveryEmail] = useState("");
+    const [deliveryPhone, setDeliveryPhone] = useState("");
+    const [invoiceMessage, setInvoiceMessage] = useState("Thank you for choosing LayeredFX. You can review and pay this invoice using the secure link.");
+    // Line items
+    const [lineItemsList, setLineItemsList] = useState<InvoiceLine[]>([]);
+    const [lineItemSource, setLineItemSource] = useState("manual");
+    const [selectedProductId, setSelectedProductId] = useState("");
+    const [serviceName, setServiceName] = useState("");
+    const [lineQuantity, setLineQuantity] = useState("1");
+    const [lineUnitPrice, setLineUnitPrice] = useState("");
+    // Totals
+    const [subtotal, setSubtotal] = useState("");
+    const [taxAmount, setTaxAmount] = useState("0");
+    const [discountAmount, setDiscountAmount] = useState("0");
+    const [amount, setAmount] = useState("");
+    // Notes & payment link
+    const [notes, setNotes] = useState("");
+    const [paymentLinkUrl, setPaymentLinkUrl] = useState("");
+    const [saving, setSaving] = useState(false);
+    const [message, setMessage] = useState("");
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const parsedAmount = Number(amount || 0);
+    const parsedSubtotal = Number(subtotal || 0);
+    const parsedTax = Number(taxAmount || 0);
+    const parsedDiscount = Number(discountAmount || 0);
+    const canCreate = Boolean(orderId) && Number.isFinite(parsedAmount) && parsedAmount > 0 && !saving;
+    const selectedOrder = invoiceableOrders.find((o) => o.id === orderId) ?? null;
+    useEffect(() => {
+        if (!open)
+            return;
+        const first = invoiceableOrders[0] ?? null;
+        setOrderId(first?.id ?? "");
+        hydrateOrderDefaults(first);
+        setInvoiceNumber(`INV-${Date.now().toString().slice(-6)}`);
+        setDueAt(new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10));
+        setTerms("Due on receipt");
+        setProcessor("manual");
+        setDeliveryStatus("draft");
+        setDeliveryMethod("none");
+        setInvoiceMessage("Thank you for choosing LayeredFX. You can review and pay this invoice using the secure link.");
+        setSenderLogoUrl("https://controlp.io/logos/ctrl-p-logo-dark.svg");
+        setNotes("");
+        setMessage("");
+        setPaymentLinkUrl("");
+        setPreviewOpen(false);
+        setLineItemsList([]);
+        setLineItemSource("manual");
+        setSelectedProductId("");
+        setServiceName("");
+        setLineQuantity("1");
+        setLineUnitPrice("");
+    }, [open, invoiceableOrders]);
+    function hydrateOrderDefaults(order: Order | null) {
+        const total = order?.total ? Number(order.total) : 0;
+        setOrderTotal(total ? total.toFixed(2) : "");
+        setSubtotal(total ? total.toFixed(2) : "");
+        setTaxAmount("0");
+        setDiscountAmount("0");
+        setAmount(total ? total.toFixed(2) : "");
+        setInvoiceStatus(order?.payment_status || "pending");
+        setProductionStatus(order?.production_status || "pending");
+        const fullName = order?.users?.full_name || "";
+        const nameParts = fullName.split(" ");
+        setClientFirstName(nameParts[0] || "");
+        setClientLastName(nameParts.slice(1).join(" ") || "");
+        setClientCompany(order?.company || order?.users?.company || "");
+        setClientWebsite("");
+        setClientEmail(order?.customer_email || "");
+        setClientPhone(order?.customer_phone || "");
+        setClientAddress("");
+        setDeliveryEmail(order?.customer_email || "");
+        setDeliveryPhone(order?.customer_phone || "");
+        if (order && total > 0) {
+            setLineItemsList([{
+                    id: `seed-${Date.now()}`,
+                    sku: "",
+                    description: order.order_number ? `Order #${order.order_number}` : "Order",
+                    quantity: 1,
+                    unit_price: total,
+                    line_total: total,
+                }]);
+        }
+        else {
+            setLineItemsList([]);
+        }
+    }
+    function handleOrderChange(nextOrderId: string) {
+        setOrderId(nextOrderId);
+        hydrateOrderDefaults(invoiceableOrders.find((o) => o.id === nextOrderId) ?? null);
+    }
+    function recomputeAmount(nextSubtotal = subtotal, nextTax = taxAmount, nextDiscount = discountAmount) {
+        const total = Number(nextSubtotal || 0) + Number(nextTax || 0) - Number(nextDiscount || 0);
+        setAmount(Number.isFinite(total) ? Math.max(0, total).toFixed(2) : "");
+    }
+    function addLineItem() {
+        const product = products.find((p) => p.id === selectedProductId);
+        const description = lineItemSource === "product"
+            ? (product?.name || "Product")
+            : (serviceName || "Service");
+        const unitPrice = lineItemSource === "product"
+            ? Number(product?.sale_price || product?.base_price || product?.base_cost || 0)
+            : Number(lineUnitPrice || 0);
+        const quantity = Math.max(1, Number(lineQuantity || 1));
+        const lineTotal = quantity * unitPrice;
+        const next: InvoiceLine[] = [...lineItemsList, {
+                id: `li-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                sku: lineItemSource === "product" ? (product?.sku || "") : "",
+                description,
+                quantity,
+                unit_price: unitPrice,
+                line_total: lineTotal,
+            }];
+        setLineItemsList(next);
+        const nextSubtotal = next.reduce((sum, item) => sum + item.line_total, 0).toFixed(2);
+        setSubtotal(nextSubtotal);
+        recomputeAmount(nextSubtotal);
+        setServiceName("");
+        setLineUnitPrice("");
+        setLineQuantity("1");
+        setSelectedProductId("");
+    }
+    function removeLineItem(id: string) {
+        const next = lineItemsList.filter((item) => item.id !== id);
+        setLineItemsList(next);
+        const nextSubtotal = next.reduce((sum, item) => sum + item.line_total, 0).toFixed(2);
+        setSubtotal(nextSubtotal);
+        recomputeAmount(nextSubtotal);
+    }
+    async function createInvoice() {
+        setSaving(true);
+        setMessage("Creating invoice...");
+        try {
+            const billingContactObj = {
+                first_name: clientFirstName,
+                last_name: clientLastName,
+                name: [clientFirstName, clientLastName].filter(Boolean).join(" "),
+                company: clientCompany,
+                website: clientWebsite,
+                email: clientEmail,
+                phone: clientPhone,
+                address: clientAddress,
+            };
+            const lineItemsArray = lineItemsList.map((item) => ({
+                sku: item.sku,
+                description: item.description,
+                quantity: item.quantity,
+                unit_price: item.unit_price,
+                line_total: item.line_total,
+            }));
+            const payment = await createAdminInvoice({
+                orderId,
+                amount: parsedAmount,
+                notes: notes || `Invoice for ${selectedOrder?.order_number || "order"}`,
+                invoiceNumber,
+                dueAt: dueAt ? new Date(`${dueAt}T12:00:00`).toISOString() : "",
+                terms,
+                billingContact: billingContactObj,
+                senderProfile: {
+                    logo_url: senderLogoUrl,
+                    name: senderName,
+                    phone: senderPhone,
+                    email: senderEmail,
+                    website: senderWebsite,
+                    address: senderAddress,
+                },
+                deliveryMethod,
+                deliveryRecipient: deliveryEmail || deliveryPhone,
+                invoiceMessage,
+                lineItems: lineItemsArray,
+                subtotal: parsedSubtotal,
+                taxAmount: parsedTax,
+                discountAmount: parsedDiscount,
+                processor,
+                deliveryStatus,
+                paymentLinkUrl: paymentLinkUrl.trim() || undefined,
+            });
+            if (deliveryMethod !== "none" && deliveryStatus !== "draft") {
+                await deliverPaymentDocument({
+                    paymentId: payment.id,
+                    kind: "invoice",
+                    channel: deliveryMethod === "both" ? "both" : deliveryMethod === "sms" ? "sms" : "email",
+                    recipientEmail: deliveryMethod !== "sms" ? deliveryEmail || undefined : undefined,
+                    recipientPhone: deliveryMethod !== "email" ? deliveryPhone || undefined : undefined,
+                });
+            }
+            setMessage(deliveryMethod !== "none" && deliveryStatus !== "draft" ? "Invoice created and sent." : "Invoice created.");
+            await onCreated();
+            onOpenChange(false);
+        }
+        catch (error) {
+            setMessage(error instanceof Error ? error.message : "Could not create invoice.");
+        }
+        finally {
+            setSaving(false);
+        }
+    }
+    const clientDisplayName = [clientFirstName, clientLastName].filter(Boolean).join(" ") || clientCompany || clientEmail || "the selected customer";
+    return (<Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="overflow-y-auto sm:max-w-[60rem]">
+        <SheetHeader>
+          <SheetTitle>New invoice</SheetTitle>
+          <SheetDescription>Create a pending invoice record for an existing order.</SheetDescription>
+        </SheetHeader>
+
+        <div className="mt-6 space-y-5">
+          {/* Order */}
+          <div>
+            <div className="mb-1.5 text-xs font-medium text-muted-foreground">Order</div>
+            <Select value={orderId} onValueChange={handleOrderChange}>
+              <SelectTrigger><SelectValue placeholder="Select order"/></SelectTrigger>
+              <SelectContent>
+                {invoiceableOrders.map((order) => (<SelectItem key={order.id} value={order.id}>{orderLabel(order)}</SelectItem>))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Invoice Sender */}
+          <div className="rounded-lg border bg-background/35 p-3">
+            <h3 className="text-sm font-semibold">Invoice sender</h3>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Business name</div>
+                <Input value={senderName} onChange={(e) => setSenderName(e.target.value)}/>
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Logo URL</div>
+                <Input placeholder="https://..." value={senderLogoUrl} onChange={(e) => setSenderLogoUrl(e.target.value)}/>
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Phone</div>
+                <Input value={senderPhone} onChange={(e) => setSenderPhone(e.target.value)} placeholder="+16025550123"/>
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Email</div>
+                <Input value={senderEmail} onChange={(e) => setSenderEmail(e.target.value)}/>
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Website</div>
+                <Input value={senderWebsite} onChange={(e) => setSenderWebsite(e.target.value)}/>
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Address</div>
+                <Input value={senderAddress} onChange={(e) => setSenderAddress(e.target.value)} placeholder="123 Main St, Phoenix, AZ 85001"/>
+              </div>
+            </div>
+          </div>
+
+          {/* Customer / Client */}
+          <div className="rounded-lg border bg-background/35 p-3">
+            <h3 className="text-sm font-semibold">Customer / client</h3>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">First name</div>
+                <Input value={clientFirstName} onChange={(e) => setClientFirstName(e.target.value)} placeholder="Jane"/>
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Last name</div>
+                <Input value={clientLastName} onChange={(e) => setClientLastName(e.target.value)} placeholder="Smith"/>
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Company</div>
+                <Input value={clientCompany} onChange={(e) => setClientCompany(e.target.value)} placeholder="Acme Corp"/>
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Website</div>
+                <Input value={clientWebsite} onChange={(e) => setClientWebsite(e.target.value)} placeholder="https://..."/>
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Email</div>
+                <Input type="email" value={clientEmail} onChange={(e) => { setClientEmail(e.target.value); setDeliveryEmail(e.target.value); }} placeholder="jane@example.com"/>
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Phone (SMS)</div>
+                <Input type="tel" value={clientPhone} onChange={(e) => { setClientPhone(e.target.value); setDeliveryPhone(e.target.value); }} placeholder="+16025550123"/>
+              </div>
+              <div className="sm:col-span-2">
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Address</div>
+                <Input value={clientAddress} onChange={(e) => setClientAddress(e.target.value)} placeholder="123 Main St, Phoenix, AZ 85001"/>
+              </div>
+            </div>
+          </div>
+
+          {/* Invoice Details */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Invoice number</div>
+              <Input placeholder="INV-1001" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)}/>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Due date</div>
+              <DatePicker value={dueAt} onChange={setDueAt}/>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Terms</div>
+              <Select value={terms} onValueChange={setTerms}>
+                <SelectTrigger><SelectValue placeholder="Terms"/></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Due on receipt">Due on receipt</SelectItem>
+                  <SelectItem value="Net 7">Net 7</SelectItem>
+                  <SelectItem value="Net 15">Net 15</SelectItem>
+                  <SelectItem value="Net 30">Net 30</SelectItem>
+                  <SelectItem value="Deposit required">Deposit required</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Processor</div>
+              <Select value={processor} onValueChange={setProcessor}>
+                <SelectTrigger><SelectValue placeholder="Processor"/></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="manual">Manual</SelectItem>
+                  <SelectItem value="stripe">Stripe</SelectItem>
+                  <SelectItem value="paypal">PayPal</SelectItem>
+                  <SelectItem value="square">Square</SelectItem>
+                  <SelectItem value="ach">ACH</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Order total</div>
+              <Input inputMode="decimal" placeholder="0.00" value={orderTotal} onChange={(e) => setOrderTotal(e.target.value)}/>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Invoice amount</div>
+              <Input inputMode="decimal" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)}/>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Payment status</div>
+              <Input list="inv-payment-status-opts" value={invoiceStatus} onChange={(e) => setInvoiceStatus(e.target.value)} placeholder="pending"/>
+              <datalist id="inv-payment-status-opts">
+                <option value="pending"/><option value="unpaid"/><option value="partially_paid"/>
+                <option value="paid"/><option value="refunded"/><option value="cancelled"/>
+              </datalist>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Production status</div>
+              <Input list="inv-production-status-opts" value={productionStatus} onChange={(e) => setProductionStatus(e.target.value)} placeholder="pending"/>
+              <datalist id="inv-production-status-opts">
+                <option value="pending"/><option value="in_progress"/><option value="on_hold"/>
+                <option value="completed"/><option value="shipped"/><option value="cancelled"/>
+              </datalist>
+            </div>
+          </div>
+
+          {/* Delivery */}
+          <div className="rounded-lg border bg-background/35 p-3">
+            <h3 className="text-sm font-semibold">Delivery</h3>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Method</div>
+                <Select value={deliveryMethod} onValueChange={setDeliveryMethod}>
+                  <SelectTrigger><SelectValue placeholder="Delivery method"/></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Do not send yet</SelectItem>
+                    <SelectItem value="email">Email digital file</SelectItem>
+                    <SelectItem value="sms">SMS invoice link</SelectItem>
+                    <SelectItem value="both">Email and SMS</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Delivery status</div>
+                <Select value={deliveryStatus} onValueChange={setDeliveryStatus}>
+                  <SelectTrigger><SelectValue placeholder="Delivery status"/></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="ready_to_send">Ready to send</SelectItem>
+                    <SelectItem value="sent">Sent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {deliveryMethod !== "sms" && (<div>
+                  <div className="mb-1.5 text-xs font-medium text-muted-foreground">Recipient email</div>
+                  <Input type="email" placeholder="customer@example.com" value={deliveryEmail} onChange={(e) => setDeliveryEmail(e.target.value)}/>
+                </div>)}
+              {deliveryMethod !== "email" && deliveryMethod !== "none" && (<div>
+                  <div className="mb-1.5 text-xs font-medium text-muted-foreground">Recipient phone (SMS)</div>
+                  <Input type="tel" placeholder="+16025550123" value={deliveryPhone} onChange={(e) => setDeliveryPhone(e.target.value)}/>
+                </div>)}
+              <div className="sm:col-span-2">
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Invoice message</div>
+                <Input value={invoiceMessage} onChange={(e) => setInvoiceMessage(e.target.value)}/>
+              </div>
+            </div>
+          </div>
+
+          {/* Line Items */}
+          <div className="rounded-lg border bg-background/35 p-3">
+            <h3 className="text-sm font-semibold">Products &amp; services</h3>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Item type</div>
+                <Select value={lineItemSource} onValueChange={setLineItemSource}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="manual">Custom service / product</SelectItem>
+                    <SelectItem value="product">Catalog product</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {lineItemSource === "product" ? (<div>
+                  <div className="mb-1.5 text-xs font-medium text-muted-foreground">Product</div>
+                  <Select value={selectedProductId} onValueChange={(id) => {
+                setSelectedProductId(id);
+                const p = products.find((item) => item.id === id);
+                if (p)
+                    setLineUnitPrice(String(Number(p.sale_price || p.base_price || p.base_cost || 0)));
+            }}>
+                    <SelectTrigger><SelectValue placeholder="Select product"/></SelectTrigger>
+                    <SelectContent>
+                      {products.map((p) => (<SelectItem key={p.id} value={p.id}>{p.name} — {money.format(numberValue(p.sale_price || p.base_price || p.base_cost))}</SelectItem>))}
+                    </SelectContent>
+                  </Select>
+                </div>) : (<div>
+                  <div className="mb-1.5 text-xs font-medium text-muted-foreground">Description</div>
+                  <Input placeholder="Design setup, rush fee, deposit..." value={serviceName} onChange={(e) => setServiceName(e.target.value)}/>
+                </div>)}
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Quantity</div>
+                <Input inputMode="decimal" value={lineQuantity} onChange={(e) => setLineQuantity(e.target.value)}/>
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Unit price</div>
+                <Input inputMode="decimal" placeholder="0.00" value={lineUnitPrice} onChange={(e) => setLineUnitPrice(e.target.value)}/>
+              </div>
+            </div>
+            <Button className="mt-3 w-full" variant="outline" onClick={addLineItem}>+ Add line item</Button>
+
+            {lineItemsList.length > 0 && (<div className="mt-3 space-y-1">
+                <div className="grid grid-cols-[1fr_44px_76px_76px_28px] gap-1 px-1 text-[10px] font-semibold uppercase text-muted-foreground">
+                  <div>Description</div>
+                  <div className="text-right">Qty</div>
+                  <div className="text-right">Rate</div>
+                  <div className="text-right">Total</div>
+                  <div />
+                </div>
+                {lineItemsList.map((item) => (<div key={item.id} className="grid grid-cols-[1fr_44px_76px_76px_28px] items-center gap-1 rounded-md border bg-background/60 px-2 py-1.5">
+                    <div className="truncate text-xs">{item.description}</div>
+                    <div className="text-right text-xs">{item.quantity}</div>
+                    <div className="text-right text-xs">{money.format(item.unit_price)}</div>
+                    <div className="text-right text-xs font-medium">{money.format(item.line_total)}</div>
+                    <button type="button" onClick={() => removeLineItem(item.id)} className="grid h-5 w-5 place-items-center rounded text-muted-foreground hover:bg-destructive/10 hover:text-destructive" aria-label="Remove">×</button>
+                  </div>))}
+              </div>)}
+          </div>
+
+          {/* Totals */}
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Subtotal</div>
+              <Input inputMode="decimal" value={subtotal} onChange={(e) => { setSubtotal(e.target.value); recomputeAmount(e.target.value); }}/>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Tax</div>
+              <Input inputMode="decimal" value={taxAmount} onChange={(e) => { setTaxAmount(e.target.value); recomputeAmount(subtotal, e.target.value); }}/>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Discount</div>
+              <Input inputMode="decimal" value={discountAmount} onChange={(e) => { setDiscountAmount(e.target.value); recomputeAmount(subtotal, taxAmount, e.target.value); }}/>
+            </div>
+          </div>
+
+          {/* Notes */}
+          <div>
+            <div className="mb-1.5 text-xs font-medium text-muted-foreground">Notes</div>
+            <Input placeholder="Invoice note or payment instructions" value={notes} onChange={(e) => setNotes(e.target.value)}/>
+          </div>
+
+          {/* Payment link */}
+          <div className="rounded-lg border bg-secondary/30 p-3">
+            <div className="mb-1.5 text-xs font-semibold text-muted-foreground">Credit / debit card payment link (optional)</div>
+            <Input value={paymentLinkUrl} onChange={(e) => setPaymentLinkUrl(e.target.value)} placeholder="https://checkout.square.site/..."/>
+            <div className="mt-1.5 text-[11px] text-muted-foreground">When filled, a clickable &quot;Pay securely&quot; button appears in the PDF, email, and SMS. Leave blank for check or manual payments.</div>
+          </div>
+
+          {/* Preview summary */}
+          <div className="rounded-lg border bg-secondary/30 p-3 text-sm text-muted-foreground">
+            {senderName} will invoice {clientDisplayName} for {money.format(parsedAmount)}. Delivery: {human(deliveryMethod)}.
+          </div>
+
+          {previewOpen && (<div className="rounded-lg border bg-white p-5 text-slate-950 shadow-sm">
+              <div className="flex items-start justify-between gap-4 border-b pb-4">
+                <div>
+                  {senderLogoUrl && <img src={senderLogoUrl} alt="" className="mb-3 max-h-12 max-w-40 object-contain"/>}
+                  <div className="text-lg font-semibold">{senderName || "LayeredFX"}</div>
+                  <div className="mt-1 text-xs text-slate-600">{senderAddress || "Business address"}</div>
+                  <div className="text-xs text-slate-600">{[senderPhone, senderEmail, senderWebsite].filter(Boolean).join(" · ")}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-semibold">Invoice</div>
+                  <div className="mt-1 text-xs text-slate-600">{invoiceNumber || "INV-000000"}</div>
+                  <div className="text-xs text-slate-600">Due {dueAt || "Not set"}</div>
+                </div>
+              </div>
+              <div className="grid gap-4 border-b py-4 sm:grid-cols-2">
+                <div>
+                  <div className="text-[10px] font-semibold uppercase text-slate-500">Bill to</div>
+                  <div className="mt-1 text-sm">{[clientFirstName, clientLastName].filter(Boolean).join(" ") || clientCompany || "Customer"}</div>
+                  {clientCompany && <div className="text-xs text-slate-600">{clientCompany}</div>}
+                  {clientEmail && <div className="text-xs text-slate-600">{clientEmail}</div>}
+                  {clientPhone && <div className="text-xs text-slate-600">{clientPhone}</div>}
+                  {clientAddress && <div className="text-xs text-slate-600">{clientAddress}</div>}
+                </div>
+                <div>
+                  <div className="text-[10px] font-semibold uppercase text-slate-500">Message</div>
+                  <div className="mt-1 text-sm text-slate-700">{invoiceMessage}</div>
+                </div>
+              </div>
+              <div className="py-4">
+                <div className="grid grid-cols-[1fr_70px_90px_90px] border-b pb-2 text-xs font-semibold uppercase text-slate-500">
+                  <div>Description</div>
+                  <div className="text-right">Qty</div>
+                  <div className="text-right">Rate</div>
+                  <div className="text-right">Total</div>
+                </div>
+                {lineItemsList.map((item, i) => (<div key={`${item.id}-${i}`} className="grid grid-cols-[1fr_70px_90px_90px] border-b py-2 text-sm">
+                    <div>{item.description}</div>
+                    <div className="text-right">{item.quantity}</div>
+                    <div className="text-right">{money.format(item.unit_price)}</div>
+                    <div className="text-right">{money.format(item.line_total)}</div>
+                  </div>))}
+              </div>
+              <div className="ml-auto w-full max-w-xs space-y-1 text-sm">
+                <div className="flex justify-between"><span>Subtotal</span><span>{money.format(parsedSubtotal)}</span></div>
+                <div className="flex justify-between"><span>Tax</span><span>{money.format(parsedTax)}</span></div>
+                <div className="flex justify-between"><span>Discount</span><span>−{money.format(parsedDiscount)}</span></div>
+                <div className="flex justify-between border-t pt-2 text-lg font-semibold"><span>Total</span><span>{money.format(parsedAmount)}</span></div>
+              </div>
+            </div>)}
+
+          {message && <div className="rounded-lg border bg-background/35 p-3 text-sm text-muted-foreground">{message}</div>}
+
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setPreviewOpen((v) => !v)}>
+              {previewOpen ? "Hide preview" : "Review invoice"}
+            </Button>
+            <Button className="flex-1" disabled={!canCreate} onClick={createInvoice}>
+              {saving ? "Creating..." : "Create invoice"}
+            </Button>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>);
+}
+function EditInvoiceSheet({ payment, open, onOpenChange, onSaved, }: {
+    payment: Payment | null;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onSaved: () => Promise<void>;
+}) {
+    const [invoiceNumber, setInvoiceNumber] = useState("");
+    const [dueAt, setDueAt] = useState("");
+    const [terms, setTerms] = useState("Due on receipt");
+    const [amount, setAmount] = useState("");
+    const [subtotal, setSubtotal] = useState("");
+    const [taxAmount, setTaxAmount] = useState("0");
+    const [discountAmount, setDiscountAmount] = useState("0");
+    const [notes, setNotes] = useState("");
+    const [paymentLinkUrl, setPaymentLinkUrl] = useState("");
+    const [lineItems, setLineItems] = useState("[]");
+    const [status, setStatus] = useState("pending");
+    const [saving, setSaving] = useState(false);
+    const [message, setMessage] = useState("");
+    useEffect(() => {
+        if (!payment)
+            return;
+        setInvoiceNumber(payment.invoice_number || "");
+        setDueAt(payment.invoice_due_at ? new Date(payment.invoice_due_at).toISOString().slice(0, 10) : "");
+        setTerms(payment.invoice_terms || "Due on receipt");
+        setAmount(String(numberValue(payment.amount)));
+        setSubtotal(String(numberValue(payment.subtotal ?? payment.amount)));
+        setTaxAmount(String(numberValue(payment.tax_amount)));
+        setDiscountAmount(String(numberValue(payment.discount_amount)));
+        setNotes(payment.notes || "");
+        setPaymentLinkUrl(payment.payment_link_url || "");
+        setLineItems(payment.line_items ? JSON.stringify(payment.line_items, null, 2) : "[]");
+        setStatus(payment.status || "pending");
+        setMessage("");
+    }, [payment]);
+    function recomputeAmount(nextSubtotal = subtotal, nextTax = taxAmount, nextDiscount = discountAmount) {
+        const total = Number(nextSubtotal || 0) + Number(nextTax || 0) - Number(nextDiscount || 0);
+        setAmount(Number.isFinite(total) ? Math.max(0, total).toFixed(2) : "");
+    }
+    async function saveInvoice() {
+        if (!payment)
+            return;
+        const parsedAmount = Number(amount);
+        if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+            setMessage("Amount must be greater than zero.");
+            return;
+        }
+        setSaving(true);
+        setMessage("Saving...");
+        try {
+            let parsedLines: unknown = undefined;
+            try {
+                parsedLines = JSON.parse(lineItems);
+            }
+            catch {
+                throw new Error("Line items must be valid JSON.");
+            }
+            await updateAdminInvoice({
+                paymentId: payment.id,
+                amount: parsedAmount,
+                notes,
+                invoiceNumber,
+                dueAt: dueAt ? new Date(`${dueAt}T12:00:00`).toISOString() : "",
+                terms,
+                lineItems: parsedLines,
+                subtotal: Number(subtotal || parsedAmount),
+                taxAmount: Number(taxAmount || 0),
+                discountAmount: Number(discountAmount || 0),
+                paymentLinkUrl: paymentLinkUrl.trim() || null,
+                status,
+            });
+            setMessage("Invoice updated.");
+            await onSaved();
+            onOpenChange(false);
+        }
+        catch (error) {
+            setMessage(error instanceof Error ? error.message : "Could not update invoice.");
+        }
+        finally {
+            setSaving(false);
+        }
+    }
+    return (<Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="overflow-y-auto sm:max-w-[60rem]">
+        <SheetHeader>
+          <SheetTitle>Edit invoice {payment?.invoice_number || payment?.id.slice(0, 8)}</SheetTitle>
+          <SheetDescription>Update invoice details, amounts, and payment link.</SheetDescription>
+        </SheetHeader>
+
+        <div className="mt-6 space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Invoice number</div>
+              <Input value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} placeholder="INV-1001"/>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Due date</div>
+              <DatePicker value={dueAt} onChange={setDueAt}/>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Terms</div>
+              <Select value={terms} onValueChange={setTerms}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Due on receipt">Due on receipt</SelectItem>
+                  <SelectItem value="Net 7">Net 7</SelectItem>
+                  <SelectItem value="Net 15">Net 15</SelectItem>
+                  <SelectItem value="Net 30">Net 30</SelectItem>
+                  <SelectItem value="Deposit required">Deposit required</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Status</div>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="partially_paid">Partially paid</SelectItem>
+                  <SelectItem value="unpaid">Unpaid</SelectItem>
+                  <SelectItem value="refunded">Refunded</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Subtotal</div>
+              <Input inputMode="decimal" value={subtotal} onChange={(e) => { setSubtotal(e.target.value); recomputeAmount(e.target.value); }}/>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Tax</div>
+              <Input inputMode="decimal" value={taxAmount} onChange={(e) => { setTaxAmount(e.target.value); recomputeAmount(subtotal, e.target.value); }}/>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Discount</div>
+              <Input inputMode="decimal" value={discountAmount} onChange={(e) => { setDiscountAmount(e.target.value); recomputeAmount(subtotal, taxAmount, e.target.value); }}/>
+            </div>
+          </div>
+
+          <div>
+            <div className="mb-1.5 text-xs font-medium text-muted-foreground">Invoice total</div>
+            <Input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)}/>
+          </div>
+
+          <div>
+            <div className="mb-1.5 text-xs font-medium text-muted-foreground">Notes</div>
+            <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Payment note or instructions"/>
+          </div>
+
+          <div className="rounded-lg border bg-secondary/30 p-3">
+            <div className="mb-1.5 text-xs font-semibold text-muted-foreground">Credit / debit card payment link</div>
+            <Input value={paymentLinkUrl} onChange={(e) => setPaymentLinkUrl(e.target.value)} placeholder="https://checkout.square.site/..."/>
+            <div className="mt-1.5 text-[11px] text-muted-foreground">When filled, a clickable pay button appears in the PDF, email, and SMS sent to the customer. Leave blank for check or manual payments.</div>
+          </div>
+
+          <div>
+            <div className="mb-1.5 text-xs font-medium text-muted-foreground">Line items JSON</div>
+            <textarea className="min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" value={lineItems} onChange={(e) => setLineItems(e.target.value)}/>
+          </div>
+
+          {message && <div className="rounded-lg border bg-background/35 p-3 text-sm text-muted-foreground">{message}</div>}
+
+          <div className="flex gap-2">
+            <Button className="flex-1" onClick={saveInvoice} disabled={saving}>{saving ? "Saving..." : "Save invoice"}</Button>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>);
+}
+function RefundDialog({ payment, onClose, onRefunded, }: {
+    payment: Payment | null;
+    onClose: () => void;
+    onRefunded: () => Promise<void>;
+}) {
+    const [amount, setAmount] = useState("");
+    const [reason, setReason] = useState("");
+    const [saving, setSaving] = useState(false);
+    const [message, setMessage] = useState("");
+    const [done, setDone] = useState(false);
+    const maxAmount = Number(payment?.amount || 0);
+    useEffect(() => {
+        if (!payment)
+            return;
+        setAmount(maxAmount.toFixed(2));
+        setReason("Admin refund");
+        setMessage("");
+        setDone(false);
+        setSaving(false);
+    }, [payment]);
+    async function issueRefund() {
+        if (!payment)
+            return;
+        const parsed = Number(amount);
+        if (!parsed || parsed <= 0) {
+            setMessage("Enter a valid refund amount.");
+            return;
+        }
+        if (parsed > maxAmount) {
+            setMessage(`Refund cannot exceed ${money.format(maxAmount)}.`);
+            return;
+        }
+        setSaving(true);
+        setMessage("Processing refund with Square...");
+        try {
+            const result = await createSquareRefund({ paymentId: payment.id, amount: parsed, reason });
+            setMessage(`Refund ${result.status} — ${money.format(result.amount)}. Square refund ID: ${result.square_refund_id || "pending"}.`);
+            setDone(true);
+            await onRefunded();
+        }
+        catch (error) {
+            setMessage(error instanceof Error ? error.message : "Could not process refund.");
+        }
+        finally {
+            setSaving(false);
+        }
+    }
+    return (<Dialog open={!!payment} onOpenChange={(open) => { if (!open)
+        onClose(); }}>
+      <DialogContent className="sm:max-w-[440px]">
+        <DialogHeader>
+          <DialogTitle>Issue Square refund</DialogTitle>
+          <DialogDescription>
+            Refund payment {payment?.id.slice(0, 8)} — {money.format(maxAmount)} paid.
+          </DialogDescription>
+        </DialogHeader>
+
+        {!done ? (<div className="space-y-4 pt-2">
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Refund amount</div>
+              <Input inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0.00"/>
+              <div className="mt-1 text-xs text-muted-foreground">Maximum: {money.format(maxAmount)}</div>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Reason</div>
+              <Input value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Admin refund"/>
+            </div>
+            {message && <div className="rounded-md border bg-background/50 p-3 text-sm text-muted-foreground">{message}</div>}
+            <div className="flex gap-2">
+              <Button className="flex-1 bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600" disabled={saving} onClick={issueRefund}>
+                {saving ? "Processing..." : "Confirm refund"}
+              </Button>
+              <Button variant="outline" onClick={onClose}>Cancel</Button>
+            </div>
+          </div>) : (<div className="space-y-4 pt-2">
+            <div className="rounded-md border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:text-emerald-300">{message}</div>
+            <Button variant="outline" className="w-full" onClick={onClose}>Close</Button>
+          </div>)}
+      </DialogContent>
+    </Dialog>);
+}
+function SummaryTile({ label, children }: {
+    label: string;
+    children: React.ReactNode;
+}) {
+    return (<div className="rounded-lg border bg-secondary/30 p-3">
+      <div className="mb-1 text-xs font-semibold uppercase text-muted-foreground">{label}</div>
+      <div className="text-sm font-medium">{children}</div>
+    </div>);
+}

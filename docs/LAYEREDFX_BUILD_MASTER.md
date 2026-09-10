@@ -1,3 +1,5 @@
+> Authoritative scope correction: preserve the LayeredFX public website and migrate the COMPLETE CTRL+P dashboard, adding Channel Cast Pipeline, Workspace and Plans. Earlier selective-reuse, exclusion and lightweight-dashboard directions are superseded. Unrelated development and safety instructions remain. See docs/migration/SCOPE.md and docs/reviews/current-review.md.
+
 > Current increment: Pipeline, Workspace and Plans source is now included. Start with `START_HERE.md` and `docs/channel-cast/`. The material below remains the earlier homepage map / broader roadmap, not an instruction to rebuild or discard the current dashboard.
 
 # LayeredFX — Consolidated build roadmap
@@ -10,7 +12,7 @@ The current delivered frontend is the starting point. Preserve its visual design
 
 ## Project mission
 
-Rebuild LayeredFX.com as a premium, service-first website and service-management application, hosted on a separate Coolify application on Jeremy's VPS. Use the company-owned ControlP project as a selective development accelerator, not as a print-storefront reskin.
+Rebuild LayeredFX.com as a premium, service-first website and service-management application, hosted on a separate Coolify application on Jeremy's VPS. Use the company-owned ControlP project as the complete internal dashboard foundation, preserving the service-first public website.
 
 Source to inspect during the later reuse audit:
 
@@ -44,11 +46,11 @@ Work only in LayeredFX's separate workspace and repository. Never push to Contro
 
 Before backend reuse, inspect ControlP's actual package manifest and lockfile, routes, layouts, middleware, database migrations, authentication, authorization, UI primitives, booking, communications, content, uploads, dashboard, Wall Studio, Dockerfile and environment examples. Documentation may describe a different stack than the running code. Verify installed versions and security requirements before dependency changes; do not blindly upgrade, downgrade, or replace the working stack.
 
-Create `docs/layeredfx/controlp-reuse-audit.md`. For every major module classify **KEEP / ADAPT / REMOVE / REBUILD**, provide file evidence, dependencies, implementation status, risks and migration order. A route directory alone does not prove a working feature. This audit file must be written from inspection; do not fabricate one from the roadmap.
+Create `docs/layeredfx/controlp-reuse-audit.md`. For every major module classify **Not migrated / In progress / Implemented, unverified / Verified locally / Requires external configuration / Source incomplete / Blocked**, provide file evidence, dependencies, implementation status, risks and migration order. A route directory alone does not prove a working feature. This audit file must be written from inspection; do not fabricate one from the roadmap.
 
 Likely reuse candidates: UI primitives, data access patterns, verified authentication/roles, contacts, uploads, booking, content/blog, communications, dashboard structure, useful analytics, the room visualizer and deployment patterns.
 
-Likely exclusion candidates: print ecommerce, print quantity pricing, vendor fulfillment through 4Over/B2Sign, generic cart/checkout, vehicle-specific marketing, press production queues and shipping-specific workflows. Disable exposed routes and background jobs when appropriate, not just menu items. Map dependencies before deleting code.
+Retain applicable print ecommerce, quantity pricing, vendor fulfillment through 4Over/B2Sign, cart/checkout, production queues and shipping workflows. Adapt them for LayeredFX and isolate provider configuration. No source capability is approved for exclusion.
 
 Keep `docs/layeredfx/architecture-decisions.md` and `docs/layeredfx/migration-log.md` as actual decisions are made. Avoid a monorepo or shared multi-tenant platform rewrite during the first release.
 
@@ -116,9 +118,9 @@ Keep customer quote requests separate from staff-authored estimates and approved
 
 Audit the existing booking system. Offer project consultation, on-site estimate, commercial consultation and material consultation as appropriate. A real booking needs a selectable date and time, a timezone, availability validation and conflict prevention. Until that exists, use an explicitly labeled appointment request rather than a false confirmed booking.
 
-## Lightweight operations dashboard
+## Complete CTRL+P dashboard plus Channel Cast modules
 
-Launch with useful lead management, not a giant ERP. Suggested sections: Overview; Leads; Estimates; Projects; Contacts; Bookings; Studio Requests; Portfolio; Materials; Content; Communications; Users; Settings.
+Migrate every CTRL+P dashboard module and supporting action. Add Pipeline, Workspace and Plans to the same shell and identity model. See docs/migration/CTRL_P_DASHBOARD_PARITY.md for the source-backed inventory.
 
 Suggested sales stages: New → Contacted → Consultation Scheduled → Measurements → Estimate Preparation → Estimate Sent → Follow-up → Approved / Won. Track Lost, Cancelled and Not Qualified separately. Conversion creates/links the project; project execution has its own status rather than treating all work as one lead row.
 
@@ -150,7 +152,7 @@ Review request validation, permissions, upload controls, rate limiting, secret h
 
 **Next — public pages plus working intake.** Build the service template and remaining priority pages with approved content. In parallel, complete one dependable end-to-end path from estimate request to LayeredFX staff review. Do not postpone all real lead capture behind an advanced visualizer.
 
-**Then — selective ControlP reuse.** Produce the implementation-backed audit and adapt authentication, contacts, uploads, booking, content and dashboard modules as needed. Validate isolation before live integrations.
+**Required — complete CTRL+P integration.** Produce the implementation-backed audit and adapt authentication, contacts, uploads, booking, content and dashboard modules as needed. Validate isolation before live integrations.
 
 **Then — studio and operations expansion.** Port proven room visualization, saved selections, estimates and project workflow. Add materials and controlled portfolio publishing without delaying essential lead capture.
 

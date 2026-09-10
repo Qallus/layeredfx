@@ -1,0 +1,56 @@
+// Adapted from CTRL+P 015a7b58b80e63ef87c73bec549a23242b88f3e3: lib/admin/navigation.ts
+import type { LucideIcon } from "lucide-react";
+import { BookOpen,Bot,Boxes,CalendarCheck,CalendarRange,CircleDollarSign,FileText,LayoutDashboard,LayoutTemplate,Megaphone,MessageSquare,PackageCheck,Palette,Phone,Radio,Settings,ShoppingBag,Tag,Truck,UserCog,Users,} from "lucide-react";
+export type AdminNavItem = readonly [
+    label: string,
+    Icon: LucideIcon,
+    href: string
+];
+export const adminNavGroups: readonly {
+    label: string;
+    items: readonly AdminNavItem[];
+}[] = [
+    {
+        label: "Main",
+        items: [
+            ["Dashboard", LayoutDashboard, "/admin"],
+            ["Analytics", Radio, "/admin/analytics"],
+            ["Orders", ShoppingBag, "/admin/orders"],
+            ["Projects", CalendarRange, "/admin/production-schedule"],
+            ["Production", Boxes, "/admin/production"],
+            ["Bookings", CalendarCheck, "/admin/bookings"],
+            ["Designers", Palette, "/admin/designers"],
+            ["Payments", CircleDollarSign, "/admin/payments"],
+            ["Messages", MessageSquare, "/admin/messages"],
+            ["Communications", Phone, "/admin/communications"],
+            ["Customers", Users, "/admin/customers"],
+            ["Users", UserCog, "/admin/users"],
+        ],
+    },
+    {
+        label: "Catalog",
+        items: [
+            ["Products", PackageCheck, "/admin/products"],
+            ["Wall Studio", LayoutTemplate, "/admin/wall-studio"],
+            ["Coupons", Tag, "/admin/coupons"],
+            ["Artwork", FileText, "/admin/artwork"],
+            ["Shipping", Truck, "/admin/shipments"],
+            ["Marketing", Megaphone, "/admin/marketing"],
+            ["Blog Posts", BookOpen, "/admin/blog"],
+        ],
+    },
+    {
+        label: "System",
+        items: [
+            ["Agent", Bot, "/admin/agent"],
+            ["Settings", Settings, "/admin/settings"],
+        ],
+    },
+];
+export function isAdminNavActive(label: string, pathname: string) {
+    if (label === "Dashboard")
+        return pathname === "/admin";
+    return adminNavGroups
+        .flatMap((group) => group.items)
+        .some(([itemLabel, , href]) => itemLabel === label && pathname === href);
+}

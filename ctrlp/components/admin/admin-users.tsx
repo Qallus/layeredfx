@@ -1,0 +1,863 @@
+// Adapted from CTRL+P 015a7b58b80e63ef87c73bec549a23242b88f3e3: components/admin/admin-users.tsx
+"use client";
+import { ImportUsersSheet } from "@/ctrlp/components/admin/import-users-sheet";
+import { Badge } from "@/ctrlp/components/ui/badge";
+import { Button } from "@/ctrlp/components/ui/button";
+import { Card,CardContent,CardDescription,CardHeader,CardTitle } from "@/ctrlp/components/ui/card";
+import { Dialog,DialogContent,DialogDescription,DialogHeader,DialogTitle } from "@/ctrlp/components/ui/dialog";
+import { Input } from "@/ctrlp/components/ui/input";
+import { Select,SelectContent,SelectItem,SelectTrigger,SelectValue } from "@/ctrlp/components/ui/select";
+import { Sheet,SheetContent,SheetDescription,SheetHeader,SheetTitle } from "@/ctrlp/components/ui/sheet";
+import { Table,TableBody,TableCell,TableHead,TableHeader,TableRow } from "@/ctrlp/components/ui/table";
+import { Textarea } from "@/ctrlp/components/ui/textarea";
+import { getCurrentAdminProfile,loadAdminDashboardData,removeAdminUser,updateAdminUser } from "@/ctrlp/lib/admin/admin-api";
+import type { AdminDashboardData,AdminProfile,AdminUser } from "@/ctrlp/lib/admin/types";
+import { ROLES,type AppRole } from "@/ctrlp/lib/rbac/roles";
+import { getSupabaseBrowserClient } from "@/ctrlp/lib/supabase/browser";
+import { cn } from "@/ctrlp/lib/utils";
+import { sourceFetch } from '@/lib/dashboard/source-runtime';
+import { Bell,Mail,Phone,Send,ShieldCheck,Smartphone,Trash2,Upload,UserPlus,UserRoundPlus } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useEffect,useMemo,useRef,useState } from "react";
+const userStatuses = ["active", "pending", "inactive", "suspended"] as const;
+const editableRoles = Object.values(ROLES);
+function human(value: string | null | undefined) {
+    return String(value || "unknown").replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+function initials(value: string | null | undefined) {
+    return String(value || "CP")
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase())
+        .join("");
+}
+function statusTone(status: string) {
+    if (status === "active")
+        return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
+    if (["pending", "inactive"].includes(status))
+        return "border-primary/20 bg-primary/15 text-lime-800 dark:text-lime-200";
+    if (status === "suspended")
+        return "border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-300";
+    return "border-border bg-secondary text-secondary-foreground";
+}
+function roleGroup(user: AdminUser) {
+    if (["super_admin", "admin", "employee", "staff", "production_manager", "installer", "customer_support"].includes(user.role))
+        return "Internal";
+    if (["vendor", "designer", "referral", "reseller"].includes(user.role))
+        return "Partner";
+    return "Customer";
+}
+async function handleSignOut() {
+    const db = getSupabaseBrowserClient();
+    if (db)
+        await db.auth.signOut();
+    window.location.href = "/login";
+}
+export function AdminUsers() {
+    const pathname = usePathname();
+    const [theme, setTheme] = useState<"light" | "dark">("dark");
+    const [authState, setAuthState] = useState<"checking" | "allowed" | "denied">("checking");
+    const [data, setData] = useState<AdminDashboardData | null>(null);
+    const [profile, setProfile] = useState<AdminProfile | null>(null);
+    const [query, setQuery] = useState("");
+    const [roleFilter, setRoleFilter] = useState("all");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
+    const [addUserOpen, setAddUserOpen] = useState(false);
+    const [inviteUserOpen, setInviteUserOpen] = useState(false);
+    const [roleReviewOpen, setRoleReviewOpen] = useState(false);
+    const [importOpen, setImportOpen] = useState(false);
+    const [quickSendUser, setQuickSendUser] = useState<AdminUser | null>(null);
+    const [quickSendChannel, setQuickSendChannel] = useState<"sms" | "email" | "dashboard">("dashboard");
+    function openQuickSend(user: AdminUser, channel: "sms" | "email" | "dashboard", e: React.MouseEvent) {
+        e.stopPropagation();
+        setQuickSendUser(user);
+        setQuickSendChannel(channel);
+    }
+    useEffect(() => {
+        async function boot() {
+            const currentProfile = await getCurrentAdminProfile();
+            if (!currentProfile && process.env.NEXT_PUBLIC_SUPABASE_URL) {
+                setAuthState("denied");
+                return;
+            }
+            setProfile(currentProfile);
+            setAuthState("allowed");
+            setData(await loadAdminDashboardData());
+        }
+        boot();
+    }, []);
+    const users = data?.users ?? [];
+    const payments = data?.payments ?? [];
+    const messages = data?.messages ?? [];
+    const activityLogs = data?.activityLogs ?? [];
+    const assignableRoles = useMemo(() => rolesForActor(profile), [profile]);
+    const visibleUsers = useMemo(() => {
+        const needle = query.trim().toLowerCase();
+        return users.filter((user) => {
+            const matchesQuery = !needle || [
+                user.full_name,
+                user.email,
+                user.phone,
+                user.company,
+                user.role,
+                user.status,
+            ].some((value) => String(value || "").toLowerCase().includes(needle));
+            const matchesRole = roleFilter === "all" || user.role === roleFilter;
+            const matchesStatus = statusFilter === "all" || user.status === statusFilter;
+            return matchesQuery && matchesRole && matchesStatus;
+        });
+    }, [query, roleFilter, statusFilter, users]);
+    const roleCounts = useMemo(() => summarizeRoles(users), [users]);
+    const activeUsers = users.filter((user) => user.status === "active");
+    const internalUsers = users.filter((user) => roleGroup(user) === "Internal");
+    const partnerUsers = users.filter((user) => roleGroup(user) === "Partner");
+    const smsReadyUsers = users.filter((user) => user.phone);
+    async function refreshUsers(openUserId?: string) {
+        const nextData = await loadAdminDashboardData();
+        setData(nextData);
+        if (openUserId) {
+            setSelectedUser(nextData.users.find((user) => user.id === openUserId) ?? null);
+        }
+    }
+    return (<div className="source-module">
+      <div className="min-h-full bg-background text-foreground">
+        <></>
+
+        <></>
+
+        <main className="px-4 py-5  ">
+          {authState === "checking" && <Card><CardContent className="p-5 text-sm text-muted-foreground">Checking admin access...</CardContent></Card>}
+          {authState === "denied" && (<Card className="border-red-500/30">
+              <CardContent className="p-5">
+                <div className="font-semibold text-red-600 dark:text-red-300">Admin access required</div>
+                <p className="mt-2 text-sm text-muted-foreground">Sign in with an active staff or admin account before opening user management.</p>
+                <Button className="mt-4" asChild><a href="/login?redirect=/admin/users">Go to login</a></Button>
+              </CardContent>
+            </Card>)}
+          {authState === "allowed" && (<>
+              <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <h1 className="text-[25px] font-semibold tracking-tight">User management</h1>
+                  <p className="mt-1 max-w-3xl text-sm leading-5 text-muted-foreground">
+                    Manage ControlP roles, account status, internal access, customers, vendors, designers, referrals, resellers, and staff permissions.
+                  </p>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  <Button variant="outline" onClick={() => setImportOpen(true)}><Upload className="h-4 w-4"/> Import CSV</Button>
+                  <Button variant="outline" onClick={() => setAddUserOpen(true)}><UserRoundPlus className="h-4 w-4"/> Add user</Button>
+                  <Button onClick={() => setInviteUserOpen(true)}><UserPlus className="h-4 w-4"/> Invite user</Button>
+                  <Button variant="outline" onClick={() => setRoleReviewOpen(true)}><ShieldCheck className="h-4 w-4"/> Review roles</Button>
+                </div>
+              </div>
+
+              <section className="mb-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                <UserStat label="Total users" value={String(users.length)} hint={`${activeUsers.length} active accounts`}/>
+                <UserStat label="Internal" value={String(internalUsers.length)} hint="Admin, staff, employee roles"/>
+                <UserStat label="Partners" value={String(partnerUsers.length)} hint="Vendor, designer, referral, reseller"/>
+                <UserStat label="Customers" value={String(users.filter((user) => roleGroup(user) === "Customer").length)} hint="Self-service accounts"/>
+                <UserStat label="SMS ready" value={String(smsReadyUsers.length)} hint="Users with phone numbers"/>
+              </section>
+
+              <section className="mb-4 grid gap-4 xl:grid-cols-[1fr_360px]">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                      <div>
+                        <CardTitle className="text-base">User directory</CardTitle>
+                        <CardDescription>Live account records from public.users with RBAC role and status</CardDescription>
+                      </div>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        <Select value={roleFilter} onValueChange={setRoleFilter}>
+                          <SelectTrigger className="h-8 min-w-[150px] text-xs">
+                            <SelectValue placeholder="Role"/>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All roles</SelectItem>
+                            {assignableRoles.map((role) => <SelectItem key={role} value={role}>{human(role)}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                          <SelectTrigger className="h-8 min-w-[125px] text-xs">
+                            <SelectValue placeholder="Status"/>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All statuses</SelectItem>
+                            {userStatuses.map((status) => <SelectItem key={status} value={status}>{human(status)}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="pl-4">User</TableHead>
+                          <TableHead>Company</TableHead>
+                          <TableHead>Phone</TableHead>
+                          <TableHead>Role</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Group</TableHead>
+                          <TableHead className="w-[100px] text-right pr-4">Message</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {visibleUsers.map((user) => (<TableRow key={user.id} className="cursor-pointer" onClick={() => setSelectedUser(user)}>
+                            <TableCell className="pl-4">
+                              <div className="flex items-center gap-2">
+                                <div className="grid h-8 w-8 place-items-center rounded-full bg-secondary text-[11px] font-semibold">{initials(user.full_name || user.email)}</div>
+                                <div>
+                                  <div className="font-medium">{user.full_name || user.email || "Unnamed user"}</div>
+                                  <div className="text-xs text-muted-foreground">{user.email}</div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>{user.company || "Not set"}</TableCell>
+                            <TableCell>{user.phone || "Missing"}</TableCell>
+                            <TableCell><Badge variant="outline">{human(user.role)}</Badge></TableCell>
+                            <TableCell><Badge className={cn("border", statusTone(user.status))}>{human(user.status)}</Badge></TableCell>
+                            <TableCell>{roleGroup(user)}</TableCell>
+                            <TableCell className="pr-4 text-right">
+                              <div className="flex items-center justify-end gap-1">
+                                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" aria-label="Send SMS" title={user.phone ? `SMS ${user.phone}` : "No phone number"} disabled={!user.phone} onClick={(e) => openQuickSend(user, "sms", e)}>
+                                  <Smartphone className="h-3.5 w-3.5"/>
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" aria-label="Send email" title={user.email ? `Email ${user.email}` : "No email"} disabled={!user.email} onClick={(e) => openQuickSend(user, "email", e)}>
+                                  <Mail className="h-3.5 w-3.5"/>
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" aria-label="Send notification" title="Send dashboard notification" onClick={(e) => openQuickSend(user, "dashboard", e)}>
+                                  <Bell className="h-3.5 w-3.5"/>
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>))}
+                        {!visibleUsers.length && (<TableRow>
+                            <TableCell className="p-6 text-center text-muted-foreground" colSpan={7}>No matching users.</TableCell>
+                          </TableRow>)}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">Role distribution</CardTitle>
+                    <CardDescription>Current RBAC mix across the workspace</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {roleCounts.map((row) => (<div key={row.role} className="rounded-lg border bg-background/35 p-3">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="font-medium">{human(row.role)}</span>
+                          <Badge variant="outline">{row.count}</Badge>
+                        </div>
+                        <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary">
+                          <div className="h-full rounded-full bg-primary" style={{ width: `${row.width}%` }}/>
+                        </div>
+                      </div>))}
+                  </CardContent>
+                </Card>
+              </section>
+
+              <section className="grid gap-4 xl:grid-cols-3">
+                <WorkflowCard title="Access control" items={["Role changes", "Status activation", "Suspension review", "Permission audit"]}/>
+                <WorkflowCard title="Account lifecycle" items={["Invite user", "Customer conversion", "Staff onboarding", "Deleted account review"]}/>
+                <WorkflowCard title="Partner programs" items={["Vendor profiles", "Designer assignments", "Referral attribution", "Reseller customer mapping"]}/>
+              </section>
+            </>)}
+        </main>
+
+        <UserSheet currentProfile={profile} user={selectedUser} open={Boolean(selectedUser)} onOpenChange={(open) => !open && setSelectedUser(null)} onRefresh={refreshUsers} activityLogs={activityLogs} assignableRoles={assignableRoles}/>
+        <AddUserSheet currentProfile={profile} open={addUserOpen} onOpenChange={setAddUserOpen} onCreated={refreshUsers} assignableRoles={assignableRoles} mode="add"/>
+        <AddUserSheet currentProfile={profile} open={inviteUserOpen} onOpenChange={setInviteUserOpen} onCreated={refreshUsers} assignableRoles={assignableRoles} mode="invite"/>
+        <RoleReviewSheet open={roleReviewOpen} onOpenChange={setRoleReviewOpen} users={users} assignableRoles={assignableRoles}/>
+        <QuickSendModal user={quickSendUser} channel={quickSendChannel} onChannelChange={setQuickSendChannel} onClose={() => setQuickSendUser(null)}/>
+        <ImportUsersSheet open={importOpen} onClose={() => setImportOpen(false)} onImported={refreshUsers}/>
+      </div>
+    </div>);
+}
+async function getAdminToken() {
+    const db = getSupabaseBrowserClient();
+    const session = db ? (await db.auth.getSession()).data.session : null;
+    return session?.access_token ?? null;
+}
+type QuickSendChannel = "sms" | "email" | "dashboard";
+const CHANNEL_META: Record<QuickSendChannel, {
+    label: string;
+    icon: React.ElementType;
+    recipientKey: "phone" | "email" | "email";
+    needsSubject: boolean;
+}> = {
+    sms: { label: "SMS", icon: Smartphone, recipientKey: "phone", needsSubject: false },
+    email: { label: "Email", icon: Mail, recipientKey: "email", needsSubject: true },
+    dashboard: { label: "Notification", icon: Bell, recipientKey: "email", needsSubject: true },
+};
+function QuickSendModal({ user, channel, onChannelChange, onClose, }: {
+    user: AdminUser | null;
+    channel: QuickSendChannel;
+    onChannelChange: (c: QuickSendChannel) => void;
+    onClose: () => void;
+}) {
+    const [subject, setSubject] = useState("");
+    const [body, setBody] = useState("");
+    const [sending, setSending] = useState(false);
+    const [status, setStatus] = useState("");
+    const subjectRef = useRef<HTMLInputElement>(null);
+    const bodyRef = useRef<HTMLTextAreaElement>(null);
+    const meta = CHANNEL_META[channel];
+    const recipient = user ? (channel === "sms" ? user.phone : user.email) ?? "" : "";
+    const canSend = body.trim().length > 0 && recipient.length > 0 && !sending;
+    useEffect(() => {
+        if (user) {
+            setSubject("");
+            setBody("");
+            setStatus("");
+            setSending(false);
+            setTimeout(() => (meta.needsSubject ? subjectRef.current : bodyRef.current)?.focus(), 50);
+        }
+    }, [user, channel]);
+    async function send() {
+        if (!canSend || !user)
+            return;
+        setSending(true);
+        setStatus("Sending…");
+        try {
+            const token = await getAdminToken();
+            const res = await sourceFetch("/api/ctrlp/admin/messaging/send", {
+                method: "POST",
+                headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
+                body: JSON.stringify({ channel, mode: "single", recipient, subject: subject || undefined, body }),
+            });
+            const payload = await res.json().catch(() => ({}));
+            if (!res.ok)
+                throw new Error(payload.error || "Could not send.");
+            setStatus(`Sent successfully.`);
+            setBody("");
+            setSubject("");
+            setTimeout(onClose, 1200);
+        }
+        catch (err) {
+            setStatus(err instanceof Error ? err.message : "Could not send.");
+            setSending(false);
+        }
+    }
+    return (<Dialog open={Boolean(user)} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-[440px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <meta.icon className="h-4 w-4 text-primary"/>
+            {meta.label} to {user?.full_name || user?.email || "user"}
+          </DialogTitle>
+          <DialogDescription className="truncate text-xs">
+            {channel === "sms" ? user?.phone || "No phone number" : user?.email || "No email"}
+          </DialogDescription>
+        </DialogHeader>
+
+        {/* Channel switcher */}
+        <div className="flex gap-1 rounded-lg border bg-secondary/30 p-1">
+          {(["dashboard", "email", "sms"] as QuickSendChannel[]).map((ch) => {
+            const { label, icon: Icon } = CHANNEL_META[ch];
+            const disabled = ch === "sms" && !user?.phone;
+            return (<button key={ch} disabled={disabled} onClick={() => onChannelChange(ch)} className={cn("flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors", channel === ch ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground disabled:opacity-40")}>
+                <Icon className="h-3.5 w-3.5"/>
+                {label}
+              </button>);
+        })}
+        </div>
+
+        <div className="space-y-3">
+          {meta.needsSubject && (<div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Subject</div>
+              <Input ref={subjectRef} placeholder="e.g. Your order is ready" value={subject} onChange={(e) => setSubject(e.target.value)}/>
+            </div>)}
+          <div>
+            <div className="mb-1.5 text-xs font-medium text-muted-foreground">Message</div>
+            <Textarea ref={bodyRef} rows={4} placeholder={channel === "sms" ? "Keep it brief — SMS has a 160 char limit." : "Write your message here…"} value={body} onChange={(e) => setBody(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey))
+        send(); }}/>
+            {channel === "sms" && (<div className={cn("mt-1 text-right text-[10px]", body.length > 160 ? "text-red-500" : "text-muted-foreground")}>
+                {body.length}/160
+              </div>)}
+          </div>
+
+          {status && (<div className={cn("rounded-lg border p-2.5 text-xs", status.startsWith("Sent") ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" : "border-border bg-secondary/30 text-muted-foreground")}>
+              {status}
+            </div>)}
+
+          <div className="flex gap-2">
+            <Button className="flex-1" disabled={!canSend} onClick={send}>
+              <Send className="h-3.5 w-3.5"/>
+              {sending ? "Sending…" : "Send"}
+            </Button>
+            <Button variant="outline" onClick={onClose}>Cancel</Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>);
+}
+function summarizeRoles(users: AdminUser[]) {
+    const counts = new Map<string, number>();
+    for (const user of users)
+        counts.set(user.role, (counts.get(user.role) || 0) + 1);
+    const max = Math.max(1, ...Array.from(counts.values()));
+    return Array.from(counts.entries())
+        .map(([role, count]) => ({ role, count, width: Math.max(8, Math.round((count / max) * 100)) }))
+        .sort((a, b) => b.count - a.count || a.role.localeCompare(b.role));
+}
+function rolesForActor(profile: AdminProfile | null) {
+    if (profile?.role === ROLES.SUPER_ADMIN)
+        return editableRoles;
+    return editableRoles.filter((role) => role !== ROLES.SUPER_ADMIN);
+}
+function UserStat({ label, value, hint }: {
+    label: string;
+    value: string;
+    hint: string;
+}) {
+    return (<Card>
+      <CardContent className="p-4">
+        <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+        <div className="mt-2 text-[22px] font-semibold leading-none">{value}</div>
+        <div className="mt-2 text-[11px] text-muted-foreground">{hint}</div>
+      </CardContent>
+    </Card>);
+}
+function WorkflowCard({ title, items }: {
+    title: string;
+    items: string[];
+}) {
+    return (<Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {items.map((item) => (<div key={item} className="rounded-lg border bg-background/35 px-3 py-2 text-sm">{item}</div>))}
+      </CardContent>
+    </Card>);
+}
+function UserSheet({ currentProfile, user, open, onOpenChange, onRefresh, activityLogs, assignableRoles, }: {
+    currentProfile: AdminProfile | null;
+    user: AdminUser | null;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onRefresh: (openUserId?: string) => Promise<void>;
+    activityLogs: AdminDashboardData["activityLogs"];
+    assignableRoles: AppRole[];
+}) {
+    const [fullName, setFullName] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [company, setCompany] = useState("");
+    const [role, setRole] = useState<AppRole>(ROLES.CUSTOMER);
+    const [status, setStatus] = useState("active");
+    const [saving, setSaving] = useState(false);
+    const [removing, setRemoving] = useState(false);
+    const [removeConfirm, setRemoveConfirm] = useState("");
+    const [message, setMessage] = useState("");
+    useEffect(() => {
+        if (!user)
+            return;
+        setFullName(user.full_name || "");
+        setEmail(user.email || "");
+        setPhone(user.phone || "");
+        setCompany(user.company || "");
+        setRole(user.role);
+        setStatus(user.status);
+        setRemoveConfirm("");
+        setMessage("");
+    }, [user]);
+    if (!user) {
+        return <Sheet open={open} onOpenChange={onOpenChange}><SheetContent /></Sheet>;
+    }
+    const isSelf = currentProfile?.id === user.id;
+    const cannotEditSelfStatus = isSelf && status !== "active";
+    const cannotAssignSuperAdmin = role === ROLES.SUPER_ADMIN && currentProfile?.role !== ROLES.SUPER_ADMIN;
+    const hasChanges = role !== user.role || status !== user.status || fullName !== (user.full_name || "") || email !== (user.email || "") || phone !== (user.phone || "") || company !== (user.company || "");
+    const canSave = hasChanges && fullName.trim().length >= 2 && email.trim().includes("@") && phone.trim().length >= 7 && !cannotEditSelfStatus && !cannotAssignSuperAdmin && !saving;
+    const userActivity = activityLogs.filter((log) => log.entity_type === "user" && log.entity_id === user.id).slice(0, 5);
+    async function saveUser() {
+        if (!user || !hasChanges)
+            return;
+        setSaving(true);
+        setMessage("Saving user...");
+        try {
+            await updateAdminUser(user.id, { role, status, full_name: fullName, email, phone, company });
+            setMessage("User saved.");
+            await onRefresh(user.id);
+        }
+        catch (error) {
+            setMessage(error instanceof Error ? error.message : "Could not update user.");
+        }
+        finally {
+            setSaving(false);
+        }
+    }
+    async function removeUser() {
+        if (!user || removeConfirm !== "REMOVE")
+            return;
+        setRemoving(true);
+        setMessage("Removing user...");
+        try {
+            await removeAdminUser(user.id);
+            setMessage("User removed.");
+            await onRefresh();
+            onOpenChange(false);
+        }
+        catch (error) {
+            setMessage(error instanceof Error ? error.message : "Could not remove user.");
+        }
+        finally {
+            setRemoving(false);
+        }
+    }
+    return (<Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="overflow-y-auto sm:max-w-[60rem]">
+        <SheetHeader>
+          <SheetTitle>{user.full_name || user.email || "User account"}</SheetTitle>
+          <SheetDescription>{human(user.role)} - {human(user.status)}</SheetDescription>
+        </SheetHeader>
+
+        <div className="mt-6 space-y-5">
+          <div className="flex items-center gap-3 rounded-lg border bg-secondary/30 p-3">
+            <div className="grid h-11 w-11 place-items-center rounded-full bg-primary/20 text-sm font-semibold">{initials(user.full_name || user.email)}</div>
+            <div className="min-w-0">
+              <div className="font-medium">{user.full_name || "Unnamed user"}</div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Mail className="h-3.5 w-3.5"/>
+                <span className="truncate">{user.email || "No email"}</span>
+              </div>
+              <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                <Phone className="h-3.5 w-3.5"/>
+                <span className="truncate">{user.phone || "No phone number"}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <SummaryTile label="Email">{user.email || "Missing"}</SummaryTile>
+            <SummaryTile label="Phone">{user.phone || "Missing"}</SummaryTile>
+            <SummaryTile label="Company">{user.company || "Not set"}</SummaryTile>
+            <SummaryTile label="Group">{roleGroup(user)}</SummaryTile>
+            <SummaryTile label="Created">{formatDate(user.created_at)}</SummaryTile>
+            <SummaryTile label="Last login">{formatDate(user.last_login_at)}</SummaryTile>
+          </div>
+
+          <div className="rounded-lg border bg-background/35 p-3">
+            <h3 className="text-sm font-semibold">Contact and access</h3>
+            <p className="mt-1 text-xs text-muted-foreground">Phone numbers are required for SMS campaigns, order updates, payment links, shipping alerts, and customer communication.</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Full name</div>
+                <Input value={fullName} onChange={(event) => setFullName(event.target.value)}/>
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Email</div>
+                <Input type="email" value={email} onChange={(event) => setEmail(event.target.value)}/>
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Phone number</div>
+                <Input type="tel" placeholder="+14805550123" value={phone} onChange={(event) => setPhone(event.target.value)}/>
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Company</div>
+                <Input value={company} onChange={(event) => setCompany(event.target.value)}/>
+              </div>
+            </div>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Role</div>
+                <Select value={role} onValueChange={(value) => setRole(value as AppRole)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Role"/>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {assignableRoles.map((item) => <SelectItem key={item} value={item}>{human(item)}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-medium text-muted-foreground">Status</div>
+                <Select value={status} onValueChange={setStatus}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Status"/>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {userStatuses.map((item) => <SelectItem key={item} value={item}>{human(item)}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            {cannotEditSelfStatus && <div className="mt-3 rounded-md border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-700 dark:text-red-300">You cannot deactivate your own account.</div>}
+            {cannotAssignSuperAdmin && <div className="mt-3 rounded-md border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-700 dark:text-red-300">Only a super admin can assign the super admin role.</div>}
+            {message && <div className="mt-3 text-xs text-muted-foreground">{message}</div>}
+            <Button className="mt-3 w-full" disabled={!canSave} onClick={saveUser}>
+              {saving ? "Saving..." : "Save user"}
+            </Button>
+          </div>
+
+          <div className="rounded-lg border bg-background/35 p-3">
+            <h3 className="text-sm font-semibold">Recent user activity</h3>
+            <div className="mt-3 space-y-2">
+              {userActivity.map((log) => (<div key={log.id} className="rounded-md border bg-secondary/25 px-3 py-2 text-sm">
+                  <div className="font-medium">{human(log.action)}</div>
+                  <div className="text-xs text-muted-foreground">{formatDateTime(log.created_at)}</div>
+                </div>))}
+              {!userActivity.length && <div className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">No access activity yet.</div>}
+            </div>
+          </div>
+
+          <div className="rounded-lg border bg-background/35 p-3">
+            <h3 className="text-sm font-semibold">RBAC notes</h3>
+            <div className="mt-2 space-y-2 text-sm text-muted-foreground">
+              <div>Internal users can access the admin console when their role is active.</div>
+              <div>Customer, vendor, designer, referral, and reseller roles should move toward assigned-record policies in later phases.</div>
+              <div>Super admin and admin roles currently have broad permission coverage.</div>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+            <h3 className="flex items-center gap-2 text-sm font-semibold text-red-700 dark:text-red-300">
+              <Trash2 className="h-4 w-4"/>
+              Remove user
+            </h3>
+            <p className="mt-1 text-xs text-red-700/80 dark:text-red-200/80">
+              This suspends the profile, marks it deleted, and removes the Supabase Auth login when possible. Existing orders and records remain for audit history.
+            </p>
+            <Input className="mt-3" placeholder="Type REMOVE to confirm" value={removeConfirm} onChange={(event) => setRemoveConfirm(event.target.value)} disabled={isSelf || removing}/>
+            {isSelf && <div className="mt-2 text-xs text-red-700 dark:text-red-300">You cannot remove your own account.</div>}
+            <Button className="mt-3 w-full" variant="destructive" disabled={isSelf || removeConfirm !== "REMOVE" || removing} onClick={removeUser}>
+              {removing ? "Removing..." : "Remove user"}
+            </Button>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>);
+}
+function SummaryTile({ label, children }: {
+    label: string;
+    children: React.ReactNode;
+}) {
+    return (<div className="rounded-lg border bg-secondary/30 p-3">
+      <div className="mb-1 text-xs font-semibold uppercase text-muted-foreground">{label}</div>
+      <div className="text-sm font-medium">{children}</div>
+    </div>);
+}
+function formatDate(value: string | null | undefined) {
+    if (!value)
+        return "Not available";
+    return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(value));
+}
+function formatDateTime(value: string | null | undefined) {
+    if (!value)
+        return "Not available";
+    return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
+}
+function AddUserSheet({ currentProfile, open, onOpenChange, onCreated, assignableRoles, mode, }: {
+    currentProfile: AdminProfile | null;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onCreated: () => Promise<void>;
+    assignableRoles: AppRole[];
+    mode: "add" | "invite";
+}) {
+    const [fullName, setFullName] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [company, setCompany] = useState("");
+    const [role, setRole] = useState<AppRole>(ROLES.CUSTOMER);
+    const [status, setStatus] = useState(mode === "invite" ? "pending" : "active");
+    const [saving, setSaving] = useState(false);
+    const [message, setMessage] = useState("");
+    const canSubmit = email.trim().includes("@") && fullName.trim().length >= 2 && phone.trim().length >= 7 && !saving;
+    async function createUser() {
+        setSaving(true);
+        setMessage("");
+        try {
+            if (!fullName.trim()) {
+                throw new Error("Full name is required.");
+            }
+            if (!email.trim().includes("@")) {
+                throw new Error("A valid email address is required.");
+            }
+            if (phone.trim().length < 7) {
+                throw new Error("A phone number is required for SMS and account communication.");
+            }
+            if (role === ROLES.SUPER_ADMIN && currentProfile?.role !== ROLES.SUPER_ADMIN) {
+                throw new Error("Only a super admin can create another super admin.");
+            }
+            setMessage(mode === "invite" ? "Sending invite..." : "Creating user...");
+            const db = getSupabaseBrowserClient();
+            const session = db ? (await db.auth.getSession()).data.session : null;
+            if (!session) {
+                throw new Error("Sign in again before adding a user.");
+            }
+            const response = await sourceFetch("/api/ctrlp/admin/users", {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json",
+                    authorization: `Bearer ${session.access_token}`,
+                },
+                body: JSON.stringify({
+                    full_name: fullName,
+                    email,
+                    phone,
+                    company,
+                    role,
+                    status: mode === "invite" ? "pending" : status,
+                    send_invite: mode === "invite",
+                }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || "Could not create user.");
+            }
+            setMessage(mode === "invite" ? "Invite sent." : "User created.");
+            await onCreated();
+            setFullName("");
+            setEmail("");
+            setPhone("");
+            setCompany("");
+            setRole(ROLES.CUSTOMER);
+            setStatus(mode === "invite" ? "pending" : "active");
+            onOpenChange(false);
+        }
+        catch (error) {
+            setMessage(error instanceof Error ? error.message : "Could not create user.");
+        }
+        finally {
+            setSaving(false);
+        }
+    }
+    return (<Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="overflow-y-auto sm:max-w-[60rem]">
+        <SheetHeader>
+          <SheetTitle>{mode === "invite" ? "Invite user" : "Add user"}</SheetTitle>
+          <SheetDescription>
+            {mode === "invite"
+            ? "Create a pending account and send the invite flow through the configured auth/email provider."
+            : "Create an admin-managed user profile with a role and status."}
+          </SheetDescription>
+        </SheetHeader>
+
+        <div className="mt-6 space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Full name</div>
+              <Input placeholder="Jane Customer" value={fullName} onChange={(event) => setFullName(event.target.value)}/>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Email</div>
+              <Input placeholder="jane@example.com" type="email" value={email} onChange={(event) => setEmail(event.target.value)}/>
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Phone number</div>
+              <Input placeholder="+14805550123" type="tel" value={phone} onChange={(event) => setPhone(event.target.value)}/>
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Company</div>
+              <Input placeholder="Company or organization" value={company} onChange={(event) => setCompany(event.target.value)}/>
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Role</div>
+              <Select value={role} onValueChange={(value) => setRole(value as AppRole)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Role"/>
+                </SelectTrigger>
+                  <SelectContent>
+                  {assignableRoles.map((item) => <SelectItem key={item} value={item}>{human(item)}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            {mode === "add" && (<div>
+              <div className="mb-1.5 text-xs font-medium text-muted-foreground">Status</div>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Status"/>
+                </SelectTrigger>
+                <SelectContent>
+                  {userStatuses.map((item) => <SelectItem key={item} value={item}>{human(item)}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>)}
+          </div>
+
+          <div className="rounded-lg border bg-secondary/30 p-3 text-sm text-muted-foreground">
+            {mode === "invite"
+            ? "This sends a Supabase Auth invite email and creates a profile with the selected role. Phone is required so SMS messages and payment links can be delivered."
+            : "This creates the Supabase auth account server-side, then updates the matching public.users profile. Phone is required for SMS, payment, shipping, and order alerts."}
+          </div>
+
+          {message && <div className="rounded-lg border bg-background/35 p-3 text-sm text-muted-foreground">{message}</div>}
+
+          <div className="flex gap-2">
+            <Button className="flex-1" disabled={!canSubmit} onClick={createUser}>
+              {saving ? "Creating..." : mode === "invite" ? "Create invite" : "Create user"}
+            </Button>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>);
+}
+function RoleReviewSheet({ open, onOpenChange, users, assignableRoles, }: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    users: AdminUser[];
+    assignableRoles: AppRole[];
+}) {
+    const roleRows = assignableRoles.map((role) => {
+        const count = users.filter((user) => user.role === role).length;
+        const active = users.filter((user) => user.role === role && user.status === "active").length;
+        const group = ["super_admin", "admin", "employee", "staff", "production_manager", "installer", "customer_support"].includes(role)
+            ? "Internal"
+            : ["vendor", "designer", "referral", "reseller"].includes(role)
+                ? "Partner"
+                : "Customer";
+        return { role, count, active, group };
+    });
+    return (<Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="overflow-y-auto sm:max-w-[60rem]">
+        <SheetHeader>
+          <SheetTitle>Review roles</SheetTitle>
+          <SheetDescription>Audit the current RBAC roles, active users, and intended access groupings.</SheetDescription>
+        </SheetHeader>
+
+        <div className="mt-6 space-y-4">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <SummaryTile label="Role types">{assignableRoles.length}</SummaryTile>
+            <SummaryTile label="Active users">{users.filter((user) => user.status === "active").length}</SummaryTile>
+            <SummaryTile label="Pending review">{users.filter((user) => user.status !== "active").length}</SummaryTile>
+          </div>
+
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Role</TableHead>
+                <TableHead>Group</TableHead>
+                <TableHead className="text-right">Active</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {roleRows.map((row) => (<TableRow key={row.role}>
+                  <TableCell className="font-medium">{human(row.role)}</TableCell>
+                  <TableCell><Badge variant="outline">{row.group}</Badge></TableCell>
+                  <TableCell className="text-right">{row.active}</TableCell>
+                  <TableCell className="text-right">{row.count}</TableCell>
+                </TableRow>))}
+            </TableBody>
+          </Table>
+
+          <div className="rounded-lg border bg-secondary/30 p-3 text-sm text-muted-foreground">
+            Internal roles can access the admin console when active. Customer, vendor, designer, referral, and reseller roles should continue moving toward assigned-record access as RBAC phases continue.
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>);
+}

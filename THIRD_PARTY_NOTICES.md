@@ -1,6 +1,18 @@
 # Third-party notices
 
+## CTRL+P dashboard adaptation
+
+Coupon management fields, validation and workflows are adapted from the user-supplied `ThePopOpp/ctrl-p` repository at `015a7b58b80e63ef87c73bec549a23242b88f3e3`, especially `components/admin/admin-coupons.tsx`, `app/api/admin/coupons/route.ts` and its initial schema. Source attribution and remaining feature gaps are recorded in `docs/migration/CTRL_P_DASHBOARD_PARITY.md`. No source credentials or production records were imported. Existing source/dependency licenses remain applicable.
+
 Dependencies are installed by npm and retain their own licenses. This source package does not bundle their distributions.
+
+The dashboard client screens and their dependencies under `ctrlp/` are also adapted from that CTRL+P commit. The source file manifest and page-level boundaries are recorded in `docs/migration/ported-client-files.json` and `docs/migration/DASHBOARD_PAGES.md`.
+
+## CMI Jobs adaptation
+
+The Jobs clients and supporting components under `cmi/` are adapted from the user-supplied `Qallus/cmi` repository at `23320abb158e26f0945c2f1ce2f513f02649aa70`. See `docs/migration/cmi-client-files.json` for the source paths. No source credentials or production records were imported. This attribution does not assign a new license to the source repository; existing source and dependency notices remain applicable.
+
+## UI and dependency notices
 
 The UI uses shadcn/ui's source-component approach with Radix primitives, CVA variants, and a `cn` utility. The button composition follows the user-owned ControlP source and established shadcn/ui conventions. The components are customized and namespaced for LayeredFX.
 

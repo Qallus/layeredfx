@@ -1,0 +1,24 @@
+{
+  "sha": "23320abb158e26f0945c2f1ce2f513f02649aa70",
+  "files": [
+    "app/dashboard/jobs/jobs-list-client.tsx",
+    "app/dashboard/jobs/new/new-job-client.tsx",
+    "app/dashboard/jobs/map/jobs-map-client.tsx",
+    "app/dashboard/jobs/[jobId]/summary/job-summary-client.tsx",
+    "app/dashboard/jobs/[jobId]/info/job-info-client.tsx",
+    "lib/jobs/reporting.ts",
+    "components/ui/button.tsx",
+    "components/ui/input.tsx",
+    "lib/utils.ts",
+    "lib/jobs/status.ts",
+    "lib/jobs/data.ts",
+    "lib/jobs/types.ts",
+    "app/dashboard/jobs/job-ui.tsx",
+    "components/ui/money-input.tsx",
+    "components/ui/address-autocomplete.tsx",
+    "components/ui/badge.tsx",
+    "app/dashboard/jobs/[jobId]/job-detail-nav.tsx",
+    "components/ui/searchable-select.tsx",
+    "components/dashboard/sidebar-context.tsx"
+  ]
+}

@@ -2,6 +2,8 @@
 
 # Coolify preview deployment
 
+Current integration checkpoint: dependency installation, 97 tests, typecheck, lint and Next.js standalone build pass locally. See `docs/reviews/current-review.md` for exact output and limitations. Docker Desktop's Linux engine is unavailable, so the Docker image has not been verified. Full source parity and authorized LayeredFX-only staging remain release blockers. No Coolify or DNS change has been made.
+
 A Dockerfile is supplied as a starting point. It was **not built or deployed in this delivery environment**. Verify locally before using it on the VPS.
 
 ## Before deployment

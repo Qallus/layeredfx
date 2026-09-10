@@ -1,3 +1,5 @@
+> Authoritative scope correction: preserve the LayeredFX public website and migrate the COMPLETE CTRL+P dashboard, adding Channel Cast Pipeline, Workspace and Plans. Earlier selective-reuse, exclusion and lightweight-dashboard directions are superseded. Unrelated development and safety instructions remain. See docs/migration/SCOPE.md and docs/reviews/current-review.md.
+
 > Current increment: Pipeline, Workspace and Plans source is now included. Start with `START_HERE.md` and `docs/channel-cast/`. The material below remains the earlier homepage map / broader roadmap, not an instruction to rebuild or discard the current dashboard.
 
 # Next phase after homepage approval

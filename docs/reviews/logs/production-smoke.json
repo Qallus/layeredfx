@@ -1,0 +1,56 @@
+[
+  {
+    "path": "/",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "path": "/images/kitchen.svg",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "path": "/admin",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "path": "/admin/coupons",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "path": "/admin/orders",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "path": "/admin/jobs",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "path": "/api/admin/coupons",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "path": "/api/operations",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "path": "/api/ctrlp/admin/orders",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "path": "/api/ctrlp/cmi/jobs",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "name": "Standalone entry point generated",
+    "passed": true
+  }
+]

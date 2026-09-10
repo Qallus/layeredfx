@@ -1,0 +1,217 @@
+{
+  "checks": [
+    {
+      "route": "communications",
+      "status": 200,
+      "headings": [
+        "Communications"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "analytics",
+      "status": 200,
+      "headings": [
+        "Analytics"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "orders",
+      "status": 200,
+      "headings": [
+        "Orders command center"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "jobs",
+      "status": 200,
+      "headings": [
+        "Jobs"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "jobs/new",
+      "status": 200,
+      "headings": [
+        "New Job"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "bookings",
+      "status": 200,
+      "headings": [
+        "Bookings"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "designers",
+      "status": 200,
+      "headings": [
+        "Designers"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "installers",
+      "status": 200,
+      "headings": [
+        "Installers"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "payments",
+      "status": 200,
+      "headings": [
+        "Payments command center"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "customers",
+      "status": 200,
+      "headings": [
+        "Customer command center"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "users",
+      "status": 200,
+      "headings": [
+        "User management"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "products",
+      "status": 200,
+      "headings": [
+        "Products"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "wall-studio",
+      "status": 200,
+      "headings": [
+        "Wall Studio"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "coupons",
+      "status": 200,
+      "headings": [
+        "Coupon codes"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "artwork",
+      "status": 200,
+      "headings": [
+        "Artwork and proof command center"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "marketing",
+      "status": 200,
+      "headings": [
+        "Marketing command center"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "blog",
+      "status": 200,
+      "headings": [
+        "Blog Posts"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "agent",
+      "status": 200,
+      "headings": [
+        "Agents"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "settings",
+      "status": 200,
+      "headings": [
+        "Settings command center"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "profile",
+      "status": 200,
+      "headings": [
+        "My Profile"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "production-schedule",
+      "status": 200,
+      "headings": [
+        "Project Management / Gantt Schedule"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "production",
+      "status": 200,
+      "headings": [
+        "Production command center"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "messages",
+      "status": 200,
+      "headings": [
+        "Messaging command center"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "shipments",
+      "status": 200,
+      "headings": [
+        "Shipping command center"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "content",
+      "status": 200,
+      "headings": [
+        "Content"
+      ],
+      "navigation": 1
+    },
+    {
+      "route": "workspace",
+      "status": 200,
+      "headings": [
+        "Workspace"
+      ],
+      "navigation": 1
+    },
+    {
+      "name": "Workspace tracking",
+      "letterSpacing": "normal"
+    }
+  ],
+  "errors": []
+}

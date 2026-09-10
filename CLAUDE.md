@@ -1,3 +1,5 @@
+> Authoritative scope correction: preserve the LayeredFX public website and migrate the COMPLETE CTRL+P dashboard, adding Channel Cast Pipeline, Workspace and Plans. Earlier selective-reuse, exclusion and lightweight-dashboard directions are superseded. Unrelated development and safety instructions remain. See docs/migration/SCOPE.md and docs/reviews/current-review.md.
+
 # LayeredFX — Claude Code instructions
 
 Read in order:
@@ -36,4 +38,4 @@ Use `prompts/03-CHANNEL-CAST-INTEGRATION.md` for detailed acceptance checks. Kee
 
 ## Later work
 
-Use `docs/channel-cast/FEATURE_PARITY.md` as the backlog for source features intentionally not included. The earlier `docs/LAYEREDFX_BUILD_MASTER.md` remains the broader product roadmap, not an instruction to discard the new dashboard. Update the parity/QA reports with measured results, not assumptions.
+Use `docs/channel-cast/FEATURE_PARITY.md` as the backlog for required source features not yet migrated. The earlier `docs/LAYEREDFX_BUILD_MASTER.md` remains the broader product roadmap, not an instruction to discard the new dashboard. Update the parity/QA reports with measured results, not assumptions.

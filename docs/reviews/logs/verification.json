@@ -1,0 +1,33 @@
+{
+  "node": "v24.15.0",
+  "checks": [
+    {
+      "command": "npm test",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "log": "test-verified.txt"
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "log": "typecheck-verified.txt"
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "log": "lint-verified.txt"
+    },
+    {
+      "command": "npm run build",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "log": "build-verified.txt"
+    }
+  ]
+}

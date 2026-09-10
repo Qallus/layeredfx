@@ -1,3 +1,5 @@
+> Authoritative scope correction: preserve the LayeredFX public website and migrate the COMPLETE CTRL+P dashboard, adding Channel Cast Pipeline, Workspace and Plans. Earlier selective-reuse, exclusion and lightweight-dashboard directions are superseded. Unrelated development and safety instructions remain. See docs/migration/SCOPE.md and docs/reviews/current-review.md.
+
 # Channel Cast → LayeredFX: implementation and limits
 
 This is a **source-reviewed adaptation**, not a byte-for-byte copy or a complete migration of Channel Cast OS. The existing LayeredFX homepage remains. No Channel Cast data, credentials or device/advertising providers were imported.
@@ -24,7 +26,7 @@ This is a **source-reviewed adaptation**, not a byte-for-byte copy or a complete
 | Linked records | Opportunity-linked Workspace documents and Plans with access filtering and direct navigation. |
 | Reports | Open value/count, weighted forecast, won value and decided win rate. Nurture and archived records excluded from open forecast. Filtered export. |
 
-**Not carried over:** live dialer, email/SMS delivery, AI agent execution, recordings/transcripts, external booking creation, invoice/payment processing, e-signatures, advertiser/venue/partner conversion, automated notifications, arbitrary creation/reordering of stage IDs, or a full contact/account CRM. Logs describe manual events; they never execute these services. The stable stage-ID set is deliberate, matching the reviewed source model.
+**Not yet migrated; required scope remains:** live dialer, email/SMS delivery, AI agent execution, recordings/transcripts, external booking creation, invoice/payment processing, e-signatures, advertiser/venue/partner conversion, automated notifications, arbitrary creation/reordering of stage IDs, or a full contact/account CRM. Logs describe manual events; they never execute these services. The stable stage-ID set is deliberate, matching the reviewed source model.
 
 Stage moves change the same opportunity; they do not create separate “prospect,” “client” or “lead” copies. A plan is an execution record, not another sales stage. Reopening a won opportunity retains its handoff and records the new sales history; it does not delete ongoing delivery work.
 
@@ -42,7 +44,7 @@ Stage moves change the same opportunity; they do not create separate “prospect
 | Favorites / archive / export | Per-person favorite toggle, soft archive/restore and JSON export. |
 | Cross-module context | Opportunity-linked briefs with return navigation. |
 
-**Not carried over:** the full Channel Cast editor toolbar, font/color/alignment controls, columns, media upload/recording, HTML sandbox embeds, code-block syntax tools, table-of-contents controls, live-app embeds, inline record/document pickers, mentions, replies/notifications, template favorite/hide administration, folder rename/delete administration, or simultaneous collaborative cursor/CRDT editing. The source files include these additional concepts; this package does not imply they are implemented.
+**Not yet migrated; required scope remains:** the full Channel Cast editor toolbar, font/color/alignment controls, columns, media upload/recording, HTML sandbox embeds, code-block syntax tools, table-of-contents controls, live-app embeds, inline record/document pickers, mentions, replies/notifications, template favorite/hide administration, folder rename/delete administration, or simultaneous collaborative cursor/CRDT editing. The source files include these additional concepts; this package does not imply they are implemented.
 
 Documents require explicit saving. This is a versioned editor with conflict detection, not real-time multi-user coediting. Moving/sharing a document does not grant access to private linked plans. Unsupported source block types should not be bulk-imported into the reduced editor before an import-compatibility review. No bulk source-data import is included.
 
@@ -61,7 +63,7 @@ Documents require explicit saving. This is a versioned editor with conflict dete
 | Templates | Blank, surface transformation, painting and commercial installation. Fresh task/checklist IDs generated on each creation. |
 | Links / export | Opportunity-linked plans and JSON export of plan/tasks. Repeated opportunity handoff opens the existing active plan when requested. |
 
-**Not carried over:** a subscription/pricing module (Plans never means pricing here), premium entitlements/billing, user-created reusable template library, plan cover/icon customization, full custom ordering UX, owner transfer, dependencies/Gantt, recurrence, resource capacity scheduling, or automatic calendar synchronization. `plan_type` stays basic; no payment is required to use the implemented views. Label rename/delete is not implemented in this increment.
+**Not yet migrated; required scope remains:** a subscription/pricing module (Plans never means pricing here), premium entitlements/billing, user-created reusable template library, plan cover/icon customization, full custom ordering UX, owner transfer, dependencies/Gantt, recurrence, resource capacity scheduling, or automatic calendar synchronization. `plan_type` stays basic; no payment is required to use the implemented views. Label rename/delete is not implemented in this increment.
 
 ## Persistence and access
 

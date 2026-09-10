@@ -1,0 +1,96 @@
+{
+  "checks": [
+    {
+      "path": "/",
+      "status": 200,
+      "heading": "Same space.\nA whole\nnew feeling."
+    },
+    {
+      "name": "Three.js canvas",
+      "count": 1
+    },
+    {
+      "path": "/admin",
+      "status": 200,
+      "heading": "Make room for great work."
+    },
+    {
+      "path": "/admin/pipeline",
+      "status": 200,
+      "heading": "Pipeline"
+    },
+    {
+      "name": "Pipeline List",
+      "visible": true
+    },
+    {
+      "name": "Pipeline Table",
+      "visible": true
+    },
+    {
+      "name": "Pipeline Cards",
+      "visible": true
+    },
+    {
+      "name": "Pipeline Calendar",
+      "visible": true
+    },
+    {
+      "name": "Pipeline Board",
+      "visible": true
+    },
+    {
+      "path": "/admin/pipeline/stages",
+      "status": 200,
+      "heading": "Stage settings"
+    },
+    {
+      "path": "/admin/workspace",
+      "status": 200,
+      "heading": "Workspace"
+    },
+    {
+      "name": "Plate editor renders",
+      "path": "/admin/workspace/doc_df734e6f-c64b-4385-bb80-8eadb24cd97c"
+    },
+    {
+      "name": "Plate save/refresh and sidebar unsaved-change cancellation",
+      "passed": true
+    },
+    {
+      "path": "/admin/plans",
+      "status": 200,
+      "heading": "Plans"
+    },
+    {
+      "name": "Plans Grid",
+      "visible": true
+    },
+    {
+      "name": "Plans List",
+      "visible": true
+    },
+    {
+      "name": "Plans Calendar",
+      "visible": true
+    },
+    {
+      "name": "Plans Board",
+      "visible": true
+    },
+    {
+      "path": "/admin/coupons",
+      "status": 200,
+      "heading": "Coupon codes"
+    },
+    {
+      "name": "Mobile navigation and coupon configuration gate",
+      "passed": true
+    },
+    {
+      "name": "Actual unauthenticated coupon API",
+      "status": 401
+    }
+  ],
+  "errors": []
+}

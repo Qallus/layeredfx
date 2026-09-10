@@ -123,6 +123,7 @@ export interface Folder {
     created_at: string;
 }
 export interface Document {
+    content_revision?: number;
     id: string;
     title: string;
     description: string;

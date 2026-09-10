@@ -1,3 +1,5 @@
+> Authoritative scope correction: preserve the LayeredFX public website and migrate the COMPLETE CTRL+P dashboard, adding Channel Cast Pipeline, Workspace and Plans. Earlier selective-reuse, exclusion and lightweight-dashboard directions are superseded. Unrelated development and safety instructions remain. See docs/migration/SCOPE.md and docs/reviews/current-review.md.
+
 # Safe integration with a LayeredFX copy of ControlP
 
 ## Recommended first step: run standalone
@@ -75,6 +77,6 @@ Keep one source of the navigation and footer. Update LayeredFX metadata, favicon
 
 ## Later backend reuse
 
-Audit ControlP's authentication, users, contacts, booking, content, storage, and Wall Studio. Reuse verified modules selectively. The material explorer in this package is a finish-study scene; it is **not** a port of ControlP's full uploaded-room visualizer.
+Audit ControlP's authentication, users, contacts, booking, content, storage, and Wall Studio. Migrate all verified dashboard modules and their dependencies. The material explorer in this package is a finish-study scene; it is **not** a port of ControlP's full uploaded-room visualizer.
 
 LayeredFX needs independent environment variables and a separate Supabase project/instance for the simplest isolation. Do not connect these preview forms to ControlP production tables. Do not share service-role credentials or live outbound integrations across the two businesses by default.

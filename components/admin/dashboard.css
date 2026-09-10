@@ -1,0 +1,26 @@
+/* Dashboard typography must not inherit the marketing site's display tracking. */
+.ops h1,.ops h2,.ops h3,.ops h4,.ops-modal h1,.ops-modal h2,.ops-modal h3{letter-spacing:normal;word-spacing:normal}
+.ops-document-card h2{font-size:17px;line-height:1.5;font-weight:600;overflow-wrap:anywhere;margin-bottom:8px}
+.ops-document-card p{font-size:13px;line-height:1.65;color:#64705f}
+.ops-editor-page h1,.ops-editor-page h2,.ops-editor-page h3{letter-spacing:normal;word-spacing:normal;line-height:1.4}
+.ops-sidebar{width:248px;padding:22px 14px 16px;overflow:hidden}
+.ops-brand{margin-bottom:22px}.ops-sidebar nav{display:block;overflow-y:auto;flex:1;min-height:0;padding-right:4px}
+.ops-sidebar nav section{margin-bottom:18px}.ops-sidebar nav a{padding:9px 12px;font-size:14px;gap:11px}
+.ops-sidebar-label{margin:10px 12px 7px;font-size:10px}.ops-sidebar-bottom{padding-top:12px;margin-top:0;flex-shrink:0}
+.ops-sidebar-bottom p{display:none}.ops-app{margin-left:248px;width:calc(100% - 248px)}
+.source-connection-notice{border:1px solid var(--ops-line);background:var(--ops-surface);border-radius:8px;padding:11px 14px;margin-bottom:18px;font-size:12px;color:var(--ops-muted)}
+.source-screen{min-width:0}.source-screen h1{font-size:26px;line-height:1.3}.source-screen h2{font-size:19px;line-height:1.4}.source-screen h3{line-height:1.45}.source-screen p{letter-spacing:normal}
+.source-screen main{padding:0}.source-screen .source-module>div{background:transparent}
+.source-screen input:not([type=checkbox]),.source-screen select,.source-screen textarea{font-size:13px;line-height:1.4}
+.source-screen button{font-family:inherit}
+.ops [role=dialog] h2{font-size:20px;line-height:1.4;letter-spacing:normal}
+.ops [role=dialog]{max-height:95vh;overflow-y:auto}
+:root,.ops{
+ --card:72 24% 98%;--card-foreground:140 18% 8%;--popover:72 24% 98%;--popover-foreground:140 18% 8%;--destructive:0 78% 48%;--destructive-foreground:0 0% 98%;
+}
+.ops{--background:72 24% 97%;--foreground:140 18% 7%;--primary:85 55% 32%;--primary-foreground:0 0% 100%;--secondary:78 18% 93%;--secondary-foreground:130 18% 14%;--muted:76 18% 94%;--muted-foreground:125 8% 38%;--accent:84 35% 86%;--accent-foreground:130 35% 12%;--border:80 13% 84%;--input:80 13% 84%;--ring:85 60% 36%;--radius:.7rem}
+.ops.dark{--ops-bg:#0d160f;--ops-surface:#18241a;--ops-ink:#e1ebdb;--ops-muted:#a5b39d;--ops-line:#32412f;--background:138 35% 5%;--foreground:96 26% 92%;--card:134 24% 8%;--card-foreground:96 26% 92%;--popover:134 24% 8%;--popover-foreground:96 26% 92%;--primary:78 75% 48%;--primary-foreground:130 45% 7%;--secondary:134 17% 13%;--secondary-foreground:96 22% 88%;--muted:134 16% 12%;--muted-foreground:94 9% 68%;--accent:83 70% 17%;--accent-foreground:84 90% 82%;--border:132 14% 22%;--input:132 14% 22%;--ring:78 75% 50%}
+.ops.dark .ops-topbar,.ops.dark .ops-panel,.ops.dark .ops-stats>div,.ops.dark .ops-document-card,.ops.dark .ops-plan-card,.ops.dark .ops-editor,.ops.dark .ops-calendar-wrap{background:var(--ops-surface);color:var(--ops-ink);border-color:var(--ops-line)}
+.ops.dark input:not([type=checkbox]),.ops.dark select,.ops.dark textarea{background:var(--ops-surface);color:var(--ops-ink);border-color:var(--ops-line)}
+.ops.dark .ops-demo-banner,.ops.dark .ops-editor-toolbar{background:#25341d;color:#cbd9bb}.ops.dark .ops-document-card p{color:var(--ops-muted)}
+@media(max-width:760px){.ops-app{margin-left:0;width:100%}.ops-sidebar{width:260px}.source-screen h1{font-size:24px}.source-screen .source-module{overflow-x:auto}}

@@ -7,6 +7,16 @@ const ADMIN={id:'admin',name:'Admin',role:'admin',email:'admin@example.test'};
 const OWNER={id:'owner',name:'Owner',role:'staff',email:'owner@example.test'};
 const OTHER={id:'other',name:'Other',role:'staff',email:'other@example.test'};
 const VIEWER={id:'viewer',name:'Viewer',role:'viewer',email:'viewer@example.test'};
+test('document content revision detects conflicts even at identical timestamps',()=>{
+ let {state,id}=documentFixture('shared');
+ const revision=state.documents[0].content_revision||0;
+ state=run(state,{type:'document.save',id,title:'First writer',content_json:textNodes('First'),contentRevision:revision}).state;
+ rejected(()=>run(state,{type:'document.save',id,title:'Second writer',content_json:textNodes('Second'),contentRevision:revision},OTHER),409);
+ assert.equal(state.documents[0].title,'First writer');
+ const next=state.documents[0].content_revision;
+ state=run(state,{type:'document.restoreVersion',id,versionId:state.documents[0].versions[0].id}).state;
+ assert.equal(state.documents[0].content_revision,next+1);
+});
 const fixture=()=>Object.assign(emptyState(),{people:[ADMIN,OWNER,OTHER,VIEWER]});
 function run(state,command,actor=OWNER,at=NOW){return applyCommand(state,command,actor,at);}
 function dealFixture(){const r=run(fixture(),{type:'deal.create',name:'Kitchen wrap',client:'Test client',email:'client@example.test',value:5000,closeDate:'2026-09-30'});return {state:r.state,id:r.resultId};}

@@ -1,3 +1,5 @@
+> Authoritative scope correction: preserve the LayeredFX public website and migrate the COMPLETE CTRL+P dashboard, adding Channel Cast Pipeline, Workspace and Plans. Earlier selective-reuse, exclusion and lightweight-dashboard directions are superseded. Unrelated development and safety instructions remain. See docs/migration/SCOPE.md and docs/reviews/current-review.md.
+
 # LayeredFX — Website and Operations Studio
 
 The existing LayeredFX homepage plus three Channel Cast-derived modules: **Pipeline**, **Workspace**, and **Plans**. Project-root source for VS Code, Next.js / React / TypeScript, namespaced shadcn/ui, Three.js and a Plate rich-text editor.

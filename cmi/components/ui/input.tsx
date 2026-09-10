@@ -1,0 +1,599 @@
+// Adapted from CMI 23320abb158e26f0945c2f1ce2f513f02649aa70: components/ui/input.tsx
+import { cn } from "@/cmi/lib/utils";
+import { CalendarDays,ChevronLeft,ChevronRight,Clock } from "lucide-react";
+import * as React from "react";
+
+type SelectOption = {
+  value: string;
+  label: string;
+  disabled?: boolean;
+};
+
+function selectOptionsFromChildren(children: React.ReactNode): SelectOption[] {
+  return React.Children.toArray(children).flatMap(child => {
+    if (!React.isValidElement<React.OptionHTMLAttributes<HTMLOptionElement>>(child)) return [];
+    if (child.type !== "option") return [];
+    const value = String(child.props.value ?? child.props.children ?? "");
+    const label = React.Children.toArray(child.props.children).join("");
+    return [{ value, label, disabled: child.props.disabled }];
+  });
+}
+
+function dateOnly(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function dateTimeLocalValue(date: Date) {
+  const offset = date.getTimezoneOffset();
+  return new Date(date.getTime() - offset * 60 * 1000).toISOString().slice(0, 16);
+}
+
+function parseDate(value?: string | number | readonly string[]) {
+  if (typeof value !== "string" || !value) return null;
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function parseDateTime(value?: string | number | readonly string[]) {
+  if (typeof value !== "string" || !value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatDateLabel(value?: string) {
+  const date = parseDate(value);
+  return date ? date.toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" }) : "Select date";
+}
+
+function formatDateTimeLabel(value?: string) {
+  const date = parseDateTime(value);
+  return date ? date.toLocaleString("en-US", { month: "2-digit", day: "2-digit", year: "numeric", hour: "numeric", minute: "2-digit" }) : "Select date and time";
+}
+
+function monthDays(monthDate: Date) {
+  const first = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+  const gridStart = new Date(first);
+  gridStart.setDate(first.getDate() - first.getDay());
+
+  return Array.from({ length: 42 }, (_, index) => {
+    const date = new Date(gridStart);
+    date.setDate(gridStart.getDate() + index);
+    return date;
+  });
+}
+
+export function Input({ className, type, ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
+  if (type === "date") {
+    return <DateInput className={className} {...props} />;
+  }
+  if (type === "datetime-local") {
+    return <DateTimeInput className={className} {...props} />;
+  }
+  if (type === "time") {
+    return <TimeInput className={className} {...props} />;
+  }
+
+  return (
+    <input
+      className={cn("cmi-form-control h-9 w-full rounded-md border border-input bg-card px-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-accent focus:ring-2 focus:ring-ring", className)}
+      type={type}
+      {...props}
+    />
+  );
+}
+
+function DateTimeInput({
+  className,
+  value,
+  defaultValue,
+  onChange,
+  disabled,
+  name,
+  id,
+  placeholder,
+  ..._props
+}: React.InputHTMLAttributes<HTMLInputElement>) {
+  const generatedId = React.useId();
+  const controlId = id || generatedId;
+  const isControlled = value !== undefined;
+  const [open, setOpen] = React.useState(false);
+  const [internalValue, setInternalValue] = React.useState(String(defaultValue ?? ""));
+  const selectedValue = String(isControlled ? value ?? "" : internalValue);
+  const selectedDateTime = parseDateTime(selectedValue);
+  const [visibleMonth, setVisibleMonth] = React.useState(() => selectedDateTime || new Date());
+  const [hour, setHour] = React.useState(() => {
+    const date = selectedDateTime || new Date();
+    const next = date.getHours() % 12 || 12;
+    return String(next).padStart(2, "0");
+  });
+  const [minute, setMinute] = React.useState(() => String((selectedDateTime || new Date()).getMinutes()).padStart(2, "0"));
+  const [period, setPeriod] = React.useState<"AM" | "PM">(() => (selectedDateTime && selectedDateTime.getHours() >= 12 ? "PM" : "AM"));
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+  const today = dateOnly(new Date());
+
+  React.useEffect(() => {
+    if (!selectedDateTime) return;
+    setVisibleMonth(selectedDateTime);
+    setHour(String(selectedDateTime.getHours() % 12 || 12).padStart(2, "0"));
+    setMinute(String(selectedDateTime.getMinutes()).padStart(2, "0"));
+    setPeriod(selectedDateTime.getHours() >= 12 ? "PM" : "AM");
+  }, [selectedValue]);
+
+  React.useEffect(() => {
+    function closeOnOutsideClick(event: MouseEvent) {
+      if (!wrapperRef.current?.contains(event.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    return () => document.removeEventListener("mousedown", closeOnOutsideClick);
+  }, []);
+
+  const choose = (dayValue?: string, nextHour = hour, nextMinute = minute, nextPeriod = period, close = false) => {
+    const datePart = dayValue || (selectedValue ? selectedValue.slice(0, 10) : dateOnly(visibleMonth));
+    let hours = Number(nextHour);
+    if (nextPeriod === "PM" && hours < 12) hours += 12;
+    if (nextPeriod === "AM" && hours === 12) hours = 0;
+    const next = `${datePart}T${String(hours).padStart(2, "0")}:${String(Number(nextMinute)).padStart(2, "0")}`;
+    if (!isControlled) setInternalValue(next);
+    if (close) setOpen(false);
+    onChange?.({
+      target: { value: next, name },
+      currentTarget: { value: next, name }
+    } as React.ChangeEvent<HTMLInputElement>);
+  };
+
+  const moveMonth = (amount: number) => setVisibleMonth(current => new Date(current.getFullYear(), current.getMonth() + amount, 1));
+  const days = monthDays(visibleMonth);
+  const monthLabel = visibleMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const hourOptions = Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, "0"));
+  const minuteOptions = ["00", "15", "30", "45"];
+
+  return (
+    <div ref={wrapperRef} className={cn("relative w-full", className)}>
+      {name ? <input type="hidden" name={name} value={selectedValue} /> : null}
+      <button
+        id={controlId}
+        type="button"
+        disabled={disabled}
+        className="cmi-form-control flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-card px-3 text-left text-sm text-foreground outline-none transition hover:border-accent focus:border-accent focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => setOpen(current => !current)}
+      >
+        <span className={cn("truncate", !selectedValue && "text-muted-foreground")}>{selectedValue ? formatDateTimeLabel(selectedValue) : placeholder || "Select date and time"}</span>
+        <CalendarDays className="h-4 w-4 text-muted-foreground" />
+      </button>
+      {open ? (
+        <div className="absolute left-0 top-[calc(100%+4px)] z-50 grid w-[470px] max-w-[calc(100vw-2rem)] grid-cols-[1fr_176px] overflow-hidden rounded-md border border-border bg-card text-card-foreground shadow-lg">
+          <div className="p-3">
+            <div className="mb-3 flex items-center justify-between">
+              <div className="text-sm font-semibold">{monthLabel}</div>
+              <div className="flex items-center gap-1">
+                <button type="button" className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground" onClick={() => moveMonth(-1)} aria-label="Previous month">
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <button type="button" className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground" onClick={() => moveMonth(1)} aria-label="Next month">
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-medium text-muted-foreground">
+              {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map(day => <div key={day} className="py-1">{day}</div>)}
+            </div>
+            <div className="mt-1 grid grid-cols-7 gap-1">
+              {days.map(day => {
+                const dayValue = dateOnly(day);
+                const isSelected = dayValue === selectedValue.slice(0, 10);
+                const isToday = dayValue === today;
+                const isMuted = day.getMonth() !== visibleMonth.getMonth();
+                return (
+                  <button
+                    key={dayValue}
+                    type="button"
+                    className={cn(
+                      "grid h-8 place-items-center rounded-md text-sm outline-none transition hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                      isMuted && "text-muted-foreground",
+                      isToday && "border border-accent",
+                      isSelected && "bg-accent text-accent-foreground"
+                    )}
+                    onClick={() => choose(dayValue)}
+                  >
+                    {day.getDate()}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+              <button type="button" className="rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-muted hover:text-foreground" onClick={() => { if (!isControlled) setInternalValue(""); onChange?.({ target: { value: "", name }, currentTarget: { value: "", name } } as React.ChangeEvent<HTMLInputElement>); }}>
+                Clear
+              </button>
+              <button type="button" className="rounded-md px-2 py-1 text-sm font-medium text-accent hover:bg-accent hover:text-accent-foreground" onClick={() => {
+                const now = new Date();
+                const next = dateTimeLocalValue(now);
+                if (!isControlled) setInternalValue(next);
+                setVisibleMonth(now);
+                onChange?.({ target: { value: next, name }, currentTarget: { value: next, name } } as React.ChangeEvent<HTMLInputElement>);
+              }}>
+                Today
+              </button>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-1 border-l border-border bg-muted/30 p-3">
+            <TimeColumn values={hourOptions} value={hour} onSelect={next => { setHour(next); choose(undefined, next, minute, period); }} />
+            <TimeColumn values={minuteOptions} value={minute} onSelect={next => { setMinute(next); choose(undefined, hour, next, period); }} />
+            <TimeColumn values={["AM", "PM"]} value={period} onSelect={next => { const nextPeriod = next as "AM" | "PM"; setPeriod(nextPeriod); choose(undefined, hour, minute, nextPeriod); }} />
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function parseHHmm(value?: string | number | readonly string[]): { h12: number; minute: number; period: "AM" | "PM" } | null {
+  if (typeof value !== "string") return null;
+  const match = /^(\d{1,2}):(\d{2})/.exec(value);
+  if (!match) return null;
+  const hours = Number(match[1]);
+  const minute = Number(match[2]);
+  if (hours > 23 || minute > 59) return null;
+  return { h12: hours % 12 || 12, minute, period: hours >= 12 ? "PM" : "AM" };
+}
+
+function formatTimeLabel(value: string): string {
+  const parsed = parseHHmm(value);
+  return parsed ? `${parsed.h12}:${String(parsed.minute).padStart(2, "0")} ${parsed.period}` : "";
+}
+
+// Accent-themed time picker (replaces the unstyleable native type="time" popup).
+// Value stays in 24h "HH:mm" so it is a drop-in for a native time input.
+function TimeInput({
+  className,
+  value,
+  defaultValue,
+  onChange,
+  disabled,
+  name,
+  id,
+  placeholder,
+  required,
+  ..._props
+}: React.InputHTMLAttributes<HTMLInputElement>) {
+  const generatedId = React.useId();
+  const controlId = id || generatedId;
+  const isControlled = value !== undefined;
+  const [open, setOpen] = React.useState(false);
+  const [internalValue, setInternalValue] = React.useState(String(defaultValue ?? ""));
+  const selectedValue = String(isControlled ? value ?? "" : internalValue);
+  const parsed = parseHHmm(selectedValue);
+  const hour = parsed ? String(parsed.h12).padStart(2, "0") : "12";
+  const minute = parsed ? String(parsed.minute).padStart(2, "0") : "00";
+  const period: "AM" | "PM" = parsed ? parsed.period : "AM";
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    function closeOnOutsideClick(event: MouseEvent) {
+      if (!wrapperRef.current?.contains(event.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    return () => document.removeEventListener("mousedown", closeOnOutsideClick);
+  }, []);
+
+  const choose = (nextHour = hour, nextMinute = minute, nextPeriod: "AM" | "PM" = period) => {
+    let hours = Number(nextHour) % 12;
+    if (nextPeriod === "PM") hours += 12;
+    const next = `${String(hours).padStart(2, "0")}:${String(Number(nextMinute)).padStart(2, "0")}`;
+    if (!isControlled) setInternalValue(next);
+    onChange?.({
+      target: { value: next, name },
+      currentTarget: { value: next, name }
+    } as React.ChangeEvent<HTMLInputElement>);
+  };
+
+  const hourOptions = Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, "0"));
+  const minuteOptions = ["00", "15", "30", "45"];
+
+  return (
+    <div ref={wrapperRef} className={cn("relative w-full", className)}>
+      {name ? <input type="hidden" name={name} value={selectedValue} required={required} /> : null}
+      <button
+        id={controlId}
+        type="button"
+        disabled={disabled}
+        className="cmi-form-control flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-card px-3 text-left text-sm text-foreground outline-none transition hover:border-accent focus:border-accent focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => setOpen(current => !current)}
+      >
+        <span className={cn("truncate", !parsed && "text-muted-foreground")}>{parsed ? formatTimeLabel(selectedValue) : placeholder || "Select time"}</span>
+        <Clock className="h-4 w-4 text-muted-foreground" />
+      </button>
+      {open ? (
+        <div className="absolute left-0 top-[calc(100%+4px)] z-50 w-[212px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-md border border-border bg-card text-card-foreground shadow-lg">
+          <div className="grid grid-cols-3 gap-1 bg-muted/30 p-3">
+            <TimeColumn values={hourOptions} value={hour} onSelect={next => choose(next, minute, period)} />
+            <TimeColumn values={minuteOptions} value={minute} onSelect={next => choose(hour, next, period)} />
+            <TimeColumn values={["AM", "PM"]} value={period} onSelect={next => choose(hour, minute, next as "AM" | "PM")} />
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function TimeColumn({ values, value, onSelect }: { values: string[]; value: string; onSelect: (value: string) => void }) {
+  return (
+    <div className="cmi-time-scroll max-h-[292px] space-y-1 overflow-y-auto pr-1.5">
+      {values.map(item => (
+        <button
+          key={item}
+          type="button"
+          className={cn("grid h-8 w-full place-items-center rounded-md px-1 text-sm tabular-nums transition hover:bg-accent hover:text-accent-foreground", item === value && "bg-accent text-accent-foreground")}
+          onClick={() => onSelect(item)}
+        >
+          {item}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function DateInput({
+  className,
+  value,
+  defaultValue,
+  onChange,
+  disabled,
+  name,
+  id,
+  placeholder,
+  ..._props
+}: React.InputHTMLAttributes<HTMLInputElement>) {
+  const generatedId = React.useId();
+  const controlId = id || generatedId;
+  const isControlled = value !== undefined;
+  const [open, setOpen] = React.useState(false);
+  const [internalValue, setInternalValue] = React.useState(String(defaultValue ?? ""));
+  const selectedValue = String(isControlled ? value ?? "" : internalValue);
+  const selectedDate = parseDate(selectedValue);
+  const [visibleMonth, setVisibleMonth] = React.useState(() => selectedDate || new Date());
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+  const today = dateOnly(new Date());
+
+  React.useEffect(() => {
+    if (selectedDate) setVisibleMonth(selectedDate);
+  }, [selectedValue]);
+
+  React.useEffect(() => {
+    function closeOnOutsideClick(event: MouseEvent) {
+      if (!wrapperRef.current?.contains(event.target as Node)) setOpen(false);
+    }
+
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    return () => document.removeEventListener("mousedown", closeOnOutsideClick);
+  }, []);
+
+  const choose = (nextValue: string) => {
+    if (!isControlled) setInternalValue(nextValue);
+    setOpen(false);
+    onChange?.({
+      target: { value: nextValue, name },
+      currentTarget: { value: nextValue, name }
+    } as React.ChangeEvent<HTMLInputElement>);
+  };
+
+  const moveMonth = (amount: number) => {
+    setVisibleMonth(current => new Date(current.getFullYear(), current.getMonth() + amount, 1));
+  };
+
+  const goToday = () => {
+    const next = dateOnly(new Date());
+    setVisibleMonth(new Date(`${next}T00:00:00`));
+    choose(next);
+  };
+
+  const days = monthDays(visibleMonth);
+  const monthLabel = visibleMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+
+  return (
+    <div ref={wrapperRef} className={cn("relative w-full", className)}>
+      {name ? <input type="hidden" name={name} value={selectedValue} /> : null}
+      <button
+        id={controlId}
+        type="button"
+        disabled={disabled}
+        className="cmi-form-control flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-card px-3 text-left text-sm text-foreground outline-none transition hover:border-accent focus:border-accent focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => setOpen(current => !current)}
+      >
+        <span className={cn("truncate", !selectedValue && "text-muted-foreground")}>{selectedValue ? formatDateLabel(selectedValue) : placeholder || "Select date"}</span>
+        <CalendarDays className="h-4 w-4 text-muted-foreground" />
+      </button>
+      {open ? (
+        <div className="absolute left-0 top-[calc(100%+4px)] z-50 w-[292px] rounded-md border border-border bg-card p-3 text-card-foreground shadow-lg">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="text-sm font-semibold">{monthLabel}</div>
+            <div className="flex items-center gap-1">
+              <button type="button" className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground" onClick={() => moveMonth(-1)} aria-label="Previous month">
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button type="button" className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground" onClick={() => moveMonth(1)} aria-label="Next month">
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+          <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-medium text-muted-foreground">
+            {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map(day => <div key={day} className="py-1">{day}</div>)}
+          </div>
+          <div className="mt-1 grid grid-cols-7 gap-1">
+            {days.map(day => {
+              const dayValue = dateOnly(day);
+              const isSelected = dayValue === selectedValue;
+              const isToday = dayValue === today;
+              const isMuted = day.getMonth() !== visibleMonth.getMonth();
+              return (
+                <button
+                  key={dayValue}
+                  type="button"
+                  className={cn(
+                    "grid h-8 place-items-center rounded-md text-sm outline-none transition hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                    isMuted && "text-muted-foreground",
+                    isToday && "border border-accent",
+                    isSelected && "bg-accent text-accent-foreground"
+                  )}
+                  onClick={() => choose(dayValue)}
+                >
+                  {day.getDate()}
+                </button>
+              );
+            })}
+          </div>
+          <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+            <button type="button" className="rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-muted hover:text-foreground" onClick={() => choose("")}>
+              Clear
+            </button>
+            <button type="button" className="rounded-md px-2 py-1 text-sm font-medium text-accent hover:bg-accent hover:text-accent-foreground" onClick={goToday}>
+              Today
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+export function Select({
+  className,
+  children,
+  value,
+  defaultValue,
+  onChange,
+  disabled,
+  name,
+  id,
+  menuPlacement = "auto",
+  ..._props
+}: React.SelectHTMLAttributes<HTMLSelectElement> & {
+  /** Force the menu direction. "auto" (default) opens down unless there is no
+   *  room. Use "up" for controls pinned to the bottom of a bounded panel (e.g.
+   *  a chat composer) where the viewport has room below but the panel clips. */
+  menuPlacement?: "auto" | "up" | "down";
+}) {
+  const options = React.useMemo(() => selectOptionsFromChildren(children), [children]);
+  const generatedId = React.useId();
+  const controlId = id || generatedId;
+  const isControlled = value !== undefined;
+  const [open, setOpen] = React.useState(false);
+  // Which way the menu opens, and how tall it may be. Decided when opening so a
+  // control near the bottom of the viewport (or inside an `overflow-hidden`
+  // panel, like the fullscreen DM composer) flips its menu upward instead of
+  // rendering it off-screen where it would be clipped.
+  const [placement, setPlacement] = React.useState<{ dropUp: boolean; maxHeight: number }>({ dropUp: false, maxHeight: 256 });
+  const [internalValue, setInternalValue] = React.useState(String(defaultValue ?? options[0]?.value ?? ""));
+  const selectedValue = String(isControlled ? value : internalValue);
+  const selected = options.find(option => option.value === selectedValue) || options[0];
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+
+  const DESIRED_MAX = 256; // matches the old max-h-64
+  const MARGIN = 8;
+
+  const openMenu = React.useCallback(() => {
+    const rect = buttonRef.current?.getBoundingClientRect();
+    if (rect) {
+      const spaceBelow = window.innerHeight - rect.bottom - MARGIN;
+      const spaceAbove = rect.top - MARGIN;
+      const dropUp =
+        menuPlacement === "up" ? true
+        : menuPlacement === "down" ? false
+        : spaceBelow < Math.min(DESIRED_MAX, options.length * 36 + 8) && spaceAbove > spaceBelow;
+      const maxHeight = Math.max(120, Math.min(DESIRED_MAX, dropUp ? spaceAbove : spaceBelow));
+      setPlacement({ dropUp, maxHeight });
+    }
+    setOpen(true);
+  }, [options.length, menuPlacement]);
+
+  React.useEffect(() => {
+    function closeOnOutsideClick(event: MouseEvent) {
+      if (!wrapperRef.current?.contains(event.target as Node)) setOpen(false);
+    }
+
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    return () => document.removeEventListener("mousedown", closeOnOutsideClick);
+  }, []);
+
+  React.useEffect(() => {
+    if (!isControlled && !internalValue && options[0]) setInternalValue(options[0].value);
+  }, [internalValue, isControlled, options]);
+
+  const choose = (nextValue: string) => {
+    if (!isControlled) setInternalValue(nextValue);
+    setOpen(false);
+    onChange?.({
+      target: { value: nextValue, name },
+      currentTarget: { value: nextValue, name }
+    } as React.ChangeEvent<HTMLSelectElement>);
+  };
+
+  return (
+    <div ref={wrapperRef} className={cn("relative w-full", className)}>
+      {name ? <input type="hidden" name={name} value={selectedValue} /> : null}
+      <button
+        ref={buttonRef}
+        id={controlId}
+        type="button"
+        disabled={disabled}
+        className="cmi-form-control flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-card px-3 text-left text-sm text-foreground outline-none transition hover:border-accent focus:border-accent focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => (open ? setOpen(false) : openMenu())}
+        onKeyDown={event => {
+          if (event.key === "Escape") setOpen(false);
+          if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openMenu();
+          }
+        }}
+      >
+        <span className="truncate">{selected?.label || "Select..."}</span>
+        <span className="text-muted-foreground" aria-hidden="true">v</span>
+      </button>
+      {open ? (
+        <div
+          role="listbox"
+          aria-labelledby={controlId}
+          style={{ maxHeight: placement.maxHeight }}
+          className={cn(
+            "absolute left-0 right-0 z-50 overflow-auto rounded-md border border-border bg-card p-1 text-card-foreground shadow-lg",
+            placement.dropUp ? "bottom-[calc(100%+4px)]" : "top-[calc(100%+4px)]",
+          )}
+        >
+          {options.map(option => (
+            <button
+              key={option.value}
+              type="button"
+              role="option"
+              aria-selected={option.value === selectedValue}
+              disabled={option.disabled}
+              className={cn(
+                "flex min-h-8 w-full items-center rounded px-3 text-left text-sm outline-none transition hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50",
+                option.value === selectedValue && "bg-accent text-accent-foreground"
+              )}
+              onClick={() => choose(option.value)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+export function Textarea({ className, ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return (
+    <textarea
+      className={cn("cmi-form-control min-h-24 w-full rounded-md border border-input bg-card px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-accent focus:ring-2 focus:ring-ring", className)}
+      {...props}
+    />
+  );
+}

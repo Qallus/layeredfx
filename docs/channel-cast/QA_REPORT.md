@@ -1,5 +1,7 @@
 # LayeredFX operations QA — 2026-09-10
 
+Updated local integration checkpoint: see `../reviews/current-review.md`. Dependency installation, 97 tests, real typecheck/lint/production build and targeted browser checks now pass. The historical package report below predates those checks. Live Supabase, complete source parity and Docker validation remain unverified.
+
 ## Executed
 
 - **79 Node tests passed; zero failures.** This includes the original six homepage-validator tests and 73 operations/security tests.

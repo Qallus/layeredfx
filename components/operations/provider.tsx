@@ -1,4 +1,5 @@
 "use client";
+import {setSourceRuntime} from "@/lib/dashboard/source-runtime";
 import {createContext,useCallback,useContext,useEffect,useRef,useState} from 'react';
 import {applyCommand,demoState,visibleState} from '@/lib/operations/engine.mjs';
 import type {Actor,Command,OperationState} from '@/lib/operations/types';
@@ -24,6 +25,7 @@ export function OperationsProvider({mode,actor:initialActor,children}:{mode:'dem
   }catch(e){setError(e instanceof Error?e.message:'The change was not saved.');return null;}finally{lock.current=false;setBusy(false);}
  },[actor,mode,accept]);
  if(!state)return <div className="ops-loader"><h1>LayeredFX operations</h1><p>{error||'Loading your workspace…'}</p>{error&&<button onClick={()=>void reload()}>Retry</button>}</div>;
+ setSourceRuntime({state:visibleState(state,actor),actor,mode});
  return <Store.Provider value={{state:visibleState(state,actor),actor,mode,busy,error,notice,dispatch,reload,clearError:()=>setError('')}}>{children}</Store.Provider>;
 }
 export function useOperations(){const c=useContext(Store);if(!c)throw new Error('OperationsProvider is missing.');return c;}

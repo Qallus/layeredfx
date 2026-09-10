@@ -1,0 +1,135 @@
+{
+  "scope": "Standalone HTML preview only. Source Next.js/Radix runtime and Three.js WebGL runtime not executed.",
+  "results": [
+    {
+      "test": "Homepage renders",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Desktop no horizontal overflow",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "All four service families visible",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Service filter works",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Service detail dialog opens",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Finish selection updates",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Finish carried into estimate",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Relevant service preselected",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Form validation prevents invalid review",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Unsafe demo photo type rejected",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Valid local photo accepted",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Review displays user selections",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Demo completion says nothing sent",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Sample JSON export works",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Inspiration filter works",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Comparison slider works",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "FAQ expands",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Desktop JavaScript errors",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Mobile no horizontal overflow",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Mobile menu opens",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "Mobile menu closes after selection",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "No horizontal overflow at 360px",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "No horizontal overflow at 375px",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "No horizontal overflow at 768px",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "No horizontal overflow at 1024px",
+      "passed": true,
+      "note": ""
+    },
+    {
+      "test": "No horizontal overflow at 1920px",
+      "passed": true,
+      "note": ""
+    }
+  ]
+}

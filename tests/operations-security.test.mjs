@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {assertSameOrigin,parseCommandBody,verifyRevision,isUuid,readBody} from '../lib/operations/security.mjs';
+import {OperationError} from '../lib/operations/engine.mjs';
+const throwsStatus=(fn,status)=>assert.throws(fn,e=>e instanceof OperationError&&e.status===status);
+test('POST requests require an exact allowed origin',()=>{assert.doesNotThrow(()=>assertSameOrigin('https://layeredfx.com',['https://layeredfx.com']));for(const origin of [null,'','https://evil.test','https://layeredfx.com.evil.test'])throwsStatus(()=>assertSameOrigin(origin,['https://layeredfx.com']),403);});
+test('JSON command must include a nonnegative integer revision',()=>{assert.deepEqual(parseCommandBody('{"revision":1,"command":{"type":"deal.create"}}'),{revision:1,command:{type:'deal.create'}});for(const value of ['{','{}','null','{"revision":-1,"command":{"type":"x"}}','{"revision":0.5,"command":{"type":"x"}}','{"revision":0,"command":{}}'])throwsStatus(()=>parseCommandBody(value),400);});
+test('command size is bounded by UTF-8 bytes',()=>throwsStatus(()=>parseCommandBody(JSON.stringify({revision:0,command:{type:'x',text:'界'.repeat(180000)}})),413));
+test('stale revision fails with conflict instead of overwriting',()=>{assert.doesNotThrow(()=>verifyRevision(4,4));throwsStatus(()=>verifyRevision(5,4),409);});
+test('organization and auth identifiers must be valid UUIDs',()=>{assert(isUuid('c3a96c9c-3996-4f62-953c-07a5b45ac4df'));assert(!isUuid('demo_owner'));assert(!isUuid('x&select=*'));assert(!isUuid(null));});
+test('streaming body reader limits requests without content-length',async()=>{const req=new Request('https://example.test',{method:'POST',body:'abcdef'});assert.equal(await readBody(req,6),'abcdef');await assert.rejects(()=>readBody(new Request('https://example.test',{method:'POST',body:'abcdef'}),5),e=>e.status===413);});
+test('empty requests are handled safely',async()=>assert.equal(await readBody(new Request('https://example.test')),''));

@@ -1,0 +1,12 @@
+import type {Stage,StageGuide,TaskStatus} from './types';
+export const PATH:Stage[];
+export const STAGES:Stage[];
+export const OPEN:Stage[];
+export const LABELS:Record<Stage,string>;
+export const DEFAULT_STAGES:Record<Stage,StageGuide>;
+export const SERVICES:string[];
+export const TASK_STATUS:TaskStatus[];
+export const PRIORITIES:('low'|'medium'|'high'|'urgent')[];
+export const LOST_REASONS:string[];
+export const DOC_TEMPLATES:{id:string;name:string;category:string;description:string;lines:string[]}[];
+export const PLAN_TEMPLATES:{id:string;name:string;description:string;groups:string[];tasks:[string,string,number,string[]][]}[];

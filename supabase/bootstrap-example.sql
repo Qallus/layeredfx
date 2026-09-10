@@ -1,0 +1,5 @@
+-- Manual example only. Create the auth user in LayeredFX Supabase first.
+-- Replace the placeholders with a new organization UUID and the exact auth user UUID.
+-- Never run this against the Channel Cast or ControlP database.
+-- insert into public.lfx_ops_members (org_id,user_id,display_name,email,role)
+-- values ('YOUR-ORG-UUID','YOUR-AUTH-USER-UUID','Your Name','you@your-domain.example','admin');

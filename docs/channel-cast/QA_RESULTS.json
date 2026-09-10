@@ -1,0 +1,18 @@
+{
+  "tests": 79,
+  "pass": 79,
+  "fail": 0,
+  "skipped": 0,
+  "filesParsed": 59,
+  "syntaxErrors": [],
+  "unresolvedLocalImports": [],
+  "undeclaredPackages": [],
+  "notVerified": [
+    "dependency-backed typecheck",
+    "lint",
+    "Next.js production build",
+    "Radix/Plate/Three browser runtime",
+    "Supabase auth and SQL execution",
+    "Docker and Coolify deployment"
+  ]
+}

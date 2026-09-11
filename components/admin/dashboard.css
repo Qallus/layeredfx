@@ -1,4 +1,27 @@
 /* Dashboard typography must not inherit the marketing site's display tracking. */
+.ops-sidebar nav{scrollbar-width:thin;scrollbar-color:#657d6b transparent;scrollbar-gutter:stable;overscroll-behavior:contain}
+.ops-sidebar nav::-webkit-scrollbar{width:6px}
+.ops-sidebar nav::-webkit-scrollbar-track{background:transparent}
+.ops-sidebar nav::-webkit-scrollbar-thumb{background:#657d6b;border-radius:999px}
+.ops-sidebar nav::-webkit-scrollbar-thumb:hover{background:#a4bc8d}
+.ops-sidebar nav::-webkit-scrollbar-button{display:none}
+.ops-brand-icon{display:none}
+.ops-sidebar nav a .ops-nav-text{background:none;color:inherit;border-radius:0;padding:0;margin:0;min-width:0;font:inherit}
+.ops-sidebar nav a svg{flex-shrink:0}
+.ops-sidebar-toggle{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;flex-shrink:0;border:1px solid var(--ops-line);border-radius:8px;background:var(--ops-surface);color:var(--ops-ink)}
+.ops-sidebar-toggle:hover{background:var(--ops-bg)}
+@media(min-width:761px){
+ .ops-sidebar-collapsed .ops-sidebar{width:76px;padding-inline:10px}
+ .ops-sidebar-collapsed .ops-app{margin-left:76px;width:calc(100% - 76px)}
+ .ops-sidebar-collapsed .ops-brand{margin:0 auto 22px}
+ .ops-sidebar-collapsed .ops-brand-full,.ops-sidebar-collapsed .ops-brand small,.ops-sidebar-collapsed .ops-nav-text,.ops-sidebar-collapsed .ops-nav-count,.ops-sidebar-collapsed .ops-sidebar-bottom small{display:none}
+ .ops-sidebar-collapsed .ops-brand-icon{display:block}
+ .ops-sidebar-collapsed .ops-sidebar nav{padding-right:0}
+ .ops-sidebar-collapsed .ops-sidebar nav a{justify-content:center;padding:12px 0;gap:0}
+ .ops-sidebar-collapsed .ops-sidebar-label{font-size:0;margin:12px 8px;border-top:1px solid #405249}
+ .ops-sidebar-collapsed .ops-sidebar-bottom a{justify-content:center}
+}
+@media(max-width:760px){.ops-sidebar-toggle{display:none}}
 .ops h1,.ops h2,.ops h3,.ops h4,.ops-modal h1,.ops-modal h2,.ops-modal h3{letter-spacing:normal;word-spacing:normal}
 .ops-document-card h2{font-size:17px;line-height:1.5;font-weight:600;overflow-wrap:anywhere;margin-bottom:8px}
 .ops-document-card p{font-size:13px;line-height:1.65;color:#64705f}

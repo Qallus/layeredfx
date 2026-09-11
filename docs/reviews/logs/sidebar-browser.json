@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "checks": [
+    "collapse and content resize",
+    "thin scrollbar",
+    "icon navigation",
+    "reload persistence",
+    "keyboard expand and last link focus",
+    "expanded width",
+    "full mobile menu",
+    "mobile navigation closes menu",
+    "no mobile overflow",
+    "homepage renders"
+  ],
+  "errors": []
+}

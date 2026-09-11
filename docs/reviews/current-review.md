@@ -1,4 +1,13 @@
-# LayeredFX integration review — branding checkpoint, 2026-09-10
+# LayeredFX integration review — sidebar checkpoint, 2026-09-10
+
+| Severity | File / evidence | Fix | Verification / remaining blockers |
+|---|---|---|---|
+| LOW | `components/admin/dashboard.css`: default high-contrast sidebar scrollbar | Thin muted-green scrollbar with transparent track, hover treatment and reserved gutter | Edge computed style and screenshots verified; native scrollbar appearance may vary by OS |
+| LOW | `components/operations/shell.tsx`: navigation could not collapse | Accessible top-bar toggle, persisted 76px icon rail, supplied app mark, labeled links with hover titles, full-width mobile drawer | Browser checks passed for navigation, reload persistence, content resizing, keyboard expand, last-link focus, mobile opening/closing and overflow |
+
+Validation: `npm install` exited 0, 504 packages audited, zero vulnerabilities (`logs/sidebar-install.txt`). All 131 tests passed; typecheck, lint (existing warnings) and production build exited 0. Exact output is in `logs/*-verified.txt`. `scripts/sidebar-browser.mjs` passed with no page errors; see `logs/sidebar-browser.json` and `screenshots/sidebar-*.png`. Homepage rendering was checked. Existing backend/provider blockers below are unchanged.
+
+## Previous branding checkpoint
 
 User-supplied artwork now replaces the drawn/text logos on the existing homepage, dashboard sidebar/top bar and sign-in screen. Original assets are preserved in `docs/logos`; runtime copies and usage are documented in `docs/logos/README.md`.
 

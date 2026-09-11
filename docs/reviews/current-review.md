@@ -1,3 +1,13 @@
+# Local checkout synchronization - 2026-09-11
+
+HIGH - Main project checkout and local dev server: the VS Code root was on baseline `7d49d26`, while GitHub main and the review worktree were on `b7db1f6`. Port 3000 was served by the root's older Next.js process. Preserved local declarations, lockfile and logos in `.review/sync-backup-20260911`, fast-forwarded the root, installed current dependencies and restarted the server from the root. Local `.vscode` files remain untouched. All supplied logo files matched the incoming repository files.
+
+MEDIUM - `tsconfig.json`, `eslint.config.mjs`: exclude the nested `.review` worktree so root validation does not include another checkout's source and generated files. Fix authored in the separate review worktree.
+
+Verification: npm install succeeded (504 packages audited, zero vulnerabilities); all 144 tests passed; typecheck, lint and production build exited 0. Lint retains 219 warnings and zero errors. Exact outputs are in `logs/*-verified.txt`, `logs/verification.json` and `logs/local-sync-install.txt`. Browser checks confirmed HTTP 200 for `/`, `/admin`, `/book`, `/contact` and `/studio` on both localhost and 127.0.0.1:3000; the frontend theme toggle/My Account and full dashboard navigation/logo are present. Evidence: `logs/local-sync-browser.json`. An initial browser check targeted a deliberately hidden booking intro heading; corrected to the visible step heading and reran successfully.
+
+Remaining blockers: this synchronization does not change previously documented live Supabase/provider integration limitations. No migrations or deployment changes were made.
+
 # Material animation background - 2026-09-10
 
 LOW - `components/layeredfx/layeredfx.css`: the animated material section in the user's screenshot had an opaque right-column background, rounded corners and radial glow. Removed the fill, rounding and glow so the existing transparent Three.js renderer blends directly into the section. Updated `components/layeredfx/frontend.css` so labels inherit readable dark-theme colors on the newly transparent surface. Animation and controls remain unchanged.

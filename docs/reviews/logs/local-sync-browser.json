@@ -1,0 +1,62 @@
+[
+  {
+    "host": "localhost",
+    "route": "/",
+    "status": 200,
+    "heading": "Same space.\nA whole\nnew feeling."
+  },
+  {
+    "host": "localhost",
+    "route": "/admin",
+    "status": 200,
+    "heading": "Make room for great work."
+  },
+  {
+    "host": "localhost",
+    "route": "/book",
+    "status": 200,
+    "heading": "Choose appointment type"
+  },
+  {
+    "host": "localhost",
+    "route": "/contact",
+    "status": 200,
+    "heading": "Let’s talk about your space."
+  },
+  {
+    "host": "localhost",
+    "route": "/studio",
+    "status": 200,
+    "heading": "See the finish.\nKeep your space."
+  },
+  {
+    "host": "127.0.0.1",
+    "route": "/",
+    "status": 200,
+    "heading": "Same space.\nA whole\nnew feeling."
+  },
+  {
+    "host": "127.0.0.1",
+    "route": "/admin",
+    "status": 200,
+    "heading": "Make room for great work."
+  },
+  {
+    "host": "127.0.0.1",
+    "route": "/book",
+    "status": 200,
+    "heading": "Choose appointment type"
+  },
+  {
+    "host": "127.0.0.1",
+    "route": "/contact",
+    "status": 200,
+    "heading": "Let’s talk about your space."
+  },
+  {
+    "host": "127.0.0.1",
+    "route": "/studio",
+    "status": 200,
+    "heading": "See the finish.\nKeep your space."
+  }
+]

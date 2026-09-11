@@ -1,4 +1,15 @@
-# LayeredFX integration review — width and logo checkpoint, 2026-09-10
+# LayeredFX integration review — branded fields checkpoint, 2026-09-10
+
+| Severity | File / evidence | Fix | Verification / remaining blockers |
+|---|---|---|---|
+| LOW | Pipeline `.ops-toolbar` distributed filters across the entire page | Dedicated wrapping filter row with 12px gaps, bounded search and 180px selects | Desktop/mobile screenshots, filter selection and overflow checks passed |
+| LOW | Operations used native select menus and date controls | Shared Radix select and branded calendar/time dialog; wired Contacts, Pipeline, Plans, Workspace, FAB and CTRL+P shared Input; retained CMI's existing custom controls | Custom dropdown selection, calendar date selection, invalid-date rejection and module rendering passed |
+| LOW | Inputs/dialogs lacked consistent dark styling | Shared field surfaces, borders, focus styling, custom checkbox appearance and dark portal colors | Dark dropdown color measured and form screenshots reviewed |
+| LOW | FAB used plus icon and bright background | Sparkles icon, requested #202b28 background / #d6ff41 foreground; existing sizing and mobile offsets retained | Browser style/icon assertions passed |
+
+Validation: dependency installation passed with zero vulnerabilities (`logs/fields-install.txt`). All 131 tests, typecheck, lint and production build passed; lint retains existing warnings. Exact logs in `logs/*-verified.txt`. `scripts/fields-browser.mjs` and Contacts/FAB regression passed, including identity linking, phone Select all import, direct messages and local recording (`logs/fields-browser.json`, Contacts browser logs). No live provider actions or database changes. Custom date/time text entry uses ISO values and validates dates/times and min/max bounds. Device-owned camera/file chooser dialogs remain controlled by the operating system.
+
+## Previous width and logo checkpoint
 
 | Severity | File / evidence | Fix | Verification / remaining blockers |
 |---|---|---|---|

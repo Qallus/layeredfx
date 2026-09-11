@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": [
+    "owner filter custom options",
+    "dark dropdown colors",
+    "custom calendar selection",
+    "invalid date rejection",
+    "FAB colors and icon",
+    "mobile overflow",
+    "contacts workspace plans bookings jobs render"
+  ],
+  "errors": []
+}

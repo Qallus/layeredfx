@@ -5,7 +5,7 @@
    ▲ Next.js 15.5.25
 
    Creating an optimized production build ...
- ✓ Compiled successfully in 4.9s
+ ✓ Compiled successfully in 6.0s
    Linting and checking validity of types ...
 
 ./components/operations/mobile-bottom-nav.tsx
@@ -24,43 +24,43 @@ info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/d
 Route (app)                                 Size  First Load JS
 ┌ ○ /                                    15.6 kB         153 kB
 ├ ○ /_not-found                             1 kB         104 kB
-├ ƒ /admin                                 190 B         166 kB
-├ ƒ /admin/agent                          7.7 kB         214 kB
-├ ƒ /admin/analytics                     5.43 kB         181 kB
-├ ƒ /admin/artwork                       9.46 kB         215 kB
-├ ƒ /admin/blog                          15.6 kB         225 kB
-├ ƒ /admin/bookings                      12.2 kB         218 kB
-├ ƒ /admin/communications                28.1 kB         240 kB
-├ ƒ /admin/contacts                        145 B         156 kB
-├ ƒ /admin/content                       13.7 kB         223 kB
-├ ƒ /admin/coupons                       4.67 kB         145 kB
-├ ƒ /admin/customers                     7.34 kB         194 kB
-├ ƒ /admin/designers                      6.1 kB         196 kB
-├ ƒ /admin/installers                    6.09 kB         196 kB
+├ ƒ /admin                                 201 B         188 kB
+├ ƒ /admin/agent                         8.84 kB         214 kB
+├ ƒ /admin/analytics                     6.65 kB         181 kB
+├ ƒ /admin/artwork                       9.69 kB         219 kB
+├ ƒ /admin/blog                          14.8 kB         230 kB
+├ ƒ /admin/bookings                      9.77 kB         221 kB
+├ ƒ /admin/communications                27.4 kB         246 kB
+├ ƒ /admin/contacts                        153 B         178 kB
+├ ƒ /admin/content                       11.1 kB         227 kB
+├ ƒ /admin/coupons                       6.12 kB         145 kB
+├ ƒ /admin/customers                     7.56 kB         217 kB
+├ ƒ /admin/designers                     6.13 kB         218 kB
+├ ƒ /admin/installers                    6.12 kB         218 kB
 ├ ƒ /admin/jobs                            171 B         131 kB
 ├ ƒ /admin/jobs/map                        193 B         131 kB
 ├ ƒ /admin/jobs/new                        171 B         131 kB
-├ ƒ /admin/leads                           145 B         156 kB
+├ ƒ /admin/leads                           154 B         178 kB
 ├ ○ /admin/login                         2.79 kB         121 kB
-├ ƒ /admin/marketing                     7.31 kB         213 kB
-├ ƒ /admin/messages                      15.7 kB         225 kB
-├ ƒ /admin/orders                        9.73 kB         222 kB
-├ ƒ /admin/payments                      15.4 kB         224 kB
-├ ƒ /admin/pipeline                        184 B         154 kB
-├ ƒ /admin/pipeline/[id]                   185 B         154 kB
-├ ƒ /admin/pipeline/stages                 186 B         154 kB
-├ ƒ /admin/plans                           182 B         151 kB
-├ ƒ /admin/plans/[id]                      181 B         151 kB
-├ ƒ /admin/production                    6.52 kB         219 kB
-├ ƒ /admin/production-schedule           31.6 kB         241 kB
-├ ƒ /admin/products                      17.4 kB         223 kB
-├ ƒ /admin/profile                       7.47 kB         178 kB
-├ ƒ /admin/settings                      4.46 kB         180 kB
-├ ƒ /admin/shipments                        7 kB         216 kB
-├ ƒ /admin/users                         17.6 kB         224 kB
-├ ƒ /admin/wall-studio                   7.67 kB         214 kB
-├ ƒ /admin/workspace                       184 B         152 kB
-├ ƒ /admin/workspace/[id]                  186 B         152 kB
+├ ƒ /admin/marketing                     7.54 kB         217 kB
+├ ƒ /admin/messages                      15.7 kB         228 kB
+├ ƒ /admin/orders                        9.74 kB         225 kB
+├ ƒ /admin/payments                      15.5 kB         228 kB
+├ ƒ /admin/pipeline                        195 B         177 kB
+├ ƒ /admin/pipeline/[id]                   195 B         177 kB
+├ ƒ /admin/pipeline/stages                 194 B         177 kB
+├ ƒ /admin/plans                           196 B         174 kB
+├ ƒ /admin/plans/[id]                      196 B         174 kB
+├ ƒ /admin/production                    6.59 kB         222 kB
+├ ƒ /admin/production-schedule           29.5 kB         244 kB
+├ ƒ /admin/products                      15.3 kB         227 kB
+├ ƒ /admin/profile                       8.13 kB         213 kB
+├ ƒ /admin/settings                      5.67 kB         180 kB
+├ ƒ /admin/shipments                     7.28 kB         219 kB
+├ ƒ /admin/users                         15.4 kB         227 kB
+├ ƒ /admin/wall-studio                   7.87 kB         217 kB
+├ ƒ /admin/workspace                       196 B         174 kB
+├ ƒ /admin/workspace/[id]                  196 B         174 kB
 ├ ƒ /api/admin/coupons                     160 B         103 kB
 ├ ƒ /api/communications/[action]           160 B         103 kB
 ├ ƒ /api/communications/voice              160 B         103 kB

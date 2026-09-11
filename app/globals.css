@@ -1,6 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+:root {
+  /* Primary actions share the sidebar palette across every application shell. */
+  --brand-primary: 163.636364 14.666667% 14.705882%;
+  --brand-primary-foreground: 136.363636 9.90991% 78.235294%;
+  --brand-primary-hover: #314037;
+  --brand-primary-hover-foreground: #eff7e9;
+  --primary: var(--brand-primary);
+  --primary-foreground: var(--brand-primary-foreground);
+}
 html { scroll-behavior: smooth; }
 body { margin: 0; background: #f6f5f0; }
 * { box-sizing: border-box; }

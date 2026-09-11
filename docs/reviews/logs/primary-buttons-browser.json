@@ -1,0 +1,171 @@
+[
+  {
+    "path": "/admin/content",
+    "theme": "light",
+    "buttons": [
+      {
+        "label": "New Content",
+        "bg": "rgb(32, 43, 40)",
+        "fg": "rgb(194, 205, 197)"
+      }
+    ]
+  },
+  {
+    "path": "/admin/content",
+    "theme": "dark",
+    "buttons": [
+      {
+        "label": "New Content",
+        "bg": "rgb(32, 43, 40)",
+        "fg": "rgb(194, 205, 197)"
+      }
+    ]
+  },
+  {
+    "path": "/admin/analytics",
+    "theme": "light",
+    "buttons": [
+      {
+        "label": "Create report",
+        "bg": "rgb(32, 43, 40)",
+        "fg": "rgb(194, 205, 197)"
+      }
+    ]
+  },
+  {
+    "path": "/admin/analytics",
+    "theme": "dark",
+    "buttons": [
+      {
+        "label": "Create report",
+        "bg": "rgb(32, 43, 40)",
+        "fg": "rgb(194, 205, 197)"
+      }
+    ]
+  },
+  {
+    "path": "/admin/orders",
+    "theme": "light",
+    "buttons": [
+      {
+        "label": "Create order",
+        "bg": "rgb(32, 43, 40)",
+        "fg": "rgb(194, 205, 197)"
+      },
+      {
+        "label": "List",
+        "bg": "rgb(32, 43, 40)",
+        "fg": "rgb(194, 205, 197)"
+      }
+    ]
+  },
+  {
+    "path": "/admin/orders",
+    "theme": "dark",
+    "buttons": [
+      {
+        "label": "Create order",
+        "bg": "rgb(32, 43, 40)",
+        "fg": "rgb(194, 205, 197)"
+      },
+      {
+        "label": "List",
+        "bg": "rgb(32, 43, 40)",
+        "fg": "rgb(194, 205, 197)"
+      }
+    ]
+  },
+  {
+    "path": "/admin/production",
+    "theme": "light",
+    "buttons": [
+      {
+        "label": "Create job",
+        "bg": "rgb(32, 43, 40)",
+        "fg": "rgb(194, 205, 197)"
+      }
+    ]
+  },
+  {
+    "path": "/admin/production",
+    "theme": "dark",
+    "buttons": [
+      {
+        "label": "Create job",
+        "bg": "rgb(32, 43, 40)",
+        "fg": "rgb(194, 205, 197)"
+      }
+    ]
+  },
+  {
+    "path": "/admin/pipeline",
+    "theme": "light",
+    "buttons": [
+      {
+        "label": "New opportunity",
+        "bg": "rgb(32, 43, 40)",
+        "fg": "rgb(194, 205, 197)"
+      }
+    ]
+  },
+  {
+    "path": "/admin/pipeline",
+    "theme": "dark",
+    "buttons": [
+      {
+        "label": "New opportunity",
+        "bg": "rgb(32, 43, 40)",
+        "fg": "rgb(194, 205, 197)"
+      }
+    ]
+  },
+  {
+    "path": "/",
+    "theme": "light",
+    "buttons": [
+      {
+        "label": "Get an estimate",
+        "bg": "rgb(32, 43, 40)",
+        "fg": "rgb(194, 205, 197)"
+      },
+      {
+        "label": "Let’s reimagine your space",
+        "bg": "rgb(32, 43, 40)",
+        "fg": "rgb(194, 205, 197)"
+      }
+    ]
+  },
+  {
+    "path": "/login",
+    "theme": "light",
+    "buttons": [
+      {
+        "label": "Sign in",
+        "bg": "rgb(32, 43, 40)",
+        "fg": "rgb(194, 205, 197)"
+      }
+    ]
+  },
+  {
+    "path": "/portal/bookings",
+    "theme": "light",
+    "buttons": [
+      {
+        "label": "New request",
+        "bg": "rgb(32, 43, 40)",
+        "fg": "rgb(194, 205, 197)"
+      }
+    ]
+  },
+  {
+    "path": "/portal/bookings",
+    "theme": "dark",
+    "buttons": [
+      {
+        "label": "New request",
+        "bg": "rgb(32, 43, 40)",
+        "fg": "rgb(194, 205, 197)"
+      }
+    ]
+  }
+]

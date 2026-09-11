@@ -2,7 +2,7 @@
 .lfx,[data-lfx-overlay] {
   --lfx-paper:#f6f5f0; --lfx-ink:#292d25; --lfx-olive:#777c64;
   --lfx-muted:#707365; --lfx-line:#dcdfd3; --lfx-clay:#b68160;
-  --background:60 23% 96%; --foreground:95 9% 17%; --primary:95 9% 17%; --primary-foreground:60 23% 96%;
+  --background:60 23% 96%; --foreground:95 9% 17%; --primary:var(--brand-primary); --primary-foreground:var(--brand-primary-foreground);
   --secondary:65 15% 88%; --secondary-foreground:95 9% 17%; --muted:65 15% 90%; --muted-foreground:75 6% 39%;
   --accent:68 14% 84%; --accent-foreground:95 9% 17%; --border:73 12% 81%; --input:73 12% 81%; --ring:78 15% 38%; --radius:6px;
   font-family:Arial,Helvetica,sans-serif; color:var(--lfx-ink); background:var(--lfx-paper); font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
@@ -42,8 +42,8 @@
 .lfx-button { display:inline-flex; align-items:center; justify-content:center; gap:15px; text-decoration:none; white-space:nowrap; font-size:12px; font-weight:500; border:1px solid transparent; border-radius:5px; line-height:1.2; transition:background .2s, color .2s, transform .2s; }
 .lfx-button svg { width:17px; height:17px; }
 .lfx-button:hover { transform:translateY(-1px); }
-.lfx-button-primary { background:var(--lfx-ink); color:#faf9f3; }
-.lfx-button-primary:hover { background:#454b3d; }
+.lfx-button-primary { background:hsl(var(--brand-primary)); color:hsl(var(--brand-primary-foreground)); }
+.lfx-button-primary:hover { background:var(--brand-primary-hover); color:var(--brand-primary-hover-foreground); }
 .lfx-button-outline { background:transparent; border-color:#aeb4a0; color:var(--lfx-ink); }
 .lfx-button-outline:hover { background:#e8e9df; }
 .lfx-button-ghost { background:transparent; color:var(--lfx-ink); }

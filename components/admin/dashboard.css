@@ -1,4 +1,6 @@
 /* Dashboard typography must not inherit the marketing site's display tracking. */
+.ops :is(button,a).bg-primary:hover{background:var(--brand-primary-hover);color:var(--brand-primary-hover-foreground)}
+.ops.dark .text-primary{color:hsl(var(--brand-primary-foreground))}
 .ops .ops-public-booking-link{background:#202b28;color:#c2cdc5;border:1px solid #202b28}
 .ops .ops-public-booking-link:hover{background:#314037;color:#eff7e9;border-color:#314037}
 .ops .ops-public-booking-link:focus-visible{outline:2px solid #95aa1a;outline-offset:3px}
@@ -92,8 +94,8 @@ body:has(.ops.dark) .ops-modal .ops-field>span,body:has(.ops.dark) .ops-modal .l
 :root,.ops{
  --card:72 24% 98%;--card-foreground:140 18% 8%;--popover:72 24% 98%;--popover-foreground:140 18% 8%;--destructive:0 78% 48%;--destructive-foreground:0 0% 98%;
 }
-.ops{--background:72 24% 97%;--foreground:140 18% 7%;--primary:85 55% 32%;--primary-foreground:0 0% 100%;--secondary:78 18% 93%;--secondary-foreground:130 18% 14%;--muted:76 18% 94%;--muted-foreground:125 8% 38%;--accent:84 35% 86%;--accent-foreground:130 35% 12%;--border:80 13% 84%;--input:80 13% 84%;--ring:85 60% 36%;--radius:.7rem}
-.ops.dark{--ops-bg:#0d160f;--ops-surface:#18241a;--ops-ink:#e1ebdb;--ops-muted:#a5b39d;--ops-line:#32412f;--background:138 35% 5%;--foreground:96 26% 92%;--card:134 24% 8%;--card-foreground:96 26% 92%;--popover:134 24% 8%;--popover-foreground:96 26% 92%;--primary:78 75% 48%;--primary-foreground:130 45% 7%;--secondary:134 17% 13%;--secondary-foreground:96 22% 88%;--muted:134 16% 12%;--muted-foreground:94 9% 68%;--accent:83 70% 17%;--accent-foreground:84 90% 82%;--border:132 14% 22%;--input:132 14% 22%;--ring:78 75% 50%}
+.ops{--background:72 24% 97%;--foreground:140 18% 7%;--primary:var(--brand-primary);--primary-foreground:var(--brand-primary-foreground);--secondary:78 18% 93%;--secondary-foreground:130 18% 14%;--muted:76 18% 94%;--muted-foreground:125 8% 38%;--accent:84 35% 86%;--accent-foreground:130 35% 12%;--border:80 13% 84%;--input:80 13% 84%;--ring:85 60% 36%;--radius:.7rem}
+.ops.dark{--ops-bg:#0d160f;--ops-surface:#18241a;--ops-ink:#e1ebdb;--ops-muted:#a5b39d;--ops-line:#32412f;--background:138 35% 5%;--foreground:96 26% 92%;--card:134 24% 8%;--card-foreground:96 26% 92%;--popover:134 24% 8%;--popover-foreground:96 26% 92%;--primary:var(--brand-primary);--primary-foreground:var(--brand-primary-foreground);--secondary:134 17% 13%;--secondary-foreground:96 22% 88%;--muted:134 16% 12%;--muted-foreground:94 9% 68%;--accent:83 70% 17%;--accent-foreground:84 90% 82%;--border:132 14% 22%;--input:132 14% 22%;--ring:78 75% 50%}
 .ops.dark .ops-topbar,.ops.dark .ops-panel,.ops.dark .ops-stats>div,.ops.dark .ops-document-card,.ops.dark .ops-plan-card,.ops.dark .ops-editor,.ops.dark .ops-calendar-wrap{background:var(--ops-surface);color:var(--ops-ink);border-color:var(--ops-line)}
 .ops.dark input:not([type=checkbox]),.ops.dark select,.ops.dark textarea{background:var(--ops-surface);color:var(--ops-ink);border-color:var(--ops-line)}
 .ops.dark .ops-demo-banner,.ops.dark .ops-editor-toolbar{background:#25341d;color:#cbd9bb}.ops.dark .ops-document-card p{color:var(--ops-muted)}

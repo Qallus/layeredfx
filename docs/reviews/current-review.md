@@ -1,3 +1,11 @@
+# Shared primary button palette - 2026-09-10
+
+LOW - `app/globals.css`, `components/admin/dashboard.css`, `components/layeredfx/layeredfx.css`, `components/portal/portal.css`: primary buttons used unrelated olive/lime/ink backgrounds across shells. Added shared HSL brand action tokens matching sidebar #202b28 and text #c2cdc5. Both dashboard themes, public primary actions and customer/partner/auth primary actions use these values. Hover uses navigation #314037 / #eff7e9. Dark-mode text-primary links keep readable pale text after the primary background token changes. Semantic destructive and secondary button variants retain their purpose; the previously requested lime FAB icon remains.
+
+Verification: browser computed styles checked Content, Analytics, Orders, Production, Pipeline, homepage, login and customer bookings (14 page/theme combinations); exact observed buttons and colors in `logs/primary-buttons-browser.json`. Required install output: `logs/primary-buttons-install.txt`; full test/typecheck/lint/build outputs in shared verified logs. Existing scheduling and live Supabase blockers below remain unchanged.
+
+---
+
 # Booking button and scheduling review - 2026-09-10
 
 LOW - `ctrlp/components/admin/admin-bookings.tsx` and `components/admin/dashboard.css`: Public booking page used the generic primary button palette. Added a scoped button style matching the sidebar background (#202b28) and text (#c2cdc5), with navigation hover colors and a keyboard focus outline. Browser computed colors match the sidebar in both light and dark modes; exact evidence: `logs/booking-button-browser.json`.

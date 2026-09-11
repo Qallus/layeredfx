@@ -8,7 +8,7 @@ html[data-frontend-theme=dark] body:has(.portal-auth){--field-bg:#1c2922;--field
 html[data-frontend-theme=dark] .lfx :is(.lfx-button-outline,.lfx-button-ghost):hover{background:var(--lfx-line)}
 html[data-frontend-theme=dark] .lfx :is(.lfx-filter-row button,.lfx-finish-options button,.lfx-studio-copy>p,.lfx-selected-finish span,.lfx-mobile-nav a,.lfx-menu-description){color:var(--lfx-muted)}
 html[data-frontend-theme=dark] .lfx-filter-row button:hover:not([aria-pressed=true]){background:var(--lfx-line)}
-html[data-frontend-theme=dark] .lfx :is(.lfx-material-note,.lfx-studio-art,.lfx-round-arrow,.lfx-service-number,.lfx-compare-label,.lfx-compare-line){color:#292d25}
+html[data-frontend-theme=dark] .lfx :is(.lfx-material-note,.lfx-round-arrow,.lfx-service-number,.lfx-compare-label,.lfx-compare-line){color:#292d25}
 .lfx-topbar{background:#202b28;color:#c2cdc5;justify-content:center;gap:24px}
 .lfx-theme-toggle{display:grid;place-items:center;width:36px;height:38px;border:1px solid var(--lfx-line);border-radius:8px;background:transparent;color:inherit;flex-shrink:0}
 .lfx-account{position:relative;font-size:12px;white-space:nowrap}
@@ -44,3 +44,6 @@ html[data-frontend-theme=dark] body:has(.lfx-public){--field-bg:#1c2922;--field-
 @media(max-width:1250px){.lfx-header-estimate{display:none}.lfx-header-inner{padding-inline:24px}.lfx-desktop-nav{gap:15px}}
 @media(max-width:1000px){.lfx-desktop-nav{display:none}.lfx-menu-button{display:inline-flex}.lfx-header-actions{margin-left:auto}}
 @media(max-width:760px){.lfx-public-grid{grid-template-columns:1fr;gap:24px;padding-block:28px}.lfx-public-heading{padding:45px 20px}.lfx-request-card{padding:22px}.lfx-header .lfx-logo img{width:140px!important}.lfx-topbar{font-size:9px;gap:10px}.lfx-topbar>span:last-child{display:none}.lfx-header-inner{padding-inline:14px}.lfx-account summary{padding:8px;font-size:11px}.lfx-header-actions{gap:5px}.lfx-request-pair{grid-template-columns:1fr}}
+
+html[data-frontend-theme=dark] .lfx-studio-art{color:var(--lfx-ink)}
+html[data-frontend-theme=dark] .lfx :is(.lfx-studio-art-footer .lfx-eyebrow,.lfx-scene-hint){color:var(--lfx-muted)}

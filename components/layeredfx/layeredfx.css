@@ -118,8 +118,7 @@
 .lfx-selected-finish strong { font-size:14px; font-weight:500; }
 .lfx-selected-finish span { font-size:10px; color:#687459; margin-top:3px; }
 .lfx-studio-copy>p.lfx-small-note { font-size:9px; line-height:1.7; max-width:320px; margin-top:16px; }
-.lfx-studio-art { position:relative; min-height:545px; border-radius:5px; background:#dedfcd; overflow:hidden; }
-.lfx-studio-art::before { content:""; position:absolute; width:510px; height:510px; left:50%; top:45%; transform:translate(-50%,-50%); background:radial-gradient(ellipse,#f4f1de 0,#e8e7d4 42%,transparent 67%); }
+.lfx-studio-art { position:relative; min-height:545px; border-radius:0; background:transparent; overflow:hidden; }
 .lfx-studio-art-header { position:absolute; left:25px; right:25px; top:22px; display:flex; align-items:center; justify-content:space-between; z-index:3; font-size:9px; letter-spacing:1px; text-transform:uppercase; }
 .lfx-studio-art-header>span:first-child { display:flex; gap:9px; align-items:center; }
 .lfx-three-host { position:absolute; inset:40px 0 95px; z-index:2; }

@@ -1,0 +1,16 @@
+[
+  {
+    "theme": "light",
+    "background": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "glow": "none",
+    "color": "rgb(41, 45, 37)"
+  },
+  {
+    "theme": "dark",
+    "background": "rgba(0, 0, 0, 0)",
+    "radius": "0px",
+    "glow": "none",
+    "color": "rgb(225, 235, 219)"
+  }
+]

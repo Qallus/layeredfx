@@ -1,3 +1,11 @@
+# Material animation background - 2026-09-10
+
+LOW - `components/layeredfx/layeredfx.css`: the animated material section in the user's screenshot had an opaque right-column background, rounded corners and radial glow. Removed the fill, rounding and glow so the existing transparent Three.js renderer blends directly into the section. Updated `components/layeredfx/frontend.css` so labels inherit readable dark-theme colors on the newly transparent surface. Animation and controls remain unchanged.
+
+Verification: browser computed styles confirm transparent background, no pseudo-element glow and zero corner radius in both themes, with the real Three.js canvas present. Evidence: `logs/material-studio-transparent.json` and `screenshots/material-studio-transparent-*.png`. Required install output: `logs/material-studio-transparent-install.txt`; test/typecheck/lint/build output in shared verified logs.
+
+---
+
 # Booking sequence and frontend Wall Studio - 2026-09-10
 
 Implemented `/studio` with the LayeredFX frontend header and light/dark styling. Source-reviewed against CTRL+P commit 015a7b58b80e63ef87c73bec549a23242b88f3e3: VisualizerStage, StudioApp, snapshot, homography and demo-room constants. Homography and textured triangle projection are reused with attribution; triangle clipping overlaps slightly to eliminate seams. Projected textures are cached during mask painting.

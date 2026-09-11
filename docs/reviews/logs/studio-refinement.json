@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "positions": [
+    {
+      "position": "sticky",
+      "top": 92
+    },
+    {
+      "position": "sticky",
+      "top": 92
+    }
+  ],
+  "checks": [
+    "Cancel then retap recovers real model selection",
+    "No canvas dimension overlay",
+    "Click card reveals single Apply Material action",
+    "Three icon buttons in one row",
+    "Patterns apply",
+    "Rail and canvas sticky"
+  ]
+}

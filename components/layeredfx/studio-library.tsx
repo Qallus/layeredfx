@@ -1,8 +1,3 @@
 'use client';
-import {useState} from 'react';
-import {applications,categories,tones,finishFor} from '@/lib/studio/catalog';
 import {WilsonartLibrary} from './wilsonart-library';
-export function StudioLibrary({onSelect}:{onSelect:(name:string,finish:string,color:string,image?:string)=>void}){
- const [application,setApplication]=useState<string>(applications[0]),[category,setCategory]=useState(categories[applications[0]][0]),[query,setQuery]=useState('');
- return <section className="ws-library"><h2>Material library</h2><label>Project surface<select aria-label="Project surface" value={application} onChange={e=>{setApplication(e.target.value);setCategory(categories[e.target.value][0]);}}>{applications.map(a=><option key={a}>{a}</option>)}</select></label><label>Material type<select aria-label="Material type" value={category} onChange={e=>setCategory(e.target.value)}>{categories[application].map(c=><option key={c}>{c}</option>)}</select></label><label>Search finishes<input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Name or color"/></label><p className="ws-note">Concept colors help you explore. Confirm the exact product, substrate and suitability before ordering. Exterior, wet-area and countertop applications require product approval.</p><div className="ws-library-grid">{tones.filter(t=>(t.name+' '+category).toLowerCase().includes(query.toLowerCase())).map(t=><button key={t.name} onClick={()=>onSelect(category+' / '+t.name,finishFor(category),t.color)}><span style={{background:t.color}}/><b>{t.name}</b><small>{category} concept</small></button>)}</div><WilsonartLibrary onSelect={onSelect}/></section>;
-}
+export function StudioLibrary({onSelect}:{onSelect:(name:string,finish:string,color:string,image?:string)=>void}){return <section className="ws-library"><h2>Materials</h2><WilsonartLibrary onSelect={onSelect}/></section>;}

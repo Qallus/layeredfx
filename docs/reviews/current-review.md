@@ -1,3 +1,10 @@
+# Studio interaction refinements - 2026-09-11
+
+- HIGH: cancelSelection terminated the worker but did not clear selecting.current, so later taps queued forever without starting a worker. Cancel/upload/restore now reset queued work, running state and count. Empty model masks report a useful retry message. Browser verified cancel then retap with real inference and a retained foreground mask.
+- LOW: renamed Wall Specs and Materials; removed canvas dimension badge and form overlay while preserving sidebar measurements and marching ants. Removed concept cards, outgoing Product Details links and visible (HPL) suffixes. Entire material card selects one pending material, revealing a single animated Apply Material action. No product-details modal implemented, per request.
+- LOW: Customize actions display Add Text, Add Shapes, Add Icons with icons and spacing in one row. Added Patterns and Upload Background Graphic rail actions. Desktop properties flow with the page while canvas and rail remain sticky; responsive sticky rules included.
+- Browser evidence: logs/studio-refinement.json and screenshots/studio-material-card-selected.png. Verified real cancellation recovery, material card selection/application, absent overlay, three icon buttons in one row, pattern application and sticky computed positions. One initial large-viewport model-target run was stopped after no match; focused and full 1280px runs passed. Model quality remains variable; manual tools retained.
+
 # Wall measurement and supplied Wilsonart catalog - 2026-09-11
 
 - MEDIUM: Wall Studio step renamed Object Detection; sticky Next step: Mark Wall action above the long selection list. Mark Wall now displays a contrasting animated dashed polygon, respecting reduced-motion preferences. Handle clicks open editable dimensions; sidebar fields and canvas badge update the same wall measurements used by the estimator and saved look. Physical dimensions are user-measured, not inferred from a perspective photo.
@@ -327,3 +334,5 @@ Selection-first validation: npm install, 156 tests, typecheck, lint (zero errors
 Accumulating-selection validation: npm install, all 156 tests, typecheck, lint (zero errors) and production build passed.
 
 Final checks: npm install passed; 156 tests passed; typecheck passed; lint passed with 235 warnings and zero errors; production build passed, rerun after the dimension badge text correction.
+
+Final validation: npm install, 156 tests, typecheck, lint (zero errors) and production build passed.

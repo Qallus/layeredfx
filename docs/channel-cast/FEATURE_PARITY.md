@@ -100,3 +100,5 @@ Wall Studio now requires photo selection, foreground confirmation (or explicit e
 Object selection accumulates automatically across repeated taps, including queued taps during inference. Completed masks remain visible; no per-object confirmation is required.
 
 Object Detection includes a sticky next action. Mark Wall shows marching ants and shared, editable width/height inputs linked to estimate and saved looks. Wilsonart supplied catalog now exposes 2,526 entries with search, family filters and paging, using source images on demand; physical suitability, pricing, vendor rights and availability still require confirmation.
+
+Studio cancellation clears worker state so tap selection restarts. Wall Specs uses sidebar-only dimensions. Materials uses selectable cards with one apply action, no concept cards or outgoing details links. Customize has icon actions; Patterns/upload are available in the sticky rail.

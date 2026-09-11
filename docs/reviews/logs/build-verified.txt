@@ -5,7 +5,7 @@
    ▲ Next.js 15.5.25
 
    Creating an optimized production build ...
- ✓ Compiled successfully in 5.9s
+ ✓ Compiled successfully in 5.5s
    Linting and checking validity of types ...
 
 ./app/about/page.tsx

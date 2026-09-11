@@ -120,6 +120,11 @@
     "passed": true
   },
   {
+    "path": "/api/topbar/manage",
+    "status": 401,
+    "passed": true
+  },
+  {
     "path": "/api/portal",
     "status": 401,
     "passed": true

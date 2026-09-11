@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import ts from 'typescript';
+const url=code=>'data:text/javascript;base64,'+Buffer.from(code).toString('base64');
+const boundary=url(`export const fixture={role:'admin',signedIn:true,reads:0,writes:0};export const mode=()=>'supabase';export function checkOrigin(r){if(r.headers.get('origin')!=='https://layeredfx.com')throw Object.assign(new Error('Origin denied'),{status:403});}export async function currentActor(){if(!fixture.signedIn)throw Object.assign(new Error('Sign in required'),{status:401});return {role:fixture.role};}export function errorResponse(e){return Response.json({message:e.message},{status:e.status||500});}export async function readNotices(){fixture.reads++;return {revision:0,items:[]};}export async function saveNotice(){fixture.writes++;return {revision:1};}`);
+let code=ts.transpileModule(readFileSync(new URL('../app/api/topbar/manage/route.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+code=code.replaceAll('@/lib/operations/server',boundary).replaceAll('@/lib/topbar/server',boundary).replaceAll('@/lib/operations/engine.mjs',new URL('../lib/operations/engine.mjs',import.meta.url).href).replaceAll('@/lib/operations/security.mjs',new URL('../lib/operations/security.mjs',import.meta.url).href);
+const api=await import(url(code)),{fixture}=await import(boundary);
+const send=(method,body={},origin='https://layeredfx.com')=>api[method](new Request('https://layeredfx.com/api/topbar/manage',{method,headers:{origin},...(method==='GET'?{}:{body:JSON.stringify(body)})}));
+test.beforeEach(()=>Object.assign(fixture,{role:'admin',signedIn:true,reads:0,writes:0}));
+test('top bar management authenticates every production method',async()=>{fixture.signedIn=false;for(const m of ['GET','POST','PATCH','DELETE'])assert.equal((await send(m)).status,401);assert.equal(fixture.reads+fixture.writes,0);});
+test('non-admin members cannot manage publication or read drafts',async()=>{fixture.role='viewer';for(const m of ['GET','POST','PATCH','DELETE'])assert.equal((await send(m)).status,403);assert.equal(fixture.reads+fixture.writes,0);});
+test('top bar writes enforce origin and bounded request bodies',async()=>{assert.equal((await send('POST',{},'https://other.example')).status,403);assert.equal((await send('POST',{content:'x'.repeat(64001)})).status,413);assert.equal(fixture.writes,0);});

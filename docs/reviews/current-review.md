@@ -1,3 +1,13 @@
+# Wall Studio workspace and scheduled top bar - 2026-09-11
+
+- MEDIUM - components/layeredfx/wall-studio.tsx, studio.css: constrained preview replaced with full-width workspace, tool rail, guided steps and responsive properties panels. Retained perspective corners, foreground masking, model selection, local save and PNG export. Added two generated sample room photos and text/shape/symbol graphic layers with placement, rotation, color, visibility and ordering.
+- MEDIUM - lib/studio/catalog.ts and studio-library.tsx: all requested application/category groups are selectable, with six illustrative color concepts per category plus six source-attributed Wilsonart HPL woodgrains. Concepts are not a verified vendor SKU catalog. Actual broader vendor imagery, availability and approved rates remain outstanding.
+- MEDIUM - studio-estimate.tsx: dimensions, openings and material waste feed separate material/labor totals. Added height/access, removal, location and difficulty questions with entered labor surcharge, removal rate and travel charge. Rates are user-entered planning inputs; automatic business pricing awaits supplied rates. No generated prices represented as LayeredFX prices.
+- HIGH - lib/topbar and app/api/topbar: server-persisted local notices, admin-only production management, bounded bodies, origin validation, revision conflicts, safe links, Phoenix start/end scheduling and priority. Public endpoint returns only currently eligible message/link fields. Frontend refreshes every 30 seconds. Production SQL is a review draft; no live migration performed.
+- LOW - shared Footer now appears across home, editorial/service/blog, contact, booking, studio and authentication pages. Reduced h2 letter spacing compression. Original homepage content and animation preserved.
+- Verification: browser workflow verified sample selection, Wilsonart selection, 200 sq ft estimate with waste and labor surcharge ($1,820), custom text, PNG export, device save, mobile width, dark theme, public notification publication/cleanup and Content tab. Evidence: logs/studio-upgrade-browser.json and screenshots/studio-editor-*, studio-materials.png, topbar-manager.png. Required install/tests/typecheck/lint/build exact logs are stored in logs/*-verified.txt.
+- Remaining: real phone camera/device coverage; model segmentation quality on varied objects; production notification table/staging verification; supplied pricing rules and expanded real vendor catalog. Generic sample photos are AI-generated examples. No deployment, remote push or live database changes.
+
 # Services hover mega menu - 2026-09-11
 
 LOW - components/layeredfx/header.tsx and frontend.css: Services opens on mouse hover with a short exit delay, retaining click/touch and keyboard operation. Removed the Services chevrons and all mega-menu arrows. Grouped the ten service links into three columns; a bottom CTA spans all columns with Wall Studio and consultation links.
@@ -282,3 +292,5 @@ The test suite now includes TypeScript-backed coupon tests, so it is no longer w
 - No remote push, live SQL, DNS, Coolify deployment or external provider action occurred.
 
 Next implementation dependency: reconcile CTRL+P users/customers/orders/projects and shared permissions/shell, then port those source workflows and connect Coupons usage plus Pipeline handoff/Plans. Keep the complete source inventory; do not replace those workflows with the existing simplified handoff.
+
+Final validation for this increment: npm install passed (558 packages, zero vulnerabilities); 156 tests passed; typecheck passed; lint passed with 233 warnings and zero errors; production build passed. Standalone production smoke passed, including 401 for anonymous top-bar management. The first smoke attempt overlapped build finalization; rerunning after build completion passed.

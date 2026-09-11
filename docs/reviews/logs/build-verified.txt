@@ -5,7 +5,7 @@
    ▲ Next.js 15.5.25
 
    Creating an optimized production build ...
- ✓ Compiled successfully in 5.5s
+ ✓ Compiled successfully in 8.7s
    Linting and checking validity of types ...
 
 ./app/about/page.tsx
@@ -21,26 +21,38 @@
 ./app/services/[slug]/page.tsx
 7:512  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
+./components/layeredfx/home-page.tsx
+3:10  Warning: 'ArrowRight' is defined but never used.  @typescript-eslint/no-unused-vars
+11:10  Warning: 'Logo' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./components/layeredfx/studio-library.tsx
+7:1426  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
 ./components/layeredfx/wall-studio.tsx
-53:1070  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+24:705  Warning: 'category' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+24:714  Warning: 'setCategory' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+24:784  Warning: 'materialQuery' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+24:798  Warning: 'setMaterialQuery' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+45:17  Warning: 'chooseVendor' is defined but never used.  @typescript-eslint/no-unused-vars
+49:969  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
 ./components/operations/mobile-bottom-nav.tsx
 57:742  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
 info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
    Collecting page data ...
-   Generating static pages (0/31) ...
-   Generating static pages (7/31) 
-   Generating static pages (15/31) 
-   Generating static pages (23/31) 
- ✓ Generating static pages (31/31)
+   Generating static pages (0/33) ...
+   Generating static pages (8/33) 
+   Generating static pages (16/33) 
+   Generating static pages (24/33) 
+ ✓ Generating static pages (33/33)
    Finalizing page optimization ...
    Collecting build traces ...
 
 Route (app)                                 Size  First Load JS
 ┌ ○ /                                    8.63 kB         153 kB
 ├ ○ /_not-found                             1 kB         104 kB
-├ ○ /about                                 548 B         139 kB
+├ ○ /about                                 833 B         140 kB
 ├ ƒ /admin                                 198 B         188 kB
 ├ ƒ /admin/agent                         7.85 kB         214 kB
 ├ ƒ /admin/analytics                     5.58 kB         182 kB
@@ -49,7 +61,7 @@ Route (app)                                 Size  First Load JS
 ├ ƒ /admin/bookings                      9.84 kB         222 kB
 ├ ƒ /admin/communications                27.5 kB         246 kB
 ├ ƒ /admin/contacts                        151 B         177 kB
-├ ƒ /admin/content                       11.1 kB         227 kB
+├ ƒ /admin/content                       12.3 kB         228 kB
 ├ ƒ /admin/coupons                       4.99 kB         145 kB
 ├ ƒ /admin/customers                     7.55 kB         217 kB
 ├ ƒ /admin/designers                     6.19 kB         218 kB
@@ -79,37 +91,39 @@ Route (app)                                 Size  First Load JS
 ├ ƒ /admin/wall-studio                   7.91 kB         217 kB
 ├ ƒ /admin/workspace                       193 B         173 kB
 ├ ƒ /admin/workspace/[id]                  192 B         173 kB
-├ ƒ /api/admin/coupons                     173 B         103 kB
-├ ƒ /api/blog/manage                       173 B         103 kB
-├ ƒ /api/communications/[action]           173 B         103 kB
-├ ƒ /api/communications/voice              173 B         103 kB
-├ ƒ /api/ctrlp/[...path]                   173 B         103 kB
-├ ƒ /api/health                            173 B         103 kB
-├ ƒ /api/operations                        173 B         103 kB
-├ ƒ /api/operations/auth/login             173 B         103 kB
-├ ƒ /api/operations/auth/logout            173 B         103 kB
-├ ƒ /api/operations/auth/refresh           173 B         103 kB
-├ ƒ /api/portal                            173 B         103 kB
-├ ƒ /api/portal/auth/[action]              173 B         103 kB
-├ ƒ /api/portal/media                      173 B         103 kB
-├ ƒ /api/portal/staff                      173 B         103 kB
-├ ○ /book                                  153 B         143 kB
-├ ○ /contact                               153 B         143 kB
-├ ƒ /inspiration                           548 B         139 kB
-├ ƒ /inspiration/[slug]                    558 B         139 kB
-├ ○ /login                                 157 B         165 kB
-├ ○ /manifest.webmanifest                  173 B         103 kB
+├ ƒ /api/admin/coupons                     177 B         103 kB
+├ ƒ /api/blog/manage                       177 B         103 kB
+├ ƒ /api/communications/[action]           177 B         103 kB
+├ ƒ /api/communications/voice              177 B         103 kB
+├ ƒ /api/ctrlp/[...path]                   177 B         103 kB
+├ ƒ /api/health                            177 B         103 kB
+├ ƒ /api/operations                        177 B         103 kB
+├ ƒ /api/operations/auth/login             177 B         103 kB
+├ ƒ /api/operations/auth/logout            177 B         103 kB
+├ ƒ /api/operations/auth/refresh           177 B         103 kB
+├ ƒ /api/portal                            177 B         103 kB
+├ ƒ /api/portal/auth/[action]              177 B         103 kB
+├ ƒ /api/portal/media                      177 B         103 kB
+├ ƒ /api/portal/staff                      177 B         103 kB
+├ ƒ /api/topbar                            177 B         103 kB
+├ ƒ /api/topbar/manage                     177 B         103 kB
+├ ○ /book                                  152 B         144 kB
+├ ○ /contact                               152 B         144 kB
+├ ƒ /inspiration                           833 B         140 kB
+├ ƒ /inspiration/[slug]                    839 B         140 kB
+├ ○ /login                                 158 B         165 kB
+├ ○ /manifest.webmanifest                  177 B         103 kB
 ├ ƒ /partner/[[...section]]                153 B         163 kB
 ├ ƒ /portal/[[...section]]                 153 B         163 kB
-├ ○ /register                              157 B         165 kB
-├ ○ /robots.txt                            173 B         103 kB
-├ ○ /services                              548 B         139 kB
-├ ● /services/[slug]                       558 B         139 kB
+├ ○ /register                              158 B         165 kB
+├ ○ /robots.txt                            177 B         103 kB
+├ ○ /services                              833 B         140 kB
+├ ● /services/[slug]                       839 B         140 kB
 ├   ├ /services/wall-wraps
 ├   ├ /services/cabinet-wraps
 ├   ├ /services/countertop-wraps
 ├   └ [+7 more paths]
-└ ○ /studio                              10.4 kB         149 kB
+└ ○ /studio                                14 kB         153 kB
 + First Load JS shared by all             103 kB
   ├ chunks/1255-623a1bc706ecd6cc.js      46.1 kB
   ├ chunks/4bd1b696-100b9d70ed4e49c1.js  54.2 kB

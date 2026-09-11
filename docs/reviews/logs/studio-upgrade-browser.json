@@ -1,0 +1,9 @@
+{
+  "checks": [
+    "200 sq ft, 10% waste, $5 material, $3 labor, 20% labor surcharge = $1820",
+    "Sample photo, vendor material, custom text, PNG export, local save",
+    "Dark mode and mobile without horizontal page overflow",
+    "Scheduled notification API to public header and cleanup",
+    "Dashboard Content notifications tab"
+  ]
+}

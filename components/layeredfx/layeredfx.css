@@ -18,7 +18,7 @@
 .lfx button:focus-visible,.lfx a:focus-visible,.lfx input:focus-visible,.lfx textarea:focus-visible { outline:2px solid var(--lfx-olive); outline-offset:4px; }
 .lfx img { max-width:100%; display:block; }
 .lfx svg { flex-shrink:0; }
-.lfx :where(h2) { font-size:clamp(38px,4.2vw,60px); line-height:1.08; letter-spacing:-2.4px; }
+.lfx :where(h2) { font-size:clamp(38px,4.2vw,60px); line-height:1.08; letter-spacing:-0.6px; }
 .lfx h2 em,.lfx h1 em { font-family:Georgia,'Times New Roman',serif; font-weight:400; color:var(--lfx-olive); }
 .lfx-container { width:calc(100% - 112px); max-width:1320px; margin-left:auto; margin-right:auto; }
 .lfx section[id] { scroll-margin-top:92px; }

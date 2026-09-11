@@ -1,4 +1,5 @@
 import Link from "next/link";
+import {Footer} from "./footer";
 import { ArrowRight, ArrowUpRight, Layers3, MessageSquare, ScanLine, WandSparkles } from "lucide-react";
 import { Header } from "./header";
 import { Hero } from "./hero";
@@ -21,5 +22,5 @@ export function LayeredFXHome() {
     ].map(({ number, title, text, Icon }) => <article key={number}><div className="lfx-process-top"><span>{number}</span><Icon size={24} /></div><h3>{title}</h3><p>{text}</p></article>)}</div></section>
     <FAQ />
     <section id="contact" className="lfx-contact-band"><div className="lfx-container"><div className="lfx-eyebrow">Your next chapter starts here</div><div className="lfx-contact-row"><h2>Let’s bring your<br /><em>next layer to life.</em></h2><div><EstimateTrigger variant="light" size="lg">Start your project <ArrowUpRight size={22} /></EstimateTrigger><p>A few ideas. A little inspiration.<br />That’s all you need to begin.</p></div></div><span className="lfx-contact-line" /></div></section>
-  </main><footer className="lfx-footer lfx-container"><div className="lfx-footer-main"><div><Logo /><p>Beautiful surfaces.<br />Spaces with a little more soul.</p></div><div><h3>Explore</h3><Link href="/services">Services</Link><Link href="/inspiration">Inspiration</Link><Link href="#studio">Material studio <ArrowUpRight size={13} /></Link></div><div><h3>Let’s connect</h3><Link href="/about">About Us</Link><Link href="#questions">Common questions</Link><EstimateTrigger variant="ghost" className="lfx-footer-estimate">Explore an estimate <ArrowRight size={14} /></EstimateTrigger></div><div className="lfx-footer-note"><span className="lfx-live-dot" />Made for homes.<br />Made for business.<p>Residential & commercial<br />surface transformations.</p></div></div><div className="lfx-footer-bottom"><span>© 2026 LayeredFX. All rights reserved.</span><span>Interactive homepage concept · No live submissions</span><Link href="/admin">Team dashboard</Link></div></footer></div></EstimateProvider>;
+  </main><Footer/></div></EstimateProvider>;
 }

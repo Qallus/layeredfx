@@ -1,4 +1,5 @@
 "use client";
+import {TopBar} from "./topbar";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Menu, Moon, Sun, ChevronDown } from "lucide-react";
@@ -22,7 +23,7 @@ export function Header() {
   function toggleTheme(){const value=!dark;setDark(value);document.documentElement.dataset.frontendTheme=value?'dark':'light';try{localStorage.setItem('lfx:frontend:theme',value?'dark':'light');}catch{}}
 
   return <>
-    <div className="lfx-topbar"><span>Beautiful spaces start at the surface.</span><span>Residential <span className="lfx-dot-separator">/</span> Commercial</span></div>
+    <TopBar/>
     <header className="lfx-header"><div className="lfx-header-inner"><Logo />
       <nav className="lfx-desktop-nav" aria-label="Primary navigation"><details className="lfx-mega" onPointerEnter={e=>{if(e.pointerType!=='mouse')return;if(hoverClose.current)clearTimeout(hoverClose.current);e.currentTarget.open=true;}} onPointerLeave={e=>{if(e.pointerType!=='mouse')return;const menu=e.currentTarget;hoverClose.current=setTimeout(()=>{if(!menu.contains(document.activeElement))menu.open=false;},180);}} onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget))e.currentTarget.open=false;}} onKeyDown={e=>{if(e.key==='Escape')e.currentTarget.open=false;}}><summary>Services</summary><div className="lfx-mega-panel">{menuGroups.map(group=><section key={group.id}><h3>{group.title}</h3>{group.services.map(name=><Link key={name} href={`/services/${serviceSlug(name)}`}>{name}</Link>)}</section>)}<div className="lfx-mega-cta"><div><h2>Reimagine your space.</h2><p>Explore a finish on your wall, or talk through the possibilities with us.</p></div><div className="lfx-mega-cta-actions"><Button asChild variant="outline" size="sm"><Link href="/studio">Open Wall Studio</Link></Button><Button asChild size="sm"><Link href="/book">Book a Consultation</Link></Button></div></div></div></details>{links.map(link => <Link key={link.href} href={link.href}>{link.label}{link.href === "#studio" && <span className="lfx-live-dot" />}</Link>)}</nav>
       <div className="lfx-header-actions"><button className="lfx-theme-toggle" aria-label="Toggle frontend theme" aria-pressed={dark} onClick={toggleTheme}>{dark?<Sun size={19}/>:<Moon size={19}/>}</button><details className="lfx-account" onKeyDown={e=>{if(e.key==='Escape')e.currentTarget.open=false;}}><summary>My Account <ChevronDown size={14}/></summary><div><Link href="/login">Login</Link><Link href="/register">Register</Link></div></details><Button asChild size="sm" className="lfx-header-estimate"><Link href="/book">Book a Consultation <ArrowUpRight size={16}/></Link></Button>

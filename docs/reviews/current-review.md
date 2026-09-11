@@ -1,3 +1,10 @@
+# Wall measurement and supplied Wilsonart catalog - 2026-09-11
+
+- MEDIUM: Wall Studio step renamed Object Detection; sticky Next step: Mark Wall action above the long selection list. Mark Wall now displays a contrasting animated dashed polygon, respecting reduced-motion preferences. Handle clicks open editable dimensions; sidebar fields and canvas badge update the same wall measurements used by the estimator and saved look. Physical dimensions are user-measured, not inferred from a perspective photo.
+- MEDIUM: Imported 2,526 catalog entries across nine families from the user's docs/library/wilson-art/wilson-art-material-library.csv. Server-filtered name/SKU search, library filter, 24-result pages, lazy swatches and same-origin full-sheet application. Fixed-host image endpoint accepts catalog IDs only and rejects arbitrary hosts/redirects. Six documented unavailable HPL full sheets use swatches. Solid Surface sink/vanity/bowl entries remain product-only. No product prices inferred.
+- Browser verification: animated outline, handle dimension editor, 20 x 10 ft carried to Estimate, catalog count/families, and real Ivory Terrene full-sheet application passed. Evidence: logs/studio-measure-library.json and screenshots/studio-wall-dimensions.png. Exact required validation in *-verified.txt.
+- Source: supplied README and CSV; assets referenced by their supplied Wilsonart asset-library URLs. Terms reviewed at https://www.wilsonart.com/terms-use per README. The user-supplied pack is not proof of a commercial redistribution license; confirm vendor rights before public deployment. No deployment or migration performed. Images still require vendor availability/network access.
+
 # Residential room default - 2026-09-11
 
 LOW - components/layeredfx/wall-studio.tsx: default room is now /studio/room-residential.png. Loading the default photo enables Continue without requiring a second sample selection. Material remains hidden until the guided selection and wall steps are completed. Removed the obsolete illustration source lib/studio/demo.ts. Restoring an older illustrated-room save opens the residential sample with fresh masks rather than reintroducing the illustration.
@@ -318,3 +325,5 @@ Final validation for this increment: npm install passed (558 packages, zero vuln
 Selection-first validation: npm install, 156 tests, typecheck, lint (zero errors) and production build passed.
 
 Accumulating-selection validation: npm install, all 156 tests, typecheck, lint (zero errors) and production build passed.
+
+Final checks: npm install passed; 156 tests passed; typecheck passed; lint passed with 235 warnings and zero errors; production build passed, rerun after the dimension badge text correction.

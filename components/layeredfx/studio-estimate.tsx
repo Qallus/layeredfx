@@ -1,8 +1,8 @@
 'use client';
-import {useState} from 'react';
+import {useState,type Dispatch,type SetStateAction} from 'react';
 import {estimate,type WallMeasure} from '@/lib/studio/estimate';
-export function StudioEstimate({materialName}:{materialName:string}){
- const [walls,setWalls]=useState<WallMeasure[]>([{name:'Wall 1',width:0,height:0,openings:0}]),[waste,setWaste]=useState(10),[rate,setRate]=useState(''),[labor,setLabor]=useState(''),[access,setAccess]=useState('Ground level'),[removal,setRemoval]=useState(false),[location,setLocation]=useState(''),[difficulty,setDifficulty]=useState('Standard'),[extra,setExtra]=useState(''),[removalRate,setRemovalRate]=useState(''),[travel,setTravel]=useState('');
+export function StudioEstimate({materialName,walls,setWalls}:{materialName:string;walls:WallMeasure[];setWalls:Dispatch<SetStateAction<WallMeasure[]>>}){
+ const [waste,setWaste]=useState(10),[rate,setRate]=useState(''),[labor,setLabor]=useState(''),[access,setAccess]=useState('Ground level'),[removal,setRemoval]=useState(false),[location,setLocation]=useState(''),[difficulty,setDifficulty]=useState('Standard'),[extra,setExtra]=useState(''),[removalRate,setRemovalRate]=useState(''),[travel,setTravel]=useState('');
  const result=estimate(walls,waste,Number(rate),Number(labor)),money=(v:number)=>v.toLocaleString('en-US',{style:'currency',currency:'USD'});
  const removalCost=removal?result.area*Math.max(0,Number(removalRate)):0; const difficultyCost=result.installationCost*Math.max(0,Number(extra))/100; const total=result.total+removalCost+difficultyCost+Math.max(0,Number(travel));
  const update=(i:number,key:keyof WallMeasure,value:string)=>setWalls(rows=>rows.map((w,j)=>i===j?{...w,[key]:key==='name'?value:Math.max(0,Number(value))}:w));

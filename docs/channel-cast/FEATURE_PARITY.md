@@ -98,3 +98,5 @@ Full-width responsive tool rail and guided navigation, two generated sample room
 Wall Studio now requires photo selection, foreground confirmation (or explicit empty-room skip), and wall-area confirmation before material selection. Original-photo mask review precedes product rendering. Unnumbered handles are limited to the wall-area step.
 
 Object selection accumulates automatically across repeated taps, including queued taps during inference. Completed masks remain visible; no per-object confirmation is required.
+
+Object Detection includes a sticky next action. Mark Wall shows marching ants and shared, editable width/height inputs linked to estimate and saved looks. Wilsonart supplied catalog now exposes 2,526 entries with search, family filters and paging, using source images on demand; physical suitability, pricing, vendor rights and availability still require confirmation.

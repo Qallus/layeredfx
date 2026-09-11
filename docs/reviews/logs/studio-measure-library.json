@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": [
+    "Marching ants boundary",
+    "Handle dimension editor",
+    "Two-way estimate dimensions",
+    "2526 entries across nine libraries",
+    "Real Wilsonart full-sheet applied without canvas CORS restriction"
+  ]
+}

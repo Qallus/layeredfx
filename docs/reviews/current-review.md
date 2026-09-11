@@ -1,3 +1,11 @@
+# Accumulating object selection - 2026-09-11
+
+MEDIUM - components/layeredfx/wall-studio.tsx: individual confirmation replaced with automatic additive selections. Rapid taps queue serial model requests (bounded to 32 waiting taps) instead of being ignored while inference runs. Each completed mask joins the kept-object list; cancellation clears remaining requests and preserves completed selections. Photo changes clear the queue and terminate the old worker. Materials remain hidden throughout selection. Instructional copy explains tapping multiple furniture parts.
+
+LOW - studio.css: tool and action buttons in the selection panel now occupy one row each.
+
+Verification: Edge real SlimSAM execution accepted two rapid taps on the commercial sample and accumulated two masks without confirmation. Verified Done enabled only after processing and a single computed tool-grid column. Evidence: logs/studio-auto-selection.json, screenshots/studio-multi-selection.png. Required checks recorded in *-verified.txt. Selection quality remains model-dependent; paint, outline, erase and removal remain available.
+
 # Wall Studio selection-first workflow - 2026-09-11
 
 MEDIUM - components/layeredfx/wall-studio.tsx: material and numbered handles previously appeared before object selection. Reordered guided flow to photo, keep objects, mark wall, material, estimate, customize and review. New photo resets completion gates. Tap selection is active immediately after choosing a photo. Original image stays visible with green mask overlays; materials remain unavailable until objects are confirmed or explicitly skipped and the wall area is confirmed. Controls include visible kept-object list, remove, selection status, brush/outline alternatives and confirmation. Handles have no numbers and only appear in Mark wall, with explanatory copy. Mobile selection controls appear above the canvas.
@@ -302,3 +310,5 @@ Next implementation dependency: reconcile CTRL+P users/customers/orders/projects
 Final validation for this increment: npm install passed (558 packages, zero vulnerabilities); 156 tests passed; typecheck passed; lint passed with 233 warnings and zero errors; production build passed. Standalone production smoke passed, including 401 for anonymous top-bar management. The first smoke attempt overlapped build finalization; rerunning after build completion passed.
 
 Selection-first validation: npm install, 156 tests, typecheck, lint (zero errors) and production build passed.
+
+Accumulating-selection validation: npm install, all 156 tests, typecheck, lint (zero errors) and production build passed.

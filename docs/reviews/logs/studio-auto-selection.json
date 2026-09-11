@@ -1,6 +1,4 @@
 {
   "passed": true,
-  "model": "Xenova/slimsam-77-uniform",
-  "mode": "browser wasm",
-  "check": "Real sample room selected with model; foreground mask accepted"
+  "check": "Two rapid taps queue and accumulate two real model masks without confirmation; tool buttons use one column"
 }

@@ -1,3 +1,9 @@
+# Services hover mega menu - 2026-09-11
+
+LOW - components/layeredfx/header.tsx and frontend.css: Services opens on mouse hover with a short exit delay, retaining click/touch and keyboard operation. Removed the Services chevrons and all mega-menu arrows. Grouped the ten service links into three columns; a bottom CTA spans all columns with Wall Studio and consultation links.
+
+Verification: npm install, all 151 tests, typecheck, lint and build passed. Browser checks on the main app at localhost:3000 verified hover entry, movement into links, pointer exit, Enter/Escape, absence of arrow SVGs, three computed grid columns, full-width CTA, and light/dark rendering. Evidence: logs/mega-menu-browser.json, logs/mega-menu-install.txt and screenshots/mega-menu-*.png. No remaining blockers for this menu change.
+
 # Navigation, blog and Wall Studio - 2026-09-11
 
 - MEDIUM - Public navigation: Services now opens a desktop mega menu and mobile expandable list for ten dedicated service routes. Inspiration links to a public archive with individual post routes. About Us has its own page. Navbar consultation action opens /book; shared estimate triggers open /studio. Original homepage and Three.js content remain.

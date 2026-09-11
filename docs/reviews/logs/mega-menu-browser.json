@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "checks": [
+    "Hover opens",
+    "Pointer enters service links",
+    "Pointer exit closes",
+    "No arrow SVGs",
+    "Three service columns",
+    "CTA spans all columns",
+    "Enter opens and Escape closes",
+    "Light and dark rendering"
+  ],
+  "geometry": {
+    "columns": 3,
+    "ctaColumn": "1 / -1"
+  }
+}

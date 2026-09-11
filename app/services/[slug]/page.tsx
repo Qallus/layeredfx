@@ -1,0 +1,7 @@
+import Link from "next/link";
+import {notFound} from 'next/navigation';
+import {servicePages} from '@/lib/layeredfx/service-pages';
+import {PageShell} from '@/components/layeredfx/page-shell';
+export function generateStaticParams(){return servicePages.map(({slug})=>({slug}));}
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}){const {slug}=await params;return {title:`${servicePages.find(s=>s.slug===slug)?.name||'Services'} | LayeredFX`};}
+export default async function ServicePage({params}:{params:Promise<{slug:string}>}){const {slug}=await params,s=servicePages.find(s=>s.slug===slug);if(!s)notFound();return <PageShell><Link href="/services">All services</Link><section className="lfx-service-hero"><div><span className="lfx-eyebrow">RESIDENTIAL / COMMERCIAL</span><h1>{s.name}</h1><p>{s.description}</p><div className="lfx-page-actions"><Link href="/book">Book a Consultation ↗</Link><Link href="/studio">Visualize your space ↗</Link></div></div><img src={s.image} alt={`Illustrative ${s.name.toLowerCase()} concept`}/></section><section><h2>From an idea to a considered finish.</h2><div className="lfx-editorial-grid">{[['Explore','Share photos, rough measurements and what you want the space to feel like.'],['Choose','Compare material samples, discuss suitability and refine the scope.'],['Prepare','Review surface preparation, access and the installation sequence before work begins.']].map(([title,body])=><article key={title}><h3>{title}</h3><p>{body}</p></article>)}</div></section></PageShell>;}

@@ -1,11 +1,13 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowUpRight, Menu, Moon, Sun, ChevronDown } from "lucide-react";
 import { Logo } from "./logo";
 import { Button } from "./ui/button";
 import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetDescription, SheetClose } from "./ui/sheet";
-import { EstimateTrigger } from "./estimate-context";
-const links = [{ label: "Our services", href: "/#services" }, { label: "Inspiration", href: "/#inspiration" }, { label: "Our approach", href: "/#approach" }, { label: "Wall Studio", href: "/studio" }, { label: "Book a consultation", href: "/book" }, { label: "Contact", href: "/contact" }];
+import { serviceGroups } from "@/lib/layeredfx/content";
+import { serviceSlug } from "@/lib/layeredfx/service-pages";
+const links = [{ label: "Inspiration", href: "/inspiration" }, { label: "About Us", href: "/about" }, { label: "Wall Studio", href: "/studio" }, { label: "Contact", href: "/contact" }];
 export function Header() {
   const [open, setOpen] = useState(false);
   const [dark, setDark] = useState(false);
@@ -15,12 +17,12 @@ export function Header() {
   return <>
     <div className="lfx-topbar"><span>Beautiful spaces start at the surface.</span><span>Residential <span className="lfx-dot-separator">/</span> Commercial</span></div>
     <header className="lfx-header"><div className="lfx-header-inner"><Logo />
-      <nav className="lfx-desktop-nav" aria-label="Primary navigation">{links.map(link => <a key={link.href} href={link.href}>{link.label}{link.href === "#studio" && <span className="lfx-live-dot" />}</a>)}</nav>
-      <div className="lfx-header-actions"><button className="lfx-theme-toggle" aria-label="Toggle frontend theme" aria-pressed={dark} onClick={toggleTheme}>{dark?<Sun size={19}/>:<Moon size={19}/>}</button><details className="lfx-account" onKeyDown={e=>{if(e.key==='Escape')e.currentTarget.open=false;}}><summary>My Account <ChevronDown size={14}/></summary><div><a href="/login">Login</a><a href="/register">Register</a></div></details><EstimateTrigger size="sm" className="lfx-header-estimate">Get an estimate <ArrowUpRight size={16} /></EstimateTrigger>
+      <nav className="lfx-desktop-nav" aria-label="Primary navigation"><details className="lfx-mega" onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget))e.currentTarget.open=false;}} onKeyDown={e=>{if(e.key==='Escape')e.currentTarget.open=false;}}><summary>Services <ChevronDown size={14}/></summary><div className="lfx-mega-panel"><div className="lfx-mega-intro"><span className="lfx-eyebrow">A NEW LAYER</span><h2>Find your surface.</h2><Link href="/services">Explore all services</Link></div>{serviceGroups.map(group=><section key={group.id}><h3>{group.title}</h3>{group.services.map(name=><Link key={name} href={`/services/${serviceSlug(name)}`}>{name}<ArrowUpRight size={14}/></Link>)}</section>)}</div></details>{links.map(link => <Link key={link.href} href={link.href}>{link.label}{link.href === "#studio" && <span className="lfx-live-dot" />}</Link>)}</nav>
+      <div className="lfx-header-actions"><button className="lfx-theme-toggle" aria-label="Toggle frontend theme" aria-pressed={dark} onClick={toggleTheme}>{dark?<Sun size={19}/>:<Moon size={19}/>}</button><details className="lfx-account" onKeyDown={e=>{if(e.key==='Escape')e.currentTarget.open=false;}}><summary>My Account <ChevronDown size={14}/></summary><div><Link href="/login">Login</Link><Link href="/register">Register</Link></div></details><Button asChild size="sm" className="lfx-header-estimate"><Link href="/book">Book a Consultation <ArrowUpRight size={16}/></Link></Button>
         <Sheet open={open} onOpenChange={setOpen}><SheetTrigger asChild><Button variant="ghost" size="icon" className="lfx-menu-button" aria-label="Open navigation"><Menu size={24} /></Button></SheetTrigger><SheetContent>
           <SheetTitle className="lfx-menu-title">Explore LayeredFX</SheetTitle><SheetDescription className="lfx-menu-description">A new layer of possibility for your space.</SheetDescription>
-          <nav className="lfx-mobile-nav" aria-label="Mobile navigation">{links.map((link, i) => <SheetClose asChild key={link.href}><a href={link.href}><span>0{i + 1}</span>{link.label}<ArrowUpRight size={20} /></a></SheetClose>)}</nav>
-          <p className="lfx-menu-description">Explore the estimate preview from the homepage. Nothing is submitted.</p>
+          <nav className="lfx-mobile-nav" aria-label="Mobile navigation"><SheetClose asChild><Link href="/book">Book a Consultation<ArrowUpRight size={20}/></Link></SheetClose><details className="lfx-mobile-services"><summary>Services <ChevronDown size={18}/></summary>{serviceGroups.map(group=><section key={group.id}><h3>{group.title}</h3>{group.services.map(name=><SheetClose asChild key={name}><Link href={`/services/${serviceSlug(name)}`}>{name}</Link></SheetClose>)}</section>)}</details>{links.map((link, i) => <SheetClose asChild key={link.href}><Link href={link.href}><span>0{i + 1}</span>{link.label}<ArrowUpRight size={20} /></Link></SheetClose>)}</nav>
+          <p className="lfx-menu-description">Explore finishes in Wall Studio, or book a consultation to discuss your space.</p>
         </SheetContent></Sheet>
       </div></div>
     </header>

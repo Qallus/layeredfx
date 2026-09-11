@@ -6,3 +6,5 @@ out/
 *.tsbuildinfo
 .DS_Store
 .review/
+
+.local-data/

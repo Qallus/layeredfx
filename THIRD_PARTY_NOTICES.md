@@ -59,3 +59,7 @@ The LayeredFX portal login and registration split layout was informed by CTRL+P 
 Frontend Contact and booking entry: layout reference from CTRL+P contact/booking components at 015a7b58b80e63ef87c73bec549a23242b88f3e3 and user-supplied screenshots. LayeredFX copy, request flow and styling adapted for this application; no source business details or records copied.
 
 Wall Studio: `lib/studio/homography.ts`, textured-triangle drawing in `lib/studio/triangle.ts`, and demo room SVG in `lib/studio/demo.ts` adapted from CTRL+P commit 015a7b58b80e63ef87c73bec549a23242b88f3e3. Source homography comments credit the Franklin Ta adjugate method. Booking card/calendar and studio workflow reference the same source and supplied screenshots.
+
+Wall Studio automatic foreground selection uses Hugging Face Transformers.js (Apache-2.0) and Xenova/slimsam-77-uniform ONNX model weights (Apache-2.0), downloaded by the browser on first use. Model source: https://huggingface.co/Xenova/slimsam-77-uniform. Original model: https://github.com/czg1225/SlimSAM.
+
+Wilsonart vendor swatches are reproduced for the requested vendor material library. Wilsonart retains its trademarks and image rights. Exact product and image source URLs are recorded in lib/studio/wilsonart.json; verified 2026-09-11. These are screen previews, not physical color samples or a claim of installation suitability. No prices or availability are imported.

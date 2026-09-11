@@ -5,91 +5,118 @@
    ▲ Next.js 15.5.25
 
    Creating an optimized production build ...
- ✓ Compiled successfully in 21.0s
+ ✓ Compiled successfully in 5.9s
    Linting and checking validity of types ...
+
+./app/about/page.tsx
+3:592  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/inspiration/page.tsx
+5:420  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/inspiration/[slug]/page.tsx
+8:565  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+8:740  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/services/[slug]/page.tsx
+7:512  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/layeredfx/wall-studio.tsx
+53:1070  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
 ./components/operations/mobile-bottom-nav.tsx
 57:742  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
 info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
    Collecting page data ...
-   Generating static pages (0/18) ...
-   Generating static pages (4/18) 
-   Generating static pages (8/18) 
-   Generating static pages (13/18) 
- ✓ Generating static pages (18/18)
+   Generating static pages (0/31) ...
+   Generating static pages (7/31) 
+   Generating static pages (15/31) 
+   Generating static pages (23/31) 
+ ✓ Generating static pages (31/31)
    Finalizing page optimization ...
    Collecting build traces ...
 
 Route (app)                                 Size  First Load JS
-┌ ○ /                                    8.61 kB         155 kB
+┌ ○ /                                    8.63 kB         153 kB
 ├ ○ /_not-found                             1 kB         104 kB
-├ ƒ /admin                                 199 B         188 kB
-├ ƒ /admin/agent                          7.7 kB         214 kB
-├ ƒ /admin/analytics                     5.43 kB         181 kB
-├ ƒ /admin/artwork                        9.6 kB         219 kB
-├ ƒ /admin/blog                          14.7 kB         230 kB
-├ ƒ /admin/bookings                      9.69 kB         221 kB
-├ ƒ /admin/communications                27.3 kB         245 kB
+├ ○ /about                                 548 B         139 kB
+├ ƒ /admin                                 198 B         188 kB
+├ ƒ /admin/agent                         7.85 kB         214 kB
+├ ƒ /admin/analytics                     5.58 kB         182 kB
+├ ƒ /admin/artwork                       9.74 kB         219 kB
+├ ƒ /admin/blog                          14.8 kB         231 kB
+├ ƒ /admin/bookings                      9.84 kB         222 kB
+├ ƒ /admin/communications                27.5 kB         246 kB
 ├ ƒ /admin/contacts                        151 B         177 kB
-├ ƒ /admin/content                         11 kB         227 kB
+├ ƒ /admin/content                       11.1 kB         227 kB
 ├ ƒ /admin/coupons                       4.99 kB         145 kB
-├ ƒ /admin/customers                     7.39 kB         216 kB
-├ ƒ /admin/designers                     6.02 kB         218 kB
-├ ƒ /admin/installers                    6.02 kB         218 kB
+├ ƒ /admin/customers                     7.55 kB         217 kB
+├ ƒ /admin/designers                     6.19 kB         218 kB
+├ ƒ /admin/installers                    6.18 kB         218 kB
 ├ ƒ /admin/jobs                            172 B         131 kB
 ├ ƒ /admin/jobs/map                        193 B         131 kB
-├ ƒ /admin/jobs/new                        172 B         131 kB
+├ ƒ /admin/jobs/new                        171 B         131 kB
 ├ ƒ /admin/leads                           151 B         177 kB
-├ ○ /admin/login                         3.08 kB         121 kB
-├ ƒ /admin/marketing                     7.45 kB         217 kB
-├ ƒ /admin/messages                      15.6 kB         228 kB
-├ ƒ /admin/orders                        9.73 kB         225 kB
-├ ƒ /admin/payments                      15.5 kB         227 kB
+├ ○ /admin/login                         3.09 kB         121 kB
+├ ƒ /admin/marketing                      7.6 kB         217 kB
+├ ƒ /admin/messages                      15.8 kB         229 kB
+├ ƒ /admin/orders                        9.74 kB         226 kB
+├ ƒ /admin/payments                      15.5 kB         228 kB
 ├ ƒ /admin/pipeline                        193 B         176 kB
 ├ ƒ /admin/pipeline/[id]                   192 B         176 kB
-├ ƒ /admin/pipeline/stages                 194 B         176 kB
+├ ƒ /admin/pipeline/stages                 192 B         176 kB
 ├ ƒ /admin/plans                           193 B         173 kB
-├ ƒ /admin/plans/[id]                      193 B         173 kB
+├ ƒ /admin/plans/[id]                      192 B         173 kB
 ├ ƒ /admin/portals                        3.8 kB         147 kB
-├ ƒ /admin/production                    6.59 kB         222 kB
+├ ƒ /admin/production                     6.6 kB         222 kB
 ├ ƒ /admin/production-schedule           29.5 kB         244 kB
-├ ƒ /admin/products                      15.2 kB         227 kB
-├ ƒ /admin/profile                       9.01 kB         213 kB
-├ ƒ /admin/settings                      4.46 kB         180 kB
-├ ƒ /admin/shipments                     7.28 kB         219 kB
-├ ƒ /admin/users                         15.3 kB         227 kB
-├ ƒ /admin/wall-studio                   7.74 kB         217 kB
-├ ƒ /admin/workspace                       192 B         173 kB
+├ ƒ /admin/products                      15.3 kB         227 kB
+├ ƒ /admin/profile                       9.01 kB         214 kB
+├ ƒ /admin/settings                      4.62 kB         181 kB
+├ ƒ /admin/shipments                     7.29 kB         220 kB
+├ ƒ /admin/users                         15.5 kB         227 kB
+├ ƒ /admin/wall-studio                   7.91 kB         217 kB
+├ ƒ /admin/workspace                       193 B         173 kB
 ├ ƒ /admin/workspace/[id]                  192 B         173 kB
-├ ƒ /api/admin/coupons                     170 B         103 kB
-├ ƒ /api/communications/[action]           170 B         103 kB
-├ ƒ /api/communications/voice              170 B         103 kB
-├ ƒ /api/ctrlp/[...path]                   170 B         103 kB
-├ ƒ /api/health                            170 B         103 kB
-├ ƒ /api/operations                        170 B         103 kB
-├ ƒ /api/operations/auth/login             170 B         103 kB
-├ ƒ /api/operations/auth/logout            170 B         103 kB
-├ ƒ /api/operations/auth/refresh           170 B         103 kB
-├ ƒ /api/portal                            170 B         103 kB
-├ ƒ /api/portal/auth/[action]              170 B         103 kB
-├ ƒ /api/portal/media                      170 B         103 kB
-├ ƒ /api/portal/staff                      170 B         103 kB
-├ ○ /book                                  154 B         145 kB
-├ ○ /contact                               153 B         145 kB
-├ ○ /login                                 158 B         166 kB
-├ ○ /manifest.webmanifest                  170 B         103 kB
+├ ƒ /api/admin/coupons                     173 B         103 kB
+├ ƒ /api/blog/manage                       173 B         103 kB
+├ ƒ /api/communications/[action]           173 B         103 kB
+├ ƒ /api/communications/voice              173 B         103 kB
+├ ƒ /api/ctrlp/[...path]                   173 B         103 kB
+├ ƒ /api/health                            173 B         103 kB
+├ ƒ /api/operations                        173 B         103 kB
+├ ƒ /api/operations/auth/login             173 B         103 kB
+├ ƒ /api/operations/auth/logout            173 B         103 kB
+├ ƒ /api/operations/auth/refresh           173 B         103 kB
+├ ƒ /api/portal                            173 B         103 kB
+├ ƒ /api/portal/auth/[action]              173 B         103 kB
+├ ƒ /api/portal/media                      173 B         103 kB
+├ ƒ /api/portal/staff                      173 B         103 kB
+├ ○ /book                                  153 B         143 kB
+├ ○ /contact                               153 B         143 kB
+├ ƒ /inspiration                           548 B         139 kB
+├ ƒ /inspiration/[slug]                    558 B         139 kB
+├ ○ /login                                 157 B         165 kB
+├ ○ /manifest.webmanifest                  173 B         103 kB
 ├ ƒ /partner/[[...section]]                153 B         163 kB
 ├ ƒ /portal/[[...section]]                 153 B         163 kB
-├ ○ /register                              158 B         166 kB
-├ ○ /robots.txt                            170 B         103 kB
-└ ○ /studio                              7.49 kB         148 kB
+├ ○ /register                              157 B         165 kB
+├ ○ /robots.txt                            173 B         103 kB
+├ ○ /services                              548 B         139 kB
+├ ● /services/[slug]                       558 B         139 kB
+├   ├ /services/wall-wraps
+├   ├ /services/cabinet-wraps
+├   ├ /services/countertop-wraps
+├   └ [+7 more paths]
+└ ○ /studio                              10.4 kB         149 kB
 + First Load JS shared by all             103 kB
   ├ chunks/1255-623a1bc706ecd6cc.js      46.1 kB
   ├ chunks/4bd1b696-100b9d70ed4e49c1.js  54.2 kB
-  └ other shared chunks (total)           2.4 kB
+  └ other shared chunks (total)          2.44 kB
 
 
 ○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
 ƒ  (Dynamic)  server-rendered on demand
 

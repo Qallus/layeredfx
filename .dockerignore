@@ -7,3 +7,5 @@ preview
 *.html
 *.tsbuildinfo
 .review
+
+.local-data

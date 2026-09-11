@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "model": "Xenova/slimsam-77-uniform",
+  "mode": "browser wasm",
+  "check": "Real sample room selected with model; foreground mask accepted"
+}

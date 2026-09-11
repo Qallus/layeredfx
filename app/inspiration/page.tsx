@@ -1,0 +1,5 @@
+import {publicPosts} from '@/lib/blog/server';
+import {PageShell} from '@/components/layeredfx/page-shell';
+export const dynamic='force-dynamic';
+export const metadata={title:'Inspiration | LayeredFX',description:'Ideas, materials and surface stories from LayeredFX.'};
+export default async function Page(){const posts=await publicPosts();return <PageShell><span className="lfx-eyebrow">THE LAYEREDFX JOURNAL</span><h1>A little inspiration.<br/>A new direction.</h1><p>Material ideas, thoughtful details and ways to reimagine your space.</p><div className="lfx-editorial-grid">{posts.map(p=><a className="lfx-service-card" href={`/inspiration/${p.slug}`} key={p.id}>{p.featured_image_url&&<img src={p.featured_image_url} alt={p.title}/>}<small>{p.categories.join(' / ')}</small><h2>{p.title}</h2><p>{p.excerpt}</p><span>Read the story ↗</span></a>)}</div>{!posts.length&&<section className="lfx-empty-journal"><h2>New ideas are taking shape.</h2><p>Our first stories will appear here when published. In the meantime, explore finishes in your own space.</p><a href="/studio">Open Wall Studio ↗</a></section>}</PageShell>;}

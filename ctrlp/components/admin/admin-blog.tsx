@@ -8,7 +8,6 @@ import { getCurrentAdminProfile } from "@/ctrlp/lib/admin/admin-api";
 import type { ContentItem,ContentStatus,GalleryItem } from "@/ctrlp/lib/admin/types";
 import { getSupabaseBrowserClient } from "@/ctrlp/lib/supabase/browser";
 import { cn } from "@/ctrlp/lib/utils";
-import { sourceFetch } from '@/lib/dashboard/source-runtime';
 import { AlignCenter,AlignLeft,AlignRight,Archive,BookOpen,Bot,Calendar,CalendarClock,ChevronLeft,ChevronRight,Edit2,EyeOff,GripVertical,Image,Layers,LayoutGrid,LayoutList,Mail,Minus,Plus,Send,Share2,Trash2,Type,Video,X,Zap } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -300,28 +299,31 @@ function slugify(s: string) {
 function csvToArray(s: string) {
     return s.split(",").map((x) => x.trim()).filter(Boolean);
 }
+let blogRevision=0;
 async function apiCall(method: string, body: Record<string, unknown>) {
-    const db = getSupabaseBrowserClient();
-    const token = (await db?.auth.getSession())?.data.session?.access_token;
-    const res = await sourceFetch("/api/ctrlp/admin/content", {
+    const token = undefined;
+    const res = await fetch("/api/blog/manage", {
         method,
         headers: { "content-type": "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify(body),
+        body: JSON.stringify({...body,revision:blogRevision}),
     });
     const json = await res.json().catch(() => ({})) as Record<string, unknown>;
     if (!res.ok)
-        throw new Error(String(json.error ?? "Request failed"));
+        throw new Error(String(json.message ?? json.error ?? "Request failed"));
+    blogRevision=Number(json.revision);
     return json;
 }
 async function fetchPosts(): Promise<ContentItem[]> {
     const db = getSupabaseBrowserClient();
     const token = (await db?.auth.getSession())?.data.session?.access_token;
-    const res = await sourceFetch("/api/ctrlp/admin/content?type=blog_post", {
+    const res = await fetch("/api/blog/manage", {
         headers: { ...(token ? { authorization: `Bearer ${token}` } : {}) },
     });
     const json = await res.json().catch(() => ({ items: [] })) as {
-        items?: ContentItem[];
+        items?: ContentItem[]; revision?:number; message?:string;
     };
+    if(!res.ok)throw new Error(json.message||"Could not load posts.");
+    blogRevision=json.revision??0;
     return json.items ?? [];
 }
 function handleSignOut() {
@@ -408,7 +410,7 @@ export function AdminBlog() {
             setPosts(await fetchPosts());
             setLoading(false);
         }
-        boot();
+        boot().catch(e=>{setLoading(false);alert(e.message);});
     }, []);
     const visiblePosts = posts.filter((p) => {
         if (statusFilter !== "all" && p.status !== statusFilter)
@@ -528,6 +530,7 @@ export function AdminBlog() {
         }
     }
     async function changeStatus(id: string, status: ContentStatus) {
+      try {
         const post = posts.find((p) => p.id === id);
         if (!post)
             return;
@@ -537,8 +540,10 @@ export function AdminBlog() {
             item: ContentItem;
         };
         setPosts((prev) => prev.map((p) => p.id === id ? result.item : p));
+      }catch(e){alert(e instanceof Error?e.message:"Could not change status.");}
     }
     async function deletePost(id: string) {
+      try {
         if (!confirm("Delete this blog post permanently?"))
             return;
         await apiCall("DELETE", { id });
@@ -547,6 +552,7 @@ export function AdminBlog() {
             setEditPost(null);
             setPage("list");
         }
+      }catch(e){alert(e instanceof Error?e.message:"Could not delete post.");}
     }
     async function emailBlog(post: ContentItem) {
         try {
@@ -595,7 +601,7 @@ export function AdminBlog() {
                   <h1 className="text-2xl font-bold">Blog Posts</h1>
                   <p className="text-sm text-muted-foreground">Create, schedule, deploy, hide, archive, and convert posts into email templates.</p>
                 </div>
-                <Button onClick={openNew} className="gap-1.5 shrink-0"><Plus className="h-4 w-4"/>New post</Button>
+                <Button disabled={loading} onClick={openNew} className="gap-1.5 shrink-0"><Plus className="h-4 w-4"/>New post</Button>
               </div>
 
               {/* Stats cards */}
@@ -662,7 +668,7 @@ export function AdminBlog() {
                           </div>)}
                         <div className="flex flex-wrap items-center gap-1.5">
                           <Button variant="outline" size="sm" className="h-7 gap-1 text-[12px]" onClick={() => openEdit(post)}><Edit2 className="h-3 w-3"/>Edit</Button>
-                          <Button size="sm" className="h-7 gap-1 text-[12px]" onClick={() => changeStatus(post.id, "published")}><Zap className="h-3 w-3"/>Deploy</Button>
+                          <Button size="sm" className="h-7 gap-1 text-[12px]" onClick={() => changeStatus(post.id, "published")}><Zap className="h-3 w-3"/>Publish</Button>
                           <Button variant="outline" size="sm" className="h-7 gap-1 text-[12px]" onClick={() => changeStatus(post.id, "draft")}><EyeOff className="h-3 w-3"/>Hide</Button>
                           <Button variant="outline" size="sm" className="h-7 gap-1 text-[12px]" onClick={() => changeStatus(post.id, "archived")}><Archive className="h-3 w-3"/>Archive</Button>
                           <Button variant="outline" size="sm" className="h-7 gap-1 text-[12px]" onClick={() => emailBlog(post)}><Mail className="h-3 w-3"/>Email Blog</Button>
@@ -674,7 +680,7 @@ export function AdminBlog() {
                       <BookOpen className="mx-auto mb-3 h-10 w-10 text-muted-foreground/20"/>
                       <div className="mb-1 font-medium">No blog posts yet</div>
                       <div className="mb-4 text-sm text-muted-foreground">Write your first post to get started.</div>
-                      <Button onClick={openNew}><Plus className="mr-2 h-4 w-4"/>New post</Button>
+                      <Button disabled={loading} onClick={openNew}><Plus className="mr-2 h-4 w-4"/>New post</Button>
                     </div>)}
                 </div>)}
 
@@ -720,7 +726,7 @@ export function AdminBlog() {
                           <td className="px-4 py-2.5">
                             <div className="flex items-center gap-1">
                               <Button variant="ghost" size="sm" className="h-6 text-[11px]" onClick={() => openEdit(post)}><Edit2 className="mr-1 h-3 w-3"/>Edit</Button>
-                              <Button variant="ghost" size="sm" className="h-6 text-[11px] text-primary" onClick={() => changeStatus(post.id, "published")}><Zap className="mr-1 h-3 w-3"/>Deploy</Button>
+                              <Button variant="ghost" size="sm" className="h-6 text-[11px] text-primary" onClick={() => changeStatus(post.id, "published")}><Zap className="mr-1 h-3 w-3"/>Publish</Button>
                               <Button variant="ghost" size="sm" className="h-6 text-[11px]" onClick={() => changeStatus(post.id, "draft")}><EyeOff className="mr-1 h-3 w-3"/>Hide</Button>
                               <Button variant="ghost" size="sm" className="h-6 text-[11px]" onClick={() => emailBlog(post)}><Mail className="mr-1 h-3 w-3"/>Email</Button>
                               <Button variant="ghost" size="icon" className="h-6 w-6 text-red-500" onClick={() => deletePost(post.id)}><Trash2 className="h-3 w-3"/></Button>
@@ -968,9 +974,9 @@ export function AdminBlog() {
 
               {/* Action bar */}
               <div className="flex flex-wrap items-center gap-2 border-t pt-4">
-                <Button disabled={saving} onClick={() => save()}>{saving ? "Saving…" : "Save Draft"}</Button>
+                {editPost?.status==='published'&&<Link href={`/inspiration/${editPost.slug}`} target="_blank">View public post</Link>}<Button disabled={saving} onClick={() => save()}>{saving ? "Saving…" : "Save post"}</Button>
                 <Button variant="outline" disabled={saving} onClick={() => save("scheduled")}><CalendarClock className="mr-2 h-4 w-4"/>Schedule</Button>
-                <Button variant="outline" disabled={saving} className="border-primary/40 text-primary" onClick={() => save("published")}><Zap className="mr-2 h-4 w-4"/>Deploy</Button>
+                <Button variant="outline" disabled={saving} className="border-primary/40 text-primary" onClick={() => save("published")}><Zap className="mr-2 h-4 w-4"/>Publish</Button>
                 {editPost && (<>
                     <Button variant="outline" onClick={() => emailBlog(editPost)}><Mail className="mr-2 h-4 w-4"/>Email Blog</Button>
                     <Button variant="outline" onClick={() => changeStatus(editPost.id, "archived")}><Archive className="mr-2 h-4 w-4"/>Archive</Button>

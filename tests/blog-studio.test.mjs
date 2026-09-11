@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createRequire} from 'node:module';
+import {pathToFileURL} from 'node:url';
+import ts from 'typescript';
+const require=createRequire(import.meta.url);
+async function source(file){let code=ts.transpileModule(readFileSync(new URL(file,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;code=code.replaceAll('sanitize-html',pathToFileURL(require.resolve('sanitize-html')).href).replaceAll('@/lib/operations/engine.mjs',new URL('../lib/operations/engine.mjs',import.meta.url).href);return import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));}
+const {mutateBlog,published,cleanHtml}=await source('../lib/blog/model.ts');
+const {estimate}=await source('../lib/studio/estimate.ts');
+const draft={revision:0,content_type:'blog_post',title:'Materials',slug:'materials',status:'draft',content:'<p>Safe story</p>'};
+test('publication states, scheduling and deleted posts stay out of the public archive',()=>{let {state,item}=mutateBlog({revision:0,items:[]},'POST',draft);assert.equal(published(state.items).length,0);({state,item}=mutateBlog(state,'PATCH',{...item,status:'published',revision:1}));assert.equal(published(state.items).length,1);({state,item}=mutateBlog(state,'PATCH',{...item,status:'archived',revision:2}));assert.equal(published(state.items).length,0);({state,item}=mutateBlog(state,'PATCH',{...item,status:'scheduled',published_at:'2099-01-01T12:00:00Z',revision:3}));assert.equal(published(state.items).length,0);assert.equal(published(state.items,Date.parse('2099-01-02')).length,1);assert.equal(mutateBlog(state,'DELETE',{id:item.id,revision:4}).state.items.length,0);});
+test('blog refuses stale saves, duplicate slugs and missing schedule dates',()=>{const {state}=mutateBlog({revision:0,items:[]},'POST',draft);assert.throws(()=>mutateBlog(state,'POST',draft),/Another editor/);assert.throws(()=>mutateBlog(state,'POST',{...draft,revision:1}),/already in use/);assert.throws(()=>mutateBlog(state,'POST',{...draft,slug:'second',status:'scheduled',revision:1}),/publication date/);});
+test('blog strips executable HTML, handlers and unsafe URLs',()=>{const html=cleanHtml('<script>alert(1)</script><img src="javascript:alert(1)" onerror="alert(1)"><a href="javascript:alert(1)">x</a><iframe src="https://evil.example"></iframe><p>Safe</p>');assert.doesNotMatch(html,/script|onerror|iframe|javascript:/);assert.match(html,/<p>Safe<\/p>/);});
+test('estimates deduct openings, add waste only to materials and reject negative areas',()=>{assert.deepEqual(estimate([{name:'Wall',width:20,height:10,openings:20}],10,5,3),{area:180,orderArea:198.00000000000003,materialCost:990.0000000000001,installationCost:540,total:1530});assert.equal(estimate([{name:'Wall',width:2,height:2,openings:100}],10,5,3).total,0);assert.equal(estimate([{name:'Wall',width:NaN,height:10,openings:0}],10,5,3).total,0);});

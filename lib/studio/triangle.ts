@@ -10,10 +10,14 @@ export function drawTexturedTriangle(
   u2: number, v2: number,
 ): void {
   ctx.save();
+  // Slightly overlap rasterized triangle edges to avoid visible hairline seams.
+  const cx=(x0+x1+x2)/3,cy=(y0+y1+y2)/3;
+  const expand=(x:number,y:number)=>{const distance=Math.hypot(x-cx,y-cy)||1;return [x+(x-cx)*.45/distance,y+(y-cy)*.45/distance];};
+  const a=expand(x0,y0),b=expand(x1,y1),c=expand(x2,y2);
   ctx.beginPath();
-  ctx.moveTo(x0, y0);
-  ctx.lineTo(x1, y1);
-  ctx.lineTo(x2, y2);
+  ctx.moveTo(a[0], a[1]);
+  ctx.lineTo(b[0], b[1]);
+  ctx.lineTo(c[0], c[1]);
   ctx.closePath();
   ctx.clip();
   const den = u0 * (v2 - v1) - u1 * v2 + u2 * v1 + (u1 - u2) * v0;

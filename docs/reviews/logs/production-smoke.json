@@ -95,6 +95,31 @@
     "passed": true
   },
   {
+    "path": "/services",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "path": "/services/wallpaper",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "path": "/about",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "path": "/inspiration",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "path": "/api/blog/manage",
+    "status": 401,
+    "passed": true
+  },
+  {
     "path": "/api/portal",
     "status": 401,
     "passed": true

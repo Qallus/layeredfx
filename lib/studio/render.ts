@@ -1,6 +1,6 @@
 import {projection,projectPoint,type Point} from './homography';
 import {drawTexturedTriangle} from './triangle';
-export type Mask={points:Point[];radius:number;polygon:boolean;restore:boolean};
+export type Mask={points:Point[];radius:number;polygon:boolean;restore:boolean;runs?:number[];gridWidth?:number;gridHeight?:number;hidden?:boolean;label?:string};
 export const finishes=[
  {id:'clay',name:'Warm Roman clay',category:'Roman clay',color:'#bba38b'},
  {id:'concrete',name:'Soft concrete',category:'Concrete',color:'#a8aaa3'},
@@ -12,9 +12,9 @@ export const finishes=[
 export const defaultCorners:Point[]=[{x:.12,y:.12},{x:.8,y:.12},{x:.12,y:.8},{x:.8,y:.8}];
 export function validQuad(p:Point[]){const order=[p[0],p[1],p[3],p[2]];return order.every((a,i)=>{const b=order[(i+1)%4],c=order[(i+2)%4];return (b.x-a.x)*(c.y-b.y)-(b.y-a.y)*(c.x-b.x)>.001;});}
 function canvas(w:number,h:number){const c=document.createElement('canvas');c.width=w;c.height=h;return c;}
-export function surface(id:string,scale:number,art:HTMLImageElement|null){
+export function surface(id:string,scale:number,art:HTMLImageElement|null,rotation=0,tile=false){
  const c=canvas(1000,1000),ctx=c.getContext('2d')!;
- if(id==='custom'&&art){ctx.drawImage(art,0,0,1000,1000);return c;}
+ if(id==='custom'&&art){ctx.translate(500,500);ctx.rotate(rotation*Math.PI/180);if(tile){const width=scale*3,height=width*art.height/art.width;for(let y=-1500;y<1500;y+=height)for(let x=-1500;x<1500;x+=width)ctx.drawImage(art,x,y,width,height);}else ctx.drawImage(art,-500,-500,1000,1000);return c;}
  const f=finishes.find(f=>f.id===id)||finishes[0];ctx.fillStyle=f.color;ctx.fillRect(0,0,1000,1000);
  const size=scale;
  for(let y=0;y<1000;y+=size)for(let x=0;x<1000;x+=size){
@@ -43,7 +43,7 @@ export function renderStudio(target:HTMLCanvasElement,photo:HTMLImageElement,cor
  const saved=canvas(w,h);saved.getContext('2d')!.drawImage(layer,0,0);projectedCache.set(texture,{key:cacheKey,image:saved});
  }
  const mask=canvas(w,h),mc=mask.getContext('2d')!;
- for(const stroke of masks){if(!stroke.points.length)continue;mc.globalCompositeOperation=stroke.restore?'destination-out':'source-over';mc.fillStyle='#000';mc.strokeStyle='#000';mc.lineWidth=stroke.radius*w*2;mc.lineCap='round';mc.lineJoin='round';mc.beginPath();mc.moveTo(stroke.points[0].x*w,stroke.points[0].y*h);for(const p of stroke.points.slice(1))mc.lineTo(p.x*w,p.y*h);if(stroke.polygon){mc.closePath();mc.fill();}else{mc.stroke();if(stroke.points.length===1){mc.beginPath();mc.arc(stroke.points[0].x*w,stroke.points[0].y*h,stroke.radius*w,0,Math.PI*2);mc.fill();}}}
+ for(const stroke of masks){if(stroke.hidden)continue;if(stroke.runs&&stroke.gridWidth&&stroke.gridHeight){mc.globalCompositeOperation=stroke.restore?'destination-out':'source-over';mc.fillStyle='#000';for(let i=0;i<stroke.runs.length;i+=3)mc.fillRect(stroke.runs[i+1]*w/stroke.gridWidth,stroke.runs[i]*h/stroke.gridHeight,stroke.runs[i+2]*w/stroke.gridWidth,h/stroke.gridHeight);continue;}if(!stroke.points.length)continue;mc.globalCompositeOperation=stroke.restore?'destination-out':'source-over';mc.fillStyle='#000';mc.strokeStyle='#000';mc.lineWidth=stroke.radius*w*2;mc.lineCap='round';mc.lineJoin='round';mc.beginPath();mc.moveTo(stroke.points[0].x*w,stroke.points[0].y*h);for(const p of stroke.points.slice(1))mc.lineTo(p.x*w,p.y*h);if(stroke.polygon){mc.closePath();mc.fill();}else{mc.stroke();if(stroke.points.length===1){mc.beginPath();mc.arc(stroke.points[0].x*w,stroke.points[0].y*h,stroke.radius*w,0,Math.PI*2);mc.fill();}}}
  lc.globalCompositeOperation='destination-out';lc.drawImage(mask,0,0);
  ctx.globalAlpha=opacity;ctx.globalCompositeOperation='multiply';ctx.drawImage(layer,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
  if(showMask){mc.globalCompositeOperation='source-in';mc.fillStyle='#d6ff4166';mc.fillRect(0,0,w,h);ctx.drawImage(mask,0,0);}

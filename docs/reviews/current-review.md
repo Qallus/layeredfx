@@ -1,4 +1,25 @@
-# LayeredFX integration review — checkpoint 2, 2026-09-10
+# LayeredFX integration review — checkpoint 3, 2026-09-10
+
+Contacts and the dashboard-wide Channel Cast FAB are now implemented for review. The source mapping, Android requirements, Select all behavior, Twilio configuration and functional limits are in [Contacts and FAB](../migration/CONTACTS_AND_FAB.md). The previous checkpoints below remain historical; shared verification log paths contain the latest run.
+
+## Contacts/FAB findings and fixes
+
+| Severity | File / evidence | Fix | Verification / remaining blockers |
+|---|---|---|---|
+| HIGH | lib/operations/engine.mjs previously matched conversions only by email | Added explicit contact IDs on leads, direct contact-to-pipeline conversion, stable repeated conversion and current owner checks. | Unit tests cover repeat conversion, phone-only identity, direct lead creation and preserved pipeline history. Browser creates a contact, links a user and lead, then opens its same-ID opportunity. |
+| HIGH | New contact/import/assignment writes | Every write uses the existing authenticated command API, role check and optimistic revision. User links require admin and an existing active member; no auth-user creation or role change. Linked history prevents deletion. | Permission, spoofed-owner, archive, delete and duplicate tests pass. Live Supabase persistence/RLS remains unverified. |
+| MEDIUM | Source phone matching discarded country codes and could match only by name | Import review matches email or normalized phone without discarding international prefixes; ambiguous identities are blocked. Imports fill blanks only for explicitly selected matches. | Parser/matching tests cover international collisions, Google CSV, vCard 2.1 and formula-safe CSV export. Physical Android picker still needs device testing. |
+| MEDIUM | Large phone selections exceed one command body | Added Select all / Deselect all, byte/count-bounded batches and progress with remaining selection after failure. | Browser mocked the phone picker with 205 contacts, selected all in one click, imported two batches and verified persistence after reload. No phone book was accessed by the test. |
+| HIGH | New DMs and notes introduce private data | Filter DMs to participants and notes to their owner before returning state; reject cross-user note writes and stale note revisions. | Unit tests include administrator privacy boundaries and same-timestamp revision conflicts; browser verifies saved notes and preview DM. |
+| HIGH | Twilio browser tokens, sends and voice webhook | Server-only isolated configuration; verified membership and write origin; bounded bodies; fixed sender; outgoing-only ten-minute tokens; signature/account/active-member validation on voice webhook. Provider success is reported as accepted/queued, not delivered. | Real SDK signature tests and mocked provider API tests pass. Actual calls/SMS, incoming support and distributed rate limiting are not verified or implemented as described in the feature note. No real calls/SMS sent. |
+| MEDIUM | Microphone lifecycle and retained media | Explicit start/stop, track cleanup, 3-minute limit, local IndexedDB storage, playback/download/delete, no upload or automatic call recording. | Browser uses synthetic microphone audio; no real microphone audio was captured. |
+| LOW | Phone/Contacts import and existing shell had misdecoded punctuation | Corrected affected UTF-8 source files; scoped contact dialog tokens and fixed empty audio source warnings. | Contacts/FAB browser check has no page or console errors. |
+
+Latest evidence: [Contacts/FAB browser](logs/contacts-browser.json), [tests](logs/test-verified.txt), [TypeScript](logs/typecheck-verified.txt), [lint](logs/lint-verified.txt), [build](logs/build-verified.txt), [command statuses](logs/verification.json), [final install](logs/npm-install-contacts-final.txt), [standalone](logs/production-smoke.json). Staging remains blocked by missing user-provided LayeredFX connections; no migration, deployment or source-company action was performed.
+
+Final measured results: npm install exited 0 (504 packages, 0 vulnerabilities); all **131 tests passed**; typecheck exited 0; lint exited 0 with the existing **218 warnings / 0 errors**; real Next.js build exited 0. Homepage/existing-module browser regression and all 26 dashboard routes passed. Contacts/FAB browser tests had **0 page errors and 0 console errors**, including the 205-contact Select all import. Standalone production gates passed; anonymous Twilio capability/history reads and token/SMS writes returned 401. Exact build-output whitespace is retained in the logs.
+
+## Prior checkpoint 2
 
 **All 19 requested dashboard pages are available for local screen review. Full backend migration remains in progress; this is not production approval.** Preview: `http://127.0.0.1:3000/admin`, from `.review/integration` on `review/full-dashboard`.
 

@@ -30,6 +30,16 @@
     "passed": true
   },
   {
+    "path": "/admin/contacts",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "path": "/admin/leads",
+    "status": 200,
+    "passed": true
+  },
+  {
     "path": "/api/admin/coupons",
     "status": 401,
     "passed": true
@@ -50,7 +60,29 @@
     "passed": true
   },
   {
+    "path": "/api/communications/capabilities",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "path": "/api/communications/calls",
+    "status": 401,
+    "passed": true
+  },
+  {
     "name": "Standalone entry point generated",
+    "passed": true
+  },
+  {
+    "path": "/api/communications/token",
+    "method": "POST",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "path": "/api/communications/sms",
+    "method": "POST",
+    "status": 401,
     "passed": true
   }
 ]

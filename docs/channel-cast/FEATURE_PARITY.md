@@ -4,6 +4,8 @@
 
 This is a **source-reviewed adaptation**, not a byte-for-byte copy or a complete migration of Channel Cast OS. The existing LayeredFX homepage remains. No Channel Cast data, credentials or device/advertising providers were imported.
 
+Contacts and FAB update: `/admin/contacts` and `/admin/leads` now provide canonical contact creation, categories, user links, owners, lead/pipeline assignment, activity, bulk actions, five views and phone/VCF/CSV import with Select all. The shared FAB adds private notes, internal DMs, local microphone recording and configurable outgoing Twilio SMS/Voice, plus access to the existing AI Agents page. See [Contacts and FAB](../migration/CONTACTS_AND_FAB.md) for exact implemented behavior and limitations; incoming communications, AI execution and physical Android/live-provider verification remain incomplete.
+
 ## Pipeline
 
 | Source concept | LayeredFX implementation |

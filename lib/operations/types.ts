@@ -27,8 +27,28 @@ export interface Contact {
     email: string;
     phone: string;
     type: string;
+    firstName?: string;
+    lastName?: string;
+    title?: string;
+    status?: 'active'|'inactive'|'archived';
+    owner?: string;
+    source?: string;
+    tags?: string[];
+    city?: string;
+    state?: string;
+    address?: string;
+    zip?: string;
+    website?: string;
+    sms?: string;
+    notes?: string;
+    lastContact?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    userId?: string|null;
+    details?: Record<string,string>;
 }
 export interface Lead {
+    contactId?: string;
     id: string;
     name: string;
     company: string;
@@ -226,6 +246,9 @@ export interface Task {
     completed_at: string | null;
 }
 export interface OperationState {
+    contactActivities?: {id:string;contactId:string;kind:string;body:string;actorId:string;occurredAt:string}[];
+    directMessages?: {id:string;senderId:string;recipientId:string;body:string;createdAt:string}[];
+    quickNotes?: {id:string;ownerId:string;title:string;body:string;updatedAt:string;revision?:number}[];
     schemaVersion: 2;
     revision: number;
     updatedAt: string | null;

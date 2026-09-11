@@ -1,0 +1,70 @@
+{
+  "checks": [
+    {
+      "name": "Contact, lead, user and pipeline share canonical identity",
+      "passed": true
+    },
+    {
+      "name": "Select all phone contacts imports across multiple batches and survives reload",
+      "passed": true
+    },
+    {
+      "name": "Contacts List",
+      "passed": true
+    },
+    {
+      "name": "Contacts Table",
+      "passed": true
+    },
+    {
+      "name": "Contacts Cards",
+      "passed": true
+    },
+    {
+      "name": "Contacts Kanban",
+      "passed": true
+    },
+    {
+      "name": "Contacts Calendar",
+      "passed": true
+    },
+    {
+      "name": "FAB private notes and preview direct message persist",
+      "passed": true
+    },
+    {
+      "name": "FAB AI Agents",
+      "passed": true
+    },
+    {
+      "name": "FAB SMS",
+      "passed": true
+    },
+    {
+      "name": "FAB Dialpad",
+      "passed": true
+    },
+    {
+      "name": "FAB Call history",
+      "passed": true
+    },
+    {
+      "name": "Unconfigured Twilio cannot call",
+      "passed": true
+    },
+    {
+      "name": "Synthetic microphone recording saved to browser",
+      "passed": true
+    },
+    {
+      "name": "Mobile FAB fits viewport",
+      "passed": true
+    },
+    {
+      "name": "Existing opportunity remains accessible",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "consoleErrors": []
+}

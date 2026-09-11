@@ -12,7 +12,7 @@ export function sourceProfile():AdminProfile {
 export function sourceDashboardData():AdminDashboardData {
  const {state}=getSourceRuntime();
  // Canonical identities come from the existing provider; no source-company sample records.
- const users=[...state.people.map(p=>({id:p.id,email:p.email||'',full_name:p.name,phone:null,company:null,role:p.role==='admin'?'super_admin':p.role==='staff'?'staff':'viewer',status:'active',created_at:'',last_login_at:null,deleted_at:null})),...state.contacts.map(c=>({id:c.id,email:c.email,full_name:c.name,phone:c.phone,company:c.company,role:'customer',status:'active',created_at:'',last_login_at:null,deleted_at:null}))];
+ const users=[...state.people.map(p=>{const linked=state.contacts.find(c=>c.userId===p.id);return {id:p.id,email:p.email||linked?.email||'',full_name:p.name,phone:linked?.phone||null,company:linked?.company||null,role:p.role==='admin'?'super_admin':p.role==='staff'?'staff':'viewer',status:'active',created_at:'',last_login_at:null,deleted_at:null};}),...state.contacts.filter(c=>!c.userId&&['client','prospect'].includes(c.type)&&c.status!=='archived').map(c=>({id:c.id,email:c.email,full_name:c.name,phone:c.phone,company:c.company,role:'customer',status:c.status||'active',created_at:c.createdAt||'',last_login_at:null,deleted_at:null}))];
  return {orders:[],orderItems:[],productionJobs:[],artworkFiles:[],proofs:[],designDrafts:[],shipments:[],payments:[],messages:[],users,activityLogs:[],products:[]} as AdminDashboardData;
 }
 export async function sourceFetch(input:RequestInfo|URL,init?:RequestInit):Promise<Response>{

@@ -47,6 +47,8 @@ No font files are distributed. The local SVG interior illustrations are concept 
 
 ## Channel Cast-derived operations adaptation
 
+Contacts, phone/vCard import and the dashboard floating action layout are adapted from `Qallus/Channel-Cast-OS` commit `8cd1de0a6c3aacd2da08b0544a29e9df5a6044cf`. Selected pure parser/model code is under `lib/channelcast/`; no source seed contacts were imported. See `docs/migration/CONTACTS_AND_FAB.md` for reviewed source paths, integration behavior and remaining limits. Twilio server/client SDKs retain their package licenses.
+
 Pipeline, Workspace and Plans concepts and selected structures were reviewed from the owner-supplied `Qallus/Channel-Cast-OS` repository and adapted at the owner's request for LayeredFX. See `docs/channel-cast/SOURCE_MAP.md` for reviewed paths and blob IDs. This notice does not invent a public license for that repository. Confirm ownership/redistribution permissions when transferring source to third parties.
 
 The new editor uses Plate and its basic-nodes/list/link/table packages. Existing shadcn/Radix/React/Next.js and Three.js notices still apply. Retain the package licenses supplied by the installed dependencies. No font files, source credentials or production data are bundled.

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { brand } from "@/lib/brand";
 import "./globals.css";
 import "@/components/layeredfx/layeredfx.css";
+import "@/components/layeredfx/frontend.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://layeredfx.com";
 const allowIndexing = process.env.ALLOW_INDEXING === "true";

@@ -1,0 +1,30 @@
+[
+  {
+    "path": "/book",
+    "draftAndSave": true
+  },
+  {
+    "path": "/contact",
+    "draftAndSave": true
+  },
+  {
+    "path": "/",
+    "mobileDark": true
+  },
+  {
+    "path": "/contact",
+    "mobileDark": true
+  },
+  {
+    "path": "/book",
+    "mobileDark": true
+  },
+  {
+    "path": "/login",
+    "mobileDark": true
+  },
+  {
+    "path": "/register",
+    "mobileDark": true
+  }
+]

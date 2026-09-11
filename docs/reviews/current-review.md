@@ -1,3 +1,15 @@
+# Frontend navigation, Contact and booking entry - 2026-09-10
+
+Implemented shared frontend light/dark toggle with persisted preference, theme-appropriate supplied logos, and a keyboard-accessible My Account disclosure with Login/Register. Navigation includes Book a consultation and Contact; section links point back to the homepage from other routes. Login/Register share the new header. The dark top bar uses LayeredFX copy rather than source-company claims.
+
+Added `/contact` and `/book` using the screenshot and locally reviewed CTRL+P contact/booking source as layout references. The remote contact page could not be fetched. Contact collects project details; booking guides consultation choice, preferred date/time and details. Both save a bounded draft in session storage and open the existing portal composer for explicit review/submission. Drafts clear after successful submission. This does not introduce anonymous public message delivery or reserve calendar slots. In local preview, final requests/messages remain browser-only. In live mode, portal authentication and existing server authorization remain required. No live Supabase changes.
+
+The previous `/book` missing-route finding is resolved. Availability-backed scheduling, calendar conflicts, appointment confirmation and real provider integration remain pending. Business phone/address/hours were not invented; account messaging and consultation links serve as contact methods.
+
+Verification: `scripts/frontend-pages-browser.mjs` checks both public-to-portal form handoffs, persisted submitted previews, account links, theme persistence and mobile overflow across homepage/Contact/book/Login/Register. Required checks and original-homepage smoke results are in `logs`. Added dark/light screenshots in `screenshots/frontend-*`.
+
+---
+
 # Shared primary button palette - 2026-09-10
 
 LOW - `app/globals.css`, `components/admin/dashboard.css`, `components/layeredfx/layeredfx.css`, `components/portal/portal.css`: primary buttons used unrelated olive/lime/ink backgrounds across shells. Added shared HSL brand action tokens matching sidebar #202b28 and text #c2cdc5. Both dashboard themes, public primary actions and customer/partner/auth primary actions use these values. Hover uses navigation #314037 / #eff7e9. Dark-mode text-primary links keep readable pale text after the primary background token changes. Semantic destructive and secondary button variants retain their purpose; the previously requested lime FAB icon remains.

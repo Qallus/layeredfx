@@ -77,3 +77,7 @@ Production setup, backups, abuse protections and integration tests remain mandat
 # Customer and partner portal increment
 
 LayeredFX now includes separate customer and partner portal routes with frontend login/registration and staff partner approval. Exact implemented behavior and remaining integration gaps are in `../migration/PORTALS.md`. This is not full CTRL+P customer/partner portal parity. Live Supabase activation and staging verification remain outstanding; the SQL is a review draft only.
+
+## Frontend contact and booking entry
+
+Public `/contact` and `/book` now share the themed frontend navigation with the homepage and Login/Register. Public forms prepare drafts for explicit submission through the authenticated customer portal (browser-only in local preview). Booking is a consultation request with preferred date/time; it does not reserve available slots. See `docs/reviews/current-review.md` for verification and remaining scheduling work.

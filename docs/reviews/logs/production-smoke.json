@@ -80,6 +80,16 @@
     "passed": true
   },
   {
+    "path": "/contact",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "path": "/book",
+    "status": 200,
+    "passed": true
+  },
+  {
     "path": "/api/portal",
     "status": 401,
     "passed": true

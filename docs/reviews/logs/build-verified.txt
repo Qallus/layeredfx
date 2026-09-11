@@ -5,7 +5,7 @@
    ▲ Next.js 15.5.25
 
    Creating an optimized production build ...
- ✓ Compiled successfully in 5.9s
+ ✓ Compiled successfully in 5.1s
    Linting and checking validity of types ...
 
 ./components/operations/mobile-bottom-nav.tsx
@@ -13,28 +13,28 @@
 
 info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
    Collecting page data ...
-   Generating static pages (0/15) ...
-   Generating static pages (3/15) 
-   Generating static pages (7/15) 
-   Generating static pages (11/15) 
- ✓ Generating static pages (15/15)
+   Generating static pages (0/17) ...
+   Generating static pages (4/17) 
+   Generating static pages (8/17) 
+   Generating static pages (12/17) 
+ ✓ Generating static pages (17/17)
    Finalizing page optimization ...
    Collecting build traces ...
 
 Route (app)                                 Size  First Load JS
-┌ ○ /                                      16 kB         153 kB
+┌ ○ /                                    8.61 kB         155 kB
 ├ ○ /_not-found                             1 kB         104 kB
-├ ƒ /admin                                 198 B         188 kB
+├ ƒ /admin                                 199 B         188 kB
 ├ ƒ /admin/agent                          7.7 kB         214 kB
 ├ ƒ /admin/analytics                     5.43 kB         181 kB
-├ ƒ /admin/artwork                        9.6 kB         219 kB
+├ ƒ /admin/artwork                       9.59 kB         219 kB
 ├ ƒ /admin/blog                          14.7 kB         230 kB
 ├ ƒ /admin/bookings                      9.69 kB         221 kB
 ├ ƒ /admin/communications                27.3 kB         245 kB
 ├ ƒ /admin/contacts                        151 B         177 kB
 ├ ƒ /admin/content                         11 kB         227 kB
 ├ ƒ /admin/coupons                       4.99 kB         145 kB
-├ ƒ /admin/customers                     7.39 kB         217 kB
+├ ƒ /admin/customers                     7.39 kB         216 kB
 ├ ƒ /admin/designers                     6.02 kB         218 kB
 ├ ƒ /admin/installers                    6.02 kB         218 kB
 ├ ƒ /admin/jobs                            172 B         131 kB
@@ -47,10 +47,10 @@ Route (app)                                 Size  First Load JS
 ├ ƒ /admin/orders                        9.74 kB         225 kB
 ├ ƒ /admin/payments                      15.5 kB         227 kB
 ├ ƒ /admin/pipeline                        193 B         176 kB
-├ ƒ /admin/pipeline/[id]                   191 B         176 kB
+├ ƒ /admin/pipeline/[id]                   192 B         176 kB
 ├ ƒ /admin/pipeline/stages                 192 B         176 kB
 ├ ƒ /admin/plans                           193 B         173 kB
-├ ƒ /admin/plans/[id]                      193 B         173 kB
+├ ƒ /admin/plans/[id]                      192 B         173 kB
 ├ ƒ /admin/portals                        3.8 kB         147 kB
 ├ ƒ /admin/production                    6.59 kB         222 kB
 ├ ƒ /admin/production-schedule           29.5 kB         244 kB
@@ -61,7 +61,7 @@ Route (app)                                 Size  First Load JS
 ├ ƒ /admin/users                         15.3 kB         227 kB
 ├ ƒ /admin/wall-studio                   7.75 kB         217 kB
 ├ ƒ /admin/workspace                       193 B         173 kB
-├ ƒ /admin/workspace/[id]                  193 B         173 kB
+├ ƒ /admin/workspace/[id]                  192 B         173 kB
 ├ ƒ /api/admin/coupons                     170 B         103 kB
 ├ ƒ /api/communications/[action]           170 B         103 kB
 ├ ƒ /api/communications/voice              170 B         103 kB
@@ -75,16 +75,18 @@ Route (app)                                 Size  First Load JS
 ├ ƒ /api/portal/auth/[action]              170 B         103 kB
 ├ ƒ /api/portal/media                      170 B         103 kB
 ├ ƒ /api/portal/staff                      170 B         103 kB
-├ ○ /login                               2.11 kB         159 kB
+├ ○ /book                                  156 B         165 kB
+├ ○ /contact                               156 B         165 kB
+├ ○ /login                                 158 B         166 kB
 ├ ○ /manifest.webmanifest                  170 B         103 kB
-├ ƒ /partner/[[...section]]                153 B         163 kB
-├ ƒ /portal/[[...section]]                 151 B         163 kB
-├ ○ /register                            2.11 kB         159 kB
+├ ƒ /partner/[[...section]]                154 B         163 kB
+├ ƒ /portal/[[...section]]                 153 B         163 kB
+├ ○ /register                              157 B         166 kB
 └ ○ /robots.txt                            170 B         103 kB
 + First Load JS shared by all             103 kB
   ├ chunks/1255-623a1bc706ecd6cc.js      46.1 kB
   ├ chunks/4bd1b696-100b9d70ed4e49c1.js  54.2 kB
-  └ other shared chunks (total)          2.39 kB
+  └ other shared chunks (total)           2.4 kB
 
 
 ○  (Static)   prerendered as static content

@@ -14,7 +14,7 @@ try {
   try{if((await fetch('http://127.0.0.1:3001/api/health')).ok)break;}catch{}
   await new Promise(resolve=>setTimeout(resolve,250));
  }
- for(const path of ['/','/images/kitchen.svg','/admin','/admin/coupons','/admin/orders','/admin/jobs','/admin/contacts','/admin/leads','/api/admin/coupons','/api/operations','/api/ctrlp/admin/orders','/api/ctrlp/cmi/jobs','/api/communications/capabilities','/api/communications/calls','/login','/register','/api/portal','/api/portal/media','/api/portal/staff']) {
+ for(const path of ['/','/images/kitchen.svg','/admin','/admin/coupons','/admin/orders','/admin/jobs','/admin/contacts','/admin/leads','/api/admin/coupons','/api/operations','/api/ctrlp/admin/orders','/api/ctrlp/cmi/jobs','/api/communications/capabilities','/api/communications/calls','/login','/register','/contact','/book','/api/portal','/api/portal/media','/api/portal/staff']) {
   const response=await fetch('http://127.0.0.1:3001'+path);const body=await response.text();
   const expected=path.startsWith('/api/')?401:200;
   if(response.status!==expected)throw new Error(`${path}: ${response.status}, expected ${expected}`);

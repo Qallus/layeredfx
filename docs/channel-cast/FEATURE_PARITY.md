@@ -81,3 +81,7 @@ LayeredFX now includes separate customer and partner portal routes with frontend
 ## Frontend contact and booking entry
 
 Public `/contact` and `/book` now share the themed frontend navigation with the homepage and Login/Register. Public forms prepare drafts for explicit submission through the authenticated customer portal (browser-only in local preview). Booking is a consultation request with preferred date/time; it does not reserve available slots. See `docs/reviews/current-review.md` for verification and remaining scheduling work.
+
+## Wall Studio and booking sequence update
+
+`/studio` provides perspective photo visualization, sample finishes/custom graphics, foreground brush/polygon masks, undo/redo, before/after, device-local saved look and PNG export. It does not perform AI object detection or create paid orders. `/book` now provides source-style appointment cards, calendar, individual preferred times and retained customer details; availability-backed reservation and notifications remain unconnected.

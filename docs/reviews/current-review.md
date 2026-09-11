@@ -1,3 +1,17 @@
+# Booking sequence and frontend Wall Studio - 2026-09-10
+
+Implemented `/studio` with the LayeredFX frontend header and light/dark styling. Source-reviewed against CTRL+P commit 015a7b58b80e63ef87c73bec549a23242b88f3e3: VisualizerStage, StudioApp, snapshot, homography and demo-room constants. Homography and textured triangle projection are reused with attribution; triangle clipping overlaps slightly to eliminate seams. Projected textures are cached during mask painting.
+
+Foreground workflow: four perspective corners (pointer and keyboard), photo upload/phone capture, procedural sample materials or custom uploaded graphic, keep-in-front brush, polygon outline, restore-finish brush, undo/redo, mask overlay, original/design comparison, local saved look and PNG download. Masks reveal the untouched original image beneath the finish, preserving original foreground pixels. Switching materials retains masks. Photo input is JPEG/PNG/WebP up to 24 MB, resized to a 1600px long edge. Saved looks use device IndexedDB, not cloud storage. Masks cap at 200 edits without silently dropping earlier objects. Automated semantic object segmentation, multi-project cloud persistence, purchasable catalog/pricing and live cart integration are not implemented; sample finishes are explicitly illustrative. Physical phone capture requires device verification.
+
+Booking now follows the reference sequence: expandable appointment cards with durations, calendar/month navigation, 15-minute preferred start-time choices in America/Phoenix, and customer details. Details persist when going back. LayeredFX-specific consultation types replace unrelated source-company services. Availability, buffers and existing bookings are explicitly not connected: final action prepares a portal request, not a reserved appointment or automatic notification.
+
+Findings fixed: MEDIUM - canvas allocation originally ran during server rendering; browser guard added and production build/direct-route checks required. LOW - mobile appointment card minimum sizing caused overflow; constrained grid items. LOW - projected triangle seams; expanded clip edges. LOW - some homepage section links were relative hashes on other routes; corrected and added Wall Studio navigation.
+
+Verification evidence: `logs/studio-browser.json` (pixel equality of original foreground, material switching, undo/redo, saved look restoration, PNG export, mobile dark), `logs/studio-upload-browser.json` (synthetic photo upload, polygon foreground, custom graphics), updated frontend request handoff check, original Three.js homepage/dashboard browser smoke. Required install and full test/typecheck/lint/build outputs are in `logs/studio-booking-install.txt` and shared verified logs. Live Supabase/provider changes: none.
+
+---
+
 # Frontend navigation, Contact and booking entry - 2026-09-10
 
 Implemented shared frontend light/dark toggle with persisted preference, theme-appropriate supplied logos, and a keyboard-accessible My Account disclosure with Login/Register. Navigation includes Book a consultation and Contact; section links point back to the homepage from other routes. Login/Register share the new header. The dark top bar uses LayeredFX copy rather than source-company claims.

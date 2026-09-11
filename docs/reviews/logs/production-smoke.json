@@ -90,6 +90,11 @@
     "passed": true
   },
   {
+    "path": "/studio",
+    "status": 200,
+    "passed": true
+  },
+  {
     "path": "/api/portal",
     "status": 401,
     "passed": true

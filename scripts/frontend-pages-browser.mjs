@@ -9,11 +9,14 @@ try{
   console.log('Checking '+path);
   await page.goto('http://127.0.0.1:3000'+path);
   if(path==='/book'){
-   await page.getByRole('button',{name:'Choose a preferred date'}).click();
-   await page.getByLabel('Preferred date',{exact:true}).fill('2027-12-10');
+   await page.getByRole('button',{name:'Continue',exact:true}).click();
+   await page.getByRole('button',{name:'Next month',exact:true}).click();
+   const next=new Date();next.setDate(1);next.setMonth(next.getMonth()+1);const date=next.getFullYear()+'-'+String(next.getMonth()+1).padStart(2,'0')+'-10';
+   await page.getByRole('button',{name:date,exact:true}).click();
+   await page.getByRole('button',{name:'11:30 AM',exact:true}).click();
    await page.getByRole('button',{name:'Continue',exact:true}).click();
   }
-  await page.getByLabel('Name',{exact:true}).fill('Preview Customer');
+  if(path==='/book'){await page.getByLabel('First name',{exact:true}).fill('Preview');await page.getByLabel('Last name',{exact:true}).fill('Customer');}else await page.getByLabel('Name',{exact:true}).fill('Preview Customer');
   await page.getByLabel('Email',{exact:true}).fill('preview@example.test');
   await page.getByLabel('Tell us more').fill('Public request browser verification');
   await page.getByRole('button',{name:'Continue to my account'}).click();

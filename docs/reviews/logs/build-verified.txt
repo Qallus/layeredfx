@@ -5,7 +5,7 @@
    ▲ Next.js 15.5.25
 
    Creating an optimized production build ...
- ✓ Compiled successfully in 5.1s
+ ✓ Compiled successfully in 4.3s
    Linting and checking validity of types ...
 
 ./components/operations/mobile-bottom-nav.tsx
@@ -13,11 +13,11 @@
 
 info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
    Collecting page data ...
-   Generating static pages (0/17) ...
-   Generating static pages (4/17) 
-   Generating static pages (8/17) 
-   Generating static pages (12/17) 
- ✓ Generating static pages (17/17)
+   Generating static pages (0/18) ...
+   Generating static pages (4/18) 
+   Generating static pages (8/18) 
+   Generating static pages (13/18) 
+ ✓ Generating static pages (18/18)
    Finalizing page optimization ...
    Collecting build traces ...
 
@@ -75,14 +75,15 @@ Route (app)                                 Size  First Load JS
 ├ ƒ /api/portal/auth/[action]              170 B         103 kB
 ├ ƒ /api/portal/media                      170 B         103 kB
 ├ ƒ /api/portal/staff                      170 B         103 kB
-├ ○ /book                                  156 B         165 kB
-├ ○ /contact                               156 B         165 kB
+├ ○ /book                                  154 B         145 kB
+├ ○ /contact                               153 B         145 kB
 ├ ○ /login                                 158 B         166 kB
 ├ ○ /manifest.webmanifest                  170 B         103 kB
 ├ ƒ /partner/[[...section]]                154 B         163 kB
 ├ ƒ /portal/[[...section]]                 153 B         163 kB
 ├ ○ /register                              157 B         166 kB
-└ ○ /robots.txt                            170 B         103 kB
+├ ○ /robots.txt                            170 B         103 kB
+└ ○ /studio                              7.49 kB         148 kB
 + First Load JS shared by all             103 kB
   ├ chunks/1255-623a1bc706ecd6cc.js      46.1 kB
   ├ chunks/4bd1b696-100b9d70ed4e49c1.js  54.2 kB

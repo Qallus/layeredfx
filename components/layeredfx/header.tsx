@@ -5,7 +5,7 @@ import { Logo } from "./logo";
 import { Button } from "./ui/button";
 import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetDescription, SheetClose } from "./ui/sheet";
 import { EstimateTrigger } from "./estimate-context";
-const links = [{ label: "Our services", href: "/#services" }, { label: "Inspiration", href: "#inspiration" }, { label: "Our approach", href: "#approach" }, { label: "Design studio", href: "#studio" }, { label: "Book a consultation", href: "/book" }, { label: "Contact", href: "/contact" }];
+const links = [{ label: "Our services", href: "/#services" }, { label: "Inspiration", href: "/#inspiration" }, { label: "Our approach", href: "/#approach" }, { label: "Wall Studio", href: "/studio" }, { label: "Book a consultation", href: "/book" }, { label: "Contact", href: "/contact" }];
 export function Header() {
   const [open, setOpen] = useState(false);
   const [dark, setDark] = useState(false);

@@ -5,7 +5,7 @@
    ▲ Next.js 15.5.25
 
    Creating an optimized production build ...
- ✓ Compiled successfully in 12.4s
+ ✓ Compiled successfully in 7.1s
    Linting and checking validity of types ...
    Collecting page data ...
    Generating static pages (0/10) ...
@@ -17,9 +17,9 @@
    Collecting build traces ...
 
 Route (app)                                 Size  First Load JS
-┌ ○ /                                    20.5 kB         153 kB
+┌ ○ /                                    15.6 kB         153 kB
 ├ ○ /_not-found                             1 kB         104 kB
-├ ƒ /admin                                 186 B         158 kB
+├ ƒ /admin                                 189 B         163 kB
 ├ ƒ /admin/agent                          7.7 kB         214 kB
 ├ ƒ /admin/analytics                     5.43 kB         181 kB
 ├ ƒ /admin/artwork                       9.46 kB         215 kB
@@ -36,7 +36,7 @@ Route (app)                                 Size  First Load JS
 ├ ƒ /admin/jobs/map                        193 B         131 kB
 ├ ƒ /admin/jobs/new                        171 B         131 kB
 ├ ƒ /admin/leads                           145 B         155 kB
-├ ○ /admin/login                         2.61 kB         116 kB
+├ ○ /admin/login                         2.79 kB         121 kB
 ├ ƒ /admin/marketing                     7.31 kB         213 kB
 ├ ƒ /admin/messages                      15.7 kB         225 kB
 ├ ƒ /admin/orders                        9.73 kB         222 kB
@@ -56,17 +56,17 @@ Route (app)                                 Size  First Load JS
 ├ ƒ /admin/wall-studio                   7.67 kB         214 kB
 ├ ƒ /admin/workspace                       184 B         152 kB
 ├ ƒ /admin/workspace/[id]                  186 B         152 kB
-├ ƒ /api/admin/coupons                     157 B         103 kB
-├ ƒ /api/communications/[action]           157 B         103 kB
-├ ƒ /api/communications/voice              157 B         103 kB
-├ ƒ /api/ctrlp/[...path]                   157 B         103 kB
-├ ƒ /api/health                            157 B         103 kB
-├ ƒ /api/operations                        157 B         103 kB
-├ ƒ /api/operations/auth/login             157 B         103 kB
-├ ƒ /api/operations/auth/logout            157 B         103 kB
-├ ƒ /api/operations/auth/refresh           157 B         103 kB
-├ ○ /icon.svg                                0 B            0 B
-└ ○ /robots.txt                            157 B         103 kB
+├ ƒ /api/admin/coupons                     160 B         103 kB
+├ ƒ /api/communications/[action]           160 B         103 kB
+├ ƒ /api/communications/voice              160 B         103 kB
+├ ƒ /api/ctrlp/[...path]                   160 B         103 kB
+├ ƒ /api/health                            160 B         103 kB
+├ ƒ /api/operations                        160 B         103 kB
+├ ƒ /api/operations/auth/login             160 B         103 kB
+├ ƒ /api/operations/auth/logout            160 B         103 kB
+├ ƒ /api/operations/auth/refresh           160 B         103 kB
+├ ○ /manifest.webmanifest                  160 B         103 kB
+└ ○ /robots.txt                            160 B         103 kB
 + First Load JS shared by all             103 kB
   ├ chunks/1255-623a1bc706ecd6cc.js      46.1 kB
   ├ chunks/4bd1b696-100b9d70ed4e49c1.js  54.2 kB

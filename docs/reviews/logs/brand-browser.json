@@ -1,0 +1,66 @@
+{
+  "checks": [
+    {
+      "path": "/",
+      "logos": [
+        {
+          "src": "/brand/layeredfx_logo_light_outline.svg",
+          "width": 190,
+          "height": 33.46875
+        },
+        {
+          "src": "/brand/layeredfx_logo_light_outline.svg",
+          "width": 190,
+          "height": 33.46875
+        }
+      ]
+    },
+    {
+      "path": "/admin",
+      "logos": [
+        {
+          "src": "/brand/layeredfx_logo_dark_simple.svg",
+          "width": 192,
+          "height": 26.5625
+        },
+        {
+          "src": "/brand/layeredfx_logo_light_simple.svg",
+          "width": 110,
+          "height": 15.21875
+        }
+      ]
+    },
+    {
+      "path": "/admin/login",
+      "logos": [
+        {
+          "src": "/brand/layeredfx_logo_dark_simple.svg",
+          "width": 192,
+          "height": 26.5625
+        },
+        {
+          "src": "/brand/layeredfx_logo_dark_simple.svg",
+          "width": 110,
+          "height": 15.21875
+        }
+      ]
+    }
+  ],
+  "manifest": {
+    "name": "LayeredFX",
+    "short_name": "LayeredFX",
+    "start_url": "/admin",
+    "display": "standalone",
+    "background_color": "#f4f5f0",
+    "theme_color": "#19212d",
+    "icons": [
+      {
+        "src": "/brand/layeredfx_app_icon.svg",
+        "sizes": "any",
+        "type": "image/svg+xml",
+        "purpose": "any"
+      }
+    ]
+  },
+  "errors": []
+}

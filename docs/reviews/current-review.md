@@ -1,4 +1,16 @@
-# LayeredFX integration review — checkpoint 3, 2026-09-10
+# LayeredFX integration review — branding checkpoint, 2026-09-10
+
+User-supplied artwork now replaces the drawn/text logos on the existing homepage, dashboard sidebar/top bar and sign-in screen. Original assets are preserved in `docs/logos`; runtime copies and usage are documented in `docs/logos/README.md`.
+
+| Severity | File / evidence | Fix | Verification / remaining blockers |
+|---|---|---|---|
+| LOW | `components/layeredfx/logo.tsx`, `components/operations/shell.tsx`, `components/operations/login.tsx`: generated branding instead of supplied artwork | Use outline frontend and simple dashboard SVGs with correct background contrast and preserved aspect ratio | Edge desktop/mobile screenshots and theme switch passed |
+| LOW | `app/icon.svg`: old generated browser icon | Remove conflicting automatic icon; metadata selects supplied light/dark PNGs, manifest uses supplied app SVG | Both media-qualified favicon links, manifest contents and asset HTTP 200 verified |
+| INFO | No active email template renderer | Publish both supplied email PNGs and shared absolute URL helper in `lib/brand.ts` | Assets return HTTP 200; live email rendering/delivery remains unconnected |
+
+Validation: `npm install` exited 0 (504 packages audited, zero vulnerabilities; exact output in `logs/brand-install.txt`). `npm test` passed all 131 tests; typecheck, lint and build exited 0 (lint retains existing warnings). Exact command output is in `logs/*-verified.txt` and `logs/verification.json`. Production smoke passed; Edge branding checks passed with no page errors (`logs/brand-browser.json`, `screenshots/brand-*.png`). Existing live-provider and complete-parity blockers below remain unchanged. No live migrations or provider actions were performed.
+
+## Previous checkpoint 3
 
 Contacts and the dashboard-wide Channel Cast FAB are now implemented for review. The source mapping, Android requirements, Select all behavior, Twilio configuration and functional limits are in [Contacts and FAB](../migration/CONTACTS_AND_FAB.md). The previous checkpoints below remain historical; shared verification log paths contain the latest run.
 

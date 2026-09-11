@@ -52,3 +52,6 @@ Contacts, phone/vCard import and the dashboard floating action layout are adapte
 Pipeline, Workspace and Plans concepts and selected structures were reviewed from the owner-supplied `Qallus/Channel-Cast-OS` repository and adapted at the owner's request for LayeredFX. See `docs/channel-cast/SOURCE_MAP.md` for reviewed paths and blob IDs. This notice does not invent a public license for that repository. Confirm ownership/redistribution permissions when transferring source to third parties.
 
 The new editor uses Plate and its basic-nodes/list/link/table packages. Existing shadcn/Radix/React/Next.js and Three.js notices still apply. Retain the package licenses supplied by the installed dependencies. No font files, source credentials or production data are bundled.
+# Portal login layout reference
+
+The LayeredFX portal login and registration split layout was informed by CTRL+P `app/login/page.tsx` at commit `015a7b58b80e63ef87c73bec549a23242b88f3e3` and the owner's supplied screenshot. New portal UI, copy and account boundaries were implemented for LayeredFX. No CTRL+P testimonials, customer metrics, credentials or account data were copied. See `docs/migration/PORTALS.md` for scope and verification.

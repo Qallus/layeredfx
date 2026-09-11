@@ -1,4 +1,20 @@
-# LayeredFX integration review — branded fields checkpoint, 2026-09-10
+# LayeredFX integration review — customer and partner portals, 2026-09-10
+
+New public login/registration and separate customer/partner workspaces are implemented. See `docs/migration/PORTALS.md` for routes, exact functionality, data model, setup and exclusions. Partner accounts require staff approval, per the owner's explicit choice.
+
+| Severity | File / evidence | Fix | Verification / remaining blockers |
+|---|---|---|---|
+| HIGH | Public registration must not create operations membership or let users approve themselves | Separate portal cookies/account table; verified Supabase email and server-owned account status; admin-only approval endpoint | Domain/API isolation tests pass; live email/auth/membership flow requires isolated staging |
+| HIGH | Account media must not be publicly enumerable | Private bucket; owner-scoped server paths; checked media signatures and 20 MB bounded streaming; 60-second signed URLs; active staff checks for team viewing | Source review and preview upload test; live Storage/RLS verification still blocked by missing configuration and unapplied draft |
+| MEDIUM | Account changes could overwrite concurrent edits | Account revision comparison and database conditional update | Mocked API stale revision returns 409; real concurrent staging checks pending |
+| LOW | No frontend login/registration or customer/partner workspaces | Split branded auth pages, homepage links, portal requests/catalog/notes/media/messages/profile, partner referrals/vendor submissions and staff review page | Desktop/mobile Edge preview persistence checks pass |
+| LOW | Browser-restored profile form showed initial values | Remount profile form by account revision | Saved profile survives reload in browser test |
+
+Validation: npm install passed (504 packages, zero vulnerabilities); all 144 tests, typecheck, lint and production build pass. Lint has 219 warnings, no errors. Exact output: `logs/portal-install.txt`, `logs/*-verified.txt`. Portal browser checks: `logs/portal-browser.json`, `screenshots/portal-*.png`. Production and homepage smoke results are recorded in their shared logs. SQL remains a review draft; no Supabase migration, live auth registration, email, Storage call, DNS or Coolify deployment was performed.
+
+Remaining activation blockers: isolated LayeredFX Supabase configuration, approved draft migration and private bucket policy review, SMTP/email confirmation, live two-account isolation/approval/refresh/upload checks, gateway abuse controls. Requests do not yet synchronize source booking/order/payment/install calendars; account-to-team messaging requires reload. Source portal parity, OAuth, password recovery, shared business subusers, media deletion and retention are not claimed.
+
+## Previous branded fields checkpoint
 
 | Severity | File / evidence | Fix | Verification / remaining blockers |
 |---|---|---|---|

@@ -14,7 +14,7 @@ try {
   try{if((await fetch('http://127.0.0.1:3001/api/health')).ok)break;}catch{}
   await new Promise(resolve=>setTimeout(resolve,250));
  }
- for(const path of ['/','/images/kitchen.svg','/admin','/admin/coupons','/admin/orders','/admin/jobs','/admin/contacts','/admin/leads','/api/admin/coupons','/api/operations','/api/ctrlp/admin/orders','/api/ctrlp/cmi/jobs','/api/communications/capabilities','/api/communications/calls']) {
+ for(const path of ['/','/images/kitchen.svg','/admin','/admin/coupons','/admin/orders','/admin/jobs','/admin/contacts','/admin/leads','/api/admin/coupons','/api/operations','/api/ctrlp/admin/orders','/api/ctrlp/cmi/jobs','/api/communications/capabilities','/api/communications/calls','/login','/register','/api/portal','/api/portal/media','/api/portal/staff']) {
   const response=await fetch('http://127.0.0.1:3001'+path);const body=await response.text();
   const expected=path.startsWith('/api/')?401:200;
   if(response.status!==expected)throw new Error(`${path}: ${response.status}, expected ${expected}`);
@@ -22,6 +22,7 @@ try {
   if(path.startsWith('/admin')&&body.includes('LOCAL DEMO'))throw new Error('Production demo bypass');
   results.push({path,status:response.status,passed:true});
  }
+ for(const path of ['/portal','/partner']){const res=await fetch('http://127.0.0.1:3001'+path,{redirect:'manual'});if(res.status!==307||res.headers.get('location')!=='/login')throw new Error('Production portal access bypass');results.push({path,status:res.status,passed:true});}
  results.push({name:'Standalone entry point generated',passed:existsSync('.next/standalone/server.js')});
  for(const action of ['token','sms']){const response=await fetch('http://127.0.0.1:3001/api/communications/'+action,{method:'POST',headers:{Origin:'https://layeredfx.com','Content-Type':'application/json'},body:'{}'});if(response.status!==401)throw new Error(`Anonymous ${action} returned ${response.status}`);results.push({path:'/api/communications/'+action,method:'POST',status:response.status,passed:true});}
  if(!existsSync('.next/standalone/server.js'))throw new Error('Standalone output missing');

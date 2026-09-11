@@ -70,6 +70,41 @@
     "passed": true
   },
   {
+    "path": "/login",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "path": "/register",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "path": "/api/portal",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "path": "/api/portal/media",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "path": "/api/portal/staff",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "path": "/portal",
+    "status": 307,
+    "passed": true
+  },
+  {
+    "path": "/partner",
+    "status": 307,
+    "passed": true
+  },
+  {
     "name": "Standalone entry point generated",
     "passed": true
   },

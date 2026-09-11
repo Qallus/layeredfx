@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "checks": [
+    "login registration layout",
+    "partner approval notice",
+    "booking request persists",
+    "DM persists",
+    "media persists in IndexedDB",
+    "profile persists",
+    "catalog and service screens",
+    "separate partner preview",
+    "referral request",
+    "mobile dark theme no overflow",
+    "homepage mobile sign-in link"
+  ],
+  "errors": []
+}

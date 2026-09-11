@@ -74,3 +74,6 @@ Local development stores a schema-versioned snapshot in the browser. Production 
 The initial server store is bounded JSONB per organization, not a high-volume normalized CRM. It has an 8,000,000-byte state limit and 350,000-byte document-content limit. There are no remote file uploads in these modules. For larger teams, move records into normalized tables and narrower transactions without weakening the command/auth boundaries.
 
 Production setup, backups, abuse protections and integration tests remain mandatory. See SETUP.md and QA_REPORT.md.
+# Customer and partner portal increment
+
+LayeredFX now includes separate customer and partner portal routes with frontend login/registration and staff partner approval. Exact implemented behavior and remaining integration gaps are in `../migration/PORTALS.md`. This is not full CTRL+P customer/partner portal parity. Live Supabase activation and staging verification remain outstanding; the SQL is a review draft only.

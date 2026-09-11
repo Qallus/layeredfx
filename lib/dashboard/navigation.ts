@@ -8,7 +8,7 @@ export const dashboardNavigation=[
   {label:'Designers',href:'/admin/designers',icon:Palette},{label:'Installers',href:'/admin/installers',icon:HardHat},
   {label:'Payments',href:'/admin/payments',icon:CircleDollarSign},{label:'Messages',href:'/admin/messages',icon:MessageSquare},
   {label:'Communication',href:'/admin/communications',icon:Phone},{label:'Customers',href:'/admin/customers',icon:Users},
-  {label:'Users',href:'/admin/users',icon:UserCog},{label:'Workspace',href:'/admin/workspace',icon:FileText},
+  {label:'Users',href:'/admin/users',icon:UserCog},{label:'Portals',href:'/admin/portals',icon:Users},{label:'Workspace',href:'/admin/workspace',icon:FileText},
   {label:'Plans',href:'/admin/plans',icon:ClipboardList},
  ]},
  {label:'Catalog',items:[{label:'Products',href:'/admin/products',icon:PackageCheck},{label:'Wall Studio',href:'/admin/wall-studio',icon:LayoutTemplate},{label:'Coupons',href:'/admin/coupons',icon:Tag},{label:'Artwork',href:'/admin/artwork',icon:FileText},{label:'Shipping',href:'/admin/shipments',icon:Truck},{label:'Marketing',href:'/admin/marketing',icon:Megaphone},{label:'Blog Posts',href:'/admin/blog',icon:BookOpen},{label:'Content',href:'/admin/content',icon:FileText}]},

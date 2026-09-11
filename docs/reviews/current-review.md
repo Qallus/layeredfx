@@ -1,3 +1,9 @@
+# Residential room default - 2026-09-11
+
+LOW - components/layeredfx/wall-studio.tsx: default room is now /studio/room-residential.png. Loading the default photo enables Continue without requiring a second sample selection. Material remains hidden until the guided selection and wall steps are completed. Removed the obsolete illustration source lib/studio/demo.ts. Restoring an older illustrated-room save opens the residential sample with fresh masks rather than reintroducing the illustration.
+
+Verification: required command output recorded in logs/*-verified.txt. Main-app browser verification checks the default canvas against the residential source photo and Continue availability.
+
 # Accumulating object selection - 2026-09-11
 
 MEDIUM - components/layeredfx/wall-studio.tsx: individual confirmation replaced with automatic additive selections. Rapid taps queue serial model requests (bounded to 32 waiting taps) instead of being ignored while inference runs. Each completed mask joins the kept-object list; cancellation clears remaining requests and preserves completed selections. Photo changes clear the queue and terminate the old worker. Materials remain hidden throughout selection. Instructional copy explains tapping multiple furniture parts.

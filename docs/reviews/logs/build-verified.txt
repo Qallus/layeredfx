@@ -5,8 +5,13 @@
    ▲ Next.js 15.5.25
 
    Creating an optimized production build ...
- ✓ Compiled successfully in 5.2s
+ ✓ Compiled successfully in 13.0s
    Linting and checking validity of types ...
+
+./components/operations/mobile-bottom-nav.tsx
+57:742  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
    Collecting page data ...
    Generating static pages (0/10) ...
    Generating static pages (2/10) 
@@ -19,14 +24,14 @@
 Route (app)                                 Size  First Load JS
 ┌ ○ /                                    15.6 kB         153 kB
 ├ ○ /_not-found                             1 kB         104 kB
-├ ƒ /admin                                 189 B         164 kB
+├ ƒ /admin                                 190 B         166 kB
 ├ ƒ /admin/agent                          7.7 kB         214 kB
 ├ ƒ /admin/analytics                     5.43 kB         181 kB
 ├ ƒ /admin/artwork                       9.46 kB         215 kB
 ├ ƒ /admin/blog                          15.6 kB         225 kB
 ├ ƒ /admin/bookings                      12.2 kB         218 kB
 ├ ƒ /admin/communications                28.1 kB         240 kB
-├ ƒ /admin/contacts                        145 B         155 kB
+├ ƒ /admin/contacts                        145 B         156 kB
 ├ ƒ /admin/content                       13.7 kB         223 kB
 ├ ƒ /admin/coupons                       4.67 kB         145 kB
 ├ ƒ /admin/customers                     7.34 kB         194 kB
@@ -35,7 +40,7 @@ Route (app)                                 Size  First Load JS
 ├ ƒ /admin/jobs                            171 B         131 kB
 ├ ƒ /admin/jobs/map                        193 B         131 kB
 ├ ƒ /admin/jobs/new                        171 B         131 kB
-├ ƒ /admin/leads                           145 B         155 kB
+├ ƒ /admin/leads                           145 B         156 kB
 ├ ○ /admin/login                         2.79 kB         121 kB
 ├ ƒ /admin/marketing                     7.31 kB         213 kB
 ├ ƒ /admin/messages                      15.7 kB         225 kB
@@ -49,7 +54,7 @@ Route (app)                                 Size  First Load JS
 ├ ƒ /admin/production                    6.52 kB         219 kB
 ├ ƒ /admin/production-schedule           31.6 kB         241 kB
 ├ ƒ /admin/products                      17.4 kB         223 kB
-├ ƒ /admin/profile                       7.48 kB         178 kB
+├ ƒ /admin/profile                       7.47 kB         178 kB
 ├ ƒ /admin/settings                      4.46 kB         180 kB
 ├ ƒ /admin/shipments                        7 kB         216 kB
 ├ ƒ /admin/users                         17.6 kB         224 kB

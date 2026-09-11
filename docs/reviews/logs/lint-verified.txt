@@ -14,6 +14,9 @@ C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\cmi\compo
 C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\cmi\components\ui\searchable-select.tsx
   53:14  warning  Unused eslint-disable directive (no problems were reported from 'jsx-a11y/no-autofocus')
 
+C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\components\operations\mobile-bottom-nav.tsx
+  57:742  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
 C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\ctrlp\components\admin\admin-agent.tsx
    86:16  warning  'handleSignOut' is defined but never used      @typescript-eslint/no-unused-vars
   164:11  warning  'pathname' is assigned a value but never used  @typescript-eslint/no-unused-vars
@@ -275,6 +278,6 @@ C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\ctrlp\com
   221:36  warning  'profile' is defined but never used                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
   221:45  warning  'onSignOut' is defined but never used                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
 
-✖ 218 problems (0 errors, 218 warnings)
+✖ 219 problems (0 errors, 219 warnings)
   0 errors and 1 warning potentially fixable with the `--fix` option.
 

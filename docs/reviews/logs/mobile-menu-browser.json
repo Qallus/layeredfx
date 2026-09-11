@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "checks": [
+    "10 shortcuts",
+    "horizontal overflow",
+    "hide and restore across reload",
+    "call SMS recorder panels",
+    "panels clear bottom dock",
+    "leads modal",
+    "card save reload and vCard download",
+    "camera photo video capture attributes",
+    "photo preview",
+    "all destination links",
+    "tablet visible desktop hidden"
+  ],
+  "errors": [],
+  "limitations": [
+    "Actual native phone camera and OS sharing require a physical device check. No live Twilio calls or messages sent."
+  ]
+}

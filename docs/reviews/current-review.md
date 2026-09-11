@@ -1,4 +1,14 @@
-# LayeredFX integration review — sidebar checkpoint, 2026-09-10
+# LayeredFX integration review — mobile menu checkpoint, 2026-09-10
+
+| Severity | File / evidence | Fix | Verification / remaining blockers |
+|---|---|---|---|
+| LOW | `components/operations/shell.tsx`: no mobile/tablet shortcut dock | New `mobile-bottom-nav.tsx` with ten requested shortcuts, horizontal scrolling, persistent hide/restore, active links, leads modal, local vCard editor/sharing and native photo/video capture inputs | Phone/tablet/desktop browser checks passed; real phone camera and OS share-sheet checks remain |
+| LOW | Existing FAB could overlap a bottom dock | Safe-area-aware offsets in `components/admin/dashboard.css`; modal shortcuts close the quick panel without unmounting call/recorder tools | Call/SMS/record panel geometry checks passed |
+| LOW | Local Next development badge covered bottom-left controls | Disable `devIndicators` in `next.config.ts`; center the restore handle | Real pointer navigation and restore checks passed |
+
+Validation: `npm install` exited 0 (504 packages, zero vulnerabilities; `logs/mobile-menu-install.txt`). All 131 tests passed; typecheck, lint and build exited 0. Exact output in `logs/*-verified.txt`; lint retains warnings including the native local-photo preview image. `scripts/mobile-menu-browser.mjs` passed with no page errors; see `logs/mobile-menu-browser.json` and `screenshots/mobile-menu-*.png`. Functionality and limits are recorded in `docs/migration/MOBILE_MENU.md`. Cards are browser-local; public hosted cards and full Channel Cast card-builder parity are not claimed. Existing live backend/provider blockers remain.
+
+## Previous sidebar checkpoint
 
 | Severity | File / evidence | Fix | Verification / remaining blockers |
 |---|---|---|---|

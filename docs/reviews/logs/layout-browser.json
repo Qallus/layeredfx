@@ -1,0 +1,55 @@
+{
+  "checks": [
+    {
+      "path": "customers",
+      "collapsed": false,
+      "app": 3560,
+      "main": 3560,
+      "left": 28,
+      "right": 28
+    },
+    {
+      "path": "customers",
+      "collapsed": true,
+      "app": 3732,
+      "main": 3732,
+      "left": 28,
+      "right": 28
+    },
+    {
+      "path": "messages",
+      "collapsed": false,
+      "app": 3560,
+      "main": 3560,
+      "left": 28,
+      "right": 28
+    },
+    {
+      "path": "messages",
+      "collapsed": true,
+      "app": 3732,
+      "main": 3732,
+      "left": 28,
+      "right": 28
+    },
+    {
+      "path": "",
+      "collapsed": false,
+      "app": 3560,
+      "main": 3560,
+      "left": null,
+      "right": null
+    },
+    {
+      "path": "",
+      "collapsed": true,
+      "app": 3732,
+      "main": 3732,
+      "left": null,
+      "right": null
+    }
+  ],
+  "errors": [],
+  "mobile": true,
+  "homepage": true
+}

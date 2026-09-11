@@ -17,7 +17,8 @@ try {
     await page.screenshot({path:`docs/reviews/screenshots/brand-${path.replaceAll('/','')||'home'}.png`});
     if(path==='/admin') {
       await page.getByRole('button',{name:'Toggle dashboard theme'}).click();
-      assert.match(await page.locator('.ops-topbar img').getAttribute('src'),/dark_simple/);
+      assert.equal(await page.locator('.ops-topbar img').count(),0);
+      assert.match(await page.locator('.ops-brand-full').getAttribute('src'),/dark_simple/);
       await page.screenshot({path:'docs/reviews/screenshots/brand-dashboard-dark.png'});
     }
   }

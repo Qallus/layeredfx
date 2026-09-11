@@ -23,7 +23,11 @@
 .ops-sidebar nav::-webkit-scrollbar-thumb{background:#657d6b;border-radius:999px}
 .ops-sidebar nav::-webkit-scrollbar-thumb:hover{background:#a4bc8d}
 .ops-sidebar nav::-webkit-scrollbar-button{display:none}
-.ops-brand-icon{display:none}
+.ops .ops-brand-icon{display:none}
+.ops .ops-main{width:100%;max-width:none;margin:0;padding-inline:28px}
+.ops .ops-topbar{justify-content:flex-start}
+.ops .ops-topbar .ops-user{margin-left:auto}
+@media(max-width:760px){.ops .ops-main{padding-inline:16px}}
 .ops-sidebar nav a .ops-nav-text{background:none;color:inherit;border-radius:0;padding:0;margin:0;min-width:0;font:inherit}
 .ops-sidebar nav a svg{flex-shrink:0}
 .ops-sidebar-toggle{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;flex-shrink:0;border:1px solid var(--ops-line);border-radius:8px;background:var(--ops-surface);color:var(--ops-ink)}

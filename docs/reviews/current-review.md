@@ -1,4 +1,14 @@
-# LayeredFX integration review — mobile menu checkpoint, 2026-09-10
+# LayeredFX integration review — width and logo checkpoint, 2026-09-10
+
+| Severity | File / evidence | Fix | Verification / remaining blockers |
+|---|---|---|---|
+| LOW | `components/admin/dashboard.css`: `.lfx img` overrode the less-specific icon hide rule, showing both sidebar images | Scope the default hidden app icon to `.ops .ops-brand-icon`; preserve collapsed-state override | Exactly one visible brand image verified expanded, collapsed and mobile |
+| LOW | `components/operations/shell.tsx`: redundant top-bar logo | Remove top-bar image and divider; left-align Operations alongside the toggle | No top-bar images in browser checks |
+| LOW | `.ops-main` inherited a 1750px centered width cap | Full available width with 28px desktop gutters, 16px mobile gutters | Customers, Messages and Dashboard verified at 3808px wide, expanded and collapsed; mobile overflow check passed |
+
+Validation: npm install, all 131 tests, typecheck, lint and production build passed (existing lint warnings remain). Exact output: `logs/layout-install.txt`, `logs/*-verified.txt`. Browser evidence: `logs/layout-browser.json`, `screenshots/layout-*.png`. Homepage logo remains visible. Previous backend/provider limitations below are unchanged.
+
+## Previous mobile menu checkpoint
 
 | Severity | File / evidence | Fix | Verification / remaining blockers |
 |---|---|---|---|

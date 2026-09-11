@@ -5,6 +5,6 @@ const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta
 const config = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   // Next.js regenerates this declaration file; application source remains linted.
-  { ignores: ["next-env.d.ts", ".next/**", "node_modules/**", "preview/**", "out/**"] },
+  { ignores: ["next-env.d.ts", ".next/**", ".review/**", "node_modules/**", "preview/**", "out/**"] },
 ];
 export default config;

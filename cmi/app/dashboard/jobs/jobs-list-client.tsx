@@ -143,8 +143,8 @@ export function JobsListClient({
         {/* Filters */}
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <div className="relative max-w-xs flex-1">
-            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-            <input type="text" placeholder="Search jobs…" value={search} onChange={(e) => setSearch(e.target.value)} className="h-8 w-full rounded-md border border-border bg-background pl-8 pr-3 text-sm outline-none focus:border-accent" />
+            <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <input type="text" aria-label="Search jobs" placeholder="Search jobs…" value={search} onChange={(e) => setSearch(e.target.value)} className="ops-jobs-search h-8 w-full rounded-md border border-border bg-background pl-8 pr-3 text-sm outline-none focus:border-accent" />
           </div>
           {view !== "kanban" && (
             <div className="w-36"><Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>

@@ -1,0 +1,30 @@
+[
+  {
+    "width": 1440,
+    "theme": "light",
+    "padding": 40,
+    "iconRight": 26,
+    "passed": true
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "padding": 40,
+    "iconRight": 26,
+    "passed": true
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "padding": 40,
+    "iconRight": 26,
+    "passed": true
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "padding": 40,
+    "iconRight": 26,
+    "passed": true
+  }
+]

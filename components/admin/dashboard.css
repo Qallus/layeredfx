@@ -1,4 +1,5 @@
 /* Dashboard typography must not inherit the marketing site's display tracking. */
+.ops input.ops-jobs-search{padding-left:40px;padding-right:12px}
 body{--field-bg:#fff;--field-ink:#26362c;--field-line:#d7dfd3;--field-active:#e7f1d7;--field-muted:#6d7d70}
 body:has(.ops.dark){--field-bg:#18241a;--field-ink:#e1ebdb;--field-line:#40533b;--field-active:#344923;--field-muted:#a5b39d}
 .ops .ops-pipeline-filters{display:flex;justify-content:flex-start;align-items:center;flex-wrap:wrap;gap:12px}

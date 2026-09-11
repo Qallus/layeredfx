@@ -1,4 +1,8 @@
-# LayeredFX integration review — customer and partner portals, 2026-09-10
+# LayeredFX integration review — Jobs search spacing, 2026-09-10
+
+LOW — `cmi/app/dashboard/jobs/jobs-list-client.tsx`: dashboard input padding overrode the utility padding reserved for the search icon, causing placeholder overlap. Added a scoped `.ops input.ops-jobs-search` rule with 40px left padding, an accessible input label, and a decorative icon that ignores pointer events. This preserves the existing search handler and theme colors. Verification output is recorded in `logs/jobs-search-browser.json`, `logs/jobs-search-install.txt` and the shared `*-verified.txt` logs; screenshots cover desktop and mobile in both themes. No backend behavior changed.
+
+## Previous customer and partner portal checkpoint
 
 New public login/registration and separate customer/partner workspaces are implemented. See `docs/migration/PORTALS.md` for routes, exact functionality, data model, setup and exclusions. Partner accounts require staff approval, per the owner's explicit choice.
 

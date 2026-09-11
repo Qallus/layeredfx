@@ -1,0 +1,16 @@
+[
+  {
+    "theme": "light",
+    "background": "rgb(32, 43, 40)",
+    "color": "rgb(194, 205, 197)",
+    "navBackground": "rgb(32, 43, 40)",
+    "navColor": "rgb(194, 205, 197)"
+  },
+  {
+    "theme": "dark",
+    "background": "rgb(32, 43, 40)",
+    "color": "rgb(194, 205, 197)",
+    "navBackground": "rgb(32, 43, 40)",
+    "navColor": "rgb(194, 205, 197)"
+  }
+]

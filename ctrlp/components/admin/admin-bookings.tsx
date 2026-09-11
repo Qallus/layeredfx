@@ -310,7 +310,7 @@ export function AdminBookings() {
                   <p className="mt-1 max-w-3xl text-sm leading-5 text-muted-foreground">Manage public appointments, availability, blocked time, notifications, and future calendar connections.</p>
                 </div>
                 <div className="flex gap-2">
-                  <Button asChild><a href="/book" target="_blank" rel="noreferrer"><CalendarCheck className="mr-2 h-4 w-4"/>Public booking page</a></Button>
+                  <Button asChild className="ops-public-booking-link"><a href="/book" target="_blank" rel="noreferrer"><CalendarCheck className="mr-2 h-4 w-4"/>Public booking page</a></Button>
                   <Button variant="outline" onClick={() => setView("availability")}><Plus className="mr-2 h-4 w-4"/>Block time</Button>
                 </div>
               </div>

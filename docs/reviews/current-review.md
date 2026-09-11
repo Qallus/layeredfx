@@ -1,3 +1,15 @@
+# Booking button and scheduling review - 2026-09-10
+
+LOW - `ctrlp/components/admin/admin-bookings.tsx` and `components/admin/dashboard.css`: Public booking page used the generic primary button palette. Added a scoped button style matching the sidebar background (#202b28) and text (#c2cdc5), with navigation hover colors and a keyboard focus outline. Browser computed colors match the sidebar in both light and dark modes; exact evidence: `logs/booking-button-browser.json`.
+
+MEDIUM / remaining blocker - The existing button points to `/book`, which has no route. Customer `/portal/bookings` supports appointment requests, not reserved time slots. CTRL+P source commit 015a7b58b80e63ef87c73bec549a23242b88f3e3 was reviewed: its public page loads appointment types, loads availability for a date/type, collects customer details and submits an appointment before confirmation. Its dashboard manages types, availability rules, blocked time and appointments. LayeredFX's imported booking management API still returns an integration-unavailable response; that complete scheduling flow is not yet connected. This styling change does not claim to implement it.
+
+Supabase connection: user supplied project URL tdywcdgbavfcsywejoka.supabase.co and reported MCP authorization. No Supabase tools are exposed in this session, so project identity/schema/configuration could not be verified. No live schema, Auth or Storage changes were made. Portal SQL remains an unapplied review draft.
+
+Validation: required install output in `logs/booking-button-install.txt`; tests/typecheck/lint/build output in shared `*-verified.txt` logs and `verification.json`.
+
+---
+
 # LayeredFX integration review — Jobs search spacing, 2026-09-10
 
 LOW — `cmi/app/dashboard/jobs/jobs-list-client.tsx`: dashboard input padding overrode the utility padding reserved for the search icon, causing placeholder overlap. Added a scoped `.ops input.ops-jobs-search` rule with 40px left padding, an accessible input label, and a decorative icon that ignores pointer events. This preserves the existing search handler and theme colors. Verification output is recorded in `logs/jobs-search-browser.json`, `logs/jobs-search-install.txt` and the shared `*-verified.txt` logs; screenshots cover desktop and mobile in both themes. No backend behavior changed.

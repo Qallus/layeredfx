@@ -5,7 +5,7 @@
    ▲ Next.js 15.5.25
 
    Creating an optimized production build ...
- ✓ Compiled successfully in 5.9s
+ ✓ Compiled successfully in 5.2s
    Linting and checking validity of types ...
 
 ./components/operations/mobile-bottom-nav.tsx
@@ -29,7 +29,7 @@ Route (app)                                 Size  First Load JS
 ├ ƒ /admin/analytics                     5.43 kB         181 kB
 ├ ƒ /admin/artwork                        9.6 kB         219 kB
 ├ ƒ /admin/blog                          14.7 kB         230 kB
-├ ƒ /admin/bookings                      9.68 kB         221 kB
+├ ƒ /admin/bookings                      9.69 kB         221 kB
 ├ ƒ /admin/communications                27.3 kB         245 kB
 ├ ƒ /admin/contacts                        151 B         177 kB
 ├ ƒ /admin/content                         11 kB         227 kB

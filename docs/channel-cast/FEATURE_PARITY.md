@@ -94,3 +94,5 @@ Wall Studio adds first-use downloaded SlimSAM object selection in a worker, fore
 
 ## Studio workspace and notifications
 Full-width responsive tool rail and guided navigation, two generated sample rooms, application/category concept library, six actual Wilsonart swatches, text/shape/symbol layers, and installation-condition planning inputs are available. Rates and surcharges are entered; business pricing and a full real-product catalog are not connected. Shared frontend footer and relaxed headings are included. Content has Top Bar Notifications with server-side scheduling, priority, safe links and protected management. Local development persists notices to .local-data; production requires the unapplied lfx_topbar_store schema.
+
+Wall Studio now requires photo selection, foreground confirmation (or explicit empty-room skip), and wall-area confirmation before material selection. Original-photo mask review precedes product rendering. Unnumbered handles are limited to the wall-area step.

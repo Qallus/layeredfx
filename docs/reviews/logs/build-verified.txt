@@ -5,7 +5,7 @@
    ▲ Next.js 15.5.25
 
    Creating an optimized production build ...
- ✓ Compiled successfully in 8.7s
+ ✓ Compiled successfully in 5.5s
    Linting and checking validity of types ...
 
 ./app/about/page.tsx
@@ -29,12 +29,14 @@
 7:1426  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
 ./components/layeredfx/wall-studio.tsx
+4:23  Warning: 'Download' is defined but never used.  @typescript-eslint/no-unused-vars
+4:44  Warning: 'Layers3' is defined but never used.  @typescript-eslint/no-unused-vars
 24:705  Warning: 'category' is assigned a value but never used.  @typescript-eslint/no-unused-vars
 24:714  Warning: 'setCategory' is assigned a value but never used.  @typescript-eslint/no-unused-vars
 24:784  Warning: 'materialQuery' is assigned a value but never used.  @typescript-eslint/no-unused-vars
 24:798  Warning: 'setMaterialQuery' is assigned a value but never used.  @typescript-eslint/no-unused-vars
-45:17  Warning: 'chooseVendor' is defined but never used.  @typescript-eslint/no-unused-vars
-49:969  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+53:17  Warning: 'chooseVendor' is defined but never used.  @typescript-eslint/no-unused-vars
+57:890  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
 ./components/operations/mobile-bottom-nav.tsx
 57:742  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
@@ -123,7 +125,7 @@ Route (app)                                 Size  First Load JS
 ├   ├ /services/cabinet-wraps
 ├   ├ /services/countertop-wraps
 ├   └ [+7 more paths]
-└ ○ /studio                                14 kB         153 kB
+└ ○ /studio                              14.7 kB         154 kB
 + First Load JS shared by all             103 kB
   ├ chunks/1255-623a1bc706ecd6cc.js      46.1 kB
   ├ chunks/4bd1b696-100b9d70ed4e49c1.js  54.2 kB

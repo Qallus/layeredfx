@@ -1,3 +1,9 @@
+# Wall Studio selection-first workflow - 2026-09-11
+
+MEDIUM - components/layeredfx/wall-studio.tsx: material and numbered handles previously appeared before object selection. Reordered guided flow to photo, keep objects, mark wall, material, estimate, customize and review. New photo resets completion gates. Tap selection is active immediately after choosing a photo. Original image stays visible with green mask overlays; materials remain unavailable until objects are confirmed or explicitly skipped and the wall area is confirmed. Controls include visible kept-object list, remove, selection status, brush/outline alternatives and confirmation. Handles have no numbers and only appear in Mark wall, with explanatory copy. Mobile selection controls appear above the canvas.
+
+Verification: browser compared the pre-selection canvas to the original image pixel-for-pixel; verified locked material access, active tap tool, brush selection, foreground count, wall-only handles, material unlock and mobile width. Actual SlimSAM selection of the sample couch and confirmation passed. Evidence: logs/studio-guided-browser.json, logs/studio-auto-selection.json, screenshots/studio-select-*.png. Required validation outputs are in *-verified.txt. Photo model quality on other objects/devices remains a variable; manual refinement is retained.
+
 # Wall Studio workspace and scheduled top bar - 2026-09-11
 
 - MEDIUM - components/layeredfx/wall-studio.tsx, studio.css: constrained preview replaced with full-width workspace, tool rail, guided steps and responsive properties panels. Retained perspective corners, foreground masking, model selection, local save and PNG export. Added two generated sample room photos and text/shape/symbol graphic layers with placement, rotation, color, visibility and ordering.
@@ -294,3 +300,5 @@ The test suite now includes TypeScript-backed coupon tests, so it is no longer w
 Next implementation dependency: reconcile CTRL+P users/customers/orders/projects and shared permissions/shell, then port those source workflows and connect Coupons usage plus Pipeline handoff/Plans. Keep the complete source inventory; do not replace those workflows with the existing simplified handoff.
 
 Final validation for this increment: npm install passed (558 packages, zero vulnerabilities); 156 tests passed; typecheck passed; lint passed with 233 warnings and zero errors; production build passed. Standalone production smoke passed, including 401 for anonymous top-bar management. The first smoke attempt overlapped build finalization; rerunning after build completion passed.
+
+Selection-first validation: npm install, 156 tests, typecheck, lint (zero errors) and production build passed.

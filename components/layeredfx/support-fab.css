@@ -1,0 +1,46 @@
+/* Floating support button, contact card and Get started drawer on public pages. */
+.lfx.lfx-fab{position:fixed;right:20px;bottom:max(20px,env(safe-area-inset-bottom));z-index:90;display:flex;flex-direction:column;align-items:flex-end;gap:12px;min-height:0;background:transparent;pointer-events:none}
+.lfx-fab>*{pointer-events:auto}
+.lfx-fab-actions{display:flex;align-items:center;gap:10px}
+.lfx-fab-pill{border:1px solid var(--lfx-line);border-radius:999px;background:var(--lfx-card,#fff);color:var(--lfx-ink);padding:11px 18px;font:inherit;font-size:14px;font-weight:600;box-shadow:0 10px 30px #1b221a1f;cursor:pointer;transition:transform .15s ease}
+.lfx-fab-pill span{color:#3f6b1e}
+.lfx-fab-pill:hover{transform:scale(1.03)}
+.lfx-fab-button{display:grid;place-items:center;width:56px;height:56px;border:0;border-radius:50%;background:#1a211d;color:#f6f5f0;box-shadow:0 14px 34px #10161338;cursor:pointer;transition:transform .15s ease}
+.lfx-fab-button:hover{transform:scale(1.05)}
+.lfx-fab :is(a,button):focus-visible,.lfx-fab-drawer :is(a,button):focus-visible{outline:2px solid #6f8259;outline-offset:2px}
+
+.lfx-fab-panel{width:320px;max-width:calc(100vw - 40px);overflow:hidden;border:1px solid var(--lfx-line);border-radius:18px;background:var(--lfx-card,#fff);color:var(--lfx-ink);box-shadow:0 24px 60px #1b221a2e;animation:lfx-fab-in .18s ease}
+@keyframes lfx-fab-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.lfx-fab-head{padding:20px}
+.lfx-fab-title{font-size:16px;font-weight:600}
+.lfx-fab-hours{margin-top:3px;font-size:13px;line-height:1.5;color:var(--lfx-muted)}
+.lfx-fab-row{display:flex;align-items:center;gap:12px;width:100%;padding:14px 20px;border-top:1px solid var(--lfx-line);font-size:14px;color:var(--lfx-ink);text-decoration:none}
+.lfx-fab-row svg{flex-shrink:0;color:#3f6b1e}
+a.lfx-fab-row:hover{background:var(--lfx-line)}
+.lfx-fab-row.is-soon{color:var(--lfx-muted);cursor:default}
+.lfx-fab-row.is-soon svg{color:var(--lfx-muted)}
+.lfx-fab-row small{margin-left:auto;padding:3px 8px;border-radius:999px;background:var(--lfx-line);color:var(--lfx-muted);font-size:10px}
+.lfx-fab-foot{padding:16px;border-top:1px solid var(--lfx-line)}
+.lfx-fab-start{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:46px;border:0;border-radius:10px;background:#3f6b1e;color:#fff;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.lfx-fab-start:hover{background:#355a19}
+
+.lfx-fab-drawer{position:fixed;inset:0 0 0 auto;z-index:101;display:flex;flex-direction:column;width:360px;max-width:calc(100vw - 32px);background:var(--lfx-paper);color:var(--lfx-ink);box-shadow:-20px 0 60px #10161338;animation:lfx-sheet-in .3s cubic-bezier(.22,.68,0,1)}
+.lfx-fab-drawer[data-state=closed]{animation:lfx-sheet-out .22s ease-in forwards}
+.lfx-fab-drawer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:22px 20px;border-bottom:1px solid var(--lfx-line)}
+.lfx .lfx-fab-drawer-title{margin-top:6px;font-size:20px;line-height:1.3;letter-spacing:-.4px;font-weight:500}
+.lfx-fab-drawer-close{display:grid;place-items:center;width:36px;height:36px;flex-shrink:0;border:0;border-radius:8px;background:transparent;color:var(--lfx-muted);cursor:pointer}
+.lfx-fab-drawer-close:hover{background:var(--lfx-line)}
+.lfx-fab-options{display:grid;gap:8px;padding:16px;overflow-y:auto}
+.lfx-fab-option{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--lfx-line);border-radius:12px;background:var(--lfx-card,#fff);color:var(--lfx-ink);text-decoration:none}
+.lfx-fab-option:hover{border-color:#8fa57a}
+.lfx-fab-option-icon{display:grid;place-items:center;width:36px;height:36px;flex-shrink:0;border-radius:9px;background:#e6ecdc;color:#3f6b1e}
+.lfx-fab-option-text{flex:1;min-width:0}
+.lfx-fab-option-text b{display:block;font-size:14px;font-weight:600}
+.lfx-fab-option-text small{display:block;margin-top:2px;font-size:12px;color:var(--lfx-muted)}
+.lfx-fab-option>svg{flex-shrink:0;color:var(--lfx-muted)}
+
+html[data-frontend-theme=dark] .lfx :is(.lfx-fab-pill span,a.lfx-fab-row svg){color:#b5d08f}
+html[data-frontend-theme=dark] .lfx .lfx-fab-button{background:#e1ebdb;color:#121d18}
+html[data-frontend-theme=dark] .lfx .lfx-fab-option-icon{background:var(--lfx-line);color:#b5d08f}
+@media(max-width:480px){.lfx.lfx-fab{right:14px;bottom:max(14px,env(safe-area-inset-bottom))}.lfx-fab-pill{padding:10px 14px;font-size:13px}.lfx-fab-button{width:52px;height:52px}}
+@media(prefers-reduced-motion:reduce){.lfx-fab-panel,.lfx-fab-drawer,.lfx-fab-drawer[data-state=closed]{animation:none}.lfx-fab-pill,.lfx-fab-button{transition:none}}

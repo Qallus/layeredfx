@@ -100,3 +100,23 @@ body:has(.ops.dark) .ops-modal .ops-field>span,body:has(.ops.dark) .ops-modal .l
 .ops.dark input:not([type=checkbox]),.ops.dark select,.ops.dark textarea{background:var(--ops-surface);color:var(--ops-ink);border-color:var(--ops-line)}
 .ops.dark .ops-demo-banner,.ops.dark .ops-editor-toolbar{background:#25341d;color:#cbd9bb}.ops.dark .ops-document-card p{color:var(--ops-muted)}
 @media(max-width:760px){.ops-app{margin-left:0;width:100%}.ops-sidebar{width:260px}.source-screen h1{font-size:24px}.source-screen .source-module{overflow-x:auto}}
+/* Expandable sidebar groups: the label opens the parent page, the chevron reveals sub-pages at full size. */
+.ops-nav-parent{display:flex;align-items:center;gap:2px}
+.ops-nav-parent>a{flex:1;min-width:0}
+.ops-nav-toggle{display:inline-grid;place-items:center;width:32px;height:32px;flex-shrink:0;border:0;border-radius:6px;background:transparent;color:inherit;cursor:pointer}
+.ops-nav-toggle:hover{background:#314037}
+.ops-sidebar nav a:focus-visible,.ops-nav-toggle:focus-visible{outline:2px solid #a4bc8d;outline-offset:1px}
+.ops-nav-toggle svg{transition:transform .18s ease}
+.ops-nav-group[data-open=true] .ops-nav-toggle svg{transform:rotate(180deg)}
+.ops-nav-children{display:none;margin:2px 0 6px 21px;padding-left:8px;border-left:1px solid #405249}
+.ops-nav-group[data-open=true] .ops-nav-children{display:block}
+.ops-nav-group.has-active>.ops-nav-parent>a:not(.active){color:#eff7e9}
+.ops-sidebar nav .ops-nav-soon{display:flex;align-items:center;gap:11px;padding:9px 12px;font-size:14px;color:#7f8f85;cursor:default}
+.ops-sidebar nav .ops-nav-soon .ops-nav-text{background:none;color:inherit;border-radius:0;padding:0;margin:0;min-width:0;font:inherit}
+.ops-sidebar nav .ops-nav-soon svg{flex-shrink:0}
+@media(min-width:761px){
+ .ops-sidebar-collapsed .ops-nav-toggle{display:none}
+ .ops-sidebar-collapsed .ops-nav-children{display:block;margin:0;padding:0;border:0}
+ .ops-sidebar-collapsed .ops-sidebar nav .ops-nav-soon{justify-content:center;padding:12px 0;gap:0}
+}
+@media(prefers-reduced-motion:reduce){.ops-nav-toggle svg{transition:none}}

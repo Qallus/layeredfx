@@ -220,13 +220,33 @@
 .lfx-service-dialog-list li { display:flex; align-items:center; gap:11px; padding:8px 0; font-size:13px; }
 .lfx-service-dialog-list svg { color:#7e8f67; }
 .lfx-preview-note { padding:13px 15px; background:#e8eddf; border:1px solid #d7dec7; border-radius:4px; font-size:10px; line-height:1.85; color:#5d6c4c; margin:18px 0 20px!important; }
-.lfx-sheet-content { position:fixed; inset:0 0 0 auto; width:min(400px,88vw); z-index:101; background:#f6f5f0; padding:70px 30px 35px; box-shadow:-10px 0 80px #101b1730; }
+/* Full-page mobile menu: slides in from the right; Services slides to its own panel. */
+.lfx-sheet-content { position:fixed; inset:0; z-index:101; display:flex; flex-direction:column; width:100%; height:100dvh; background:#f6f5f0; padding:max(18px,env(safe-area-inset-top)) 0 max(12px,env(safe-area-inset-bottom)); overflow:hidden; animation:lfx-sheet-in .34s cubic-bezier(.22,.68,0,1); }
+.lfx-sheet-content[data-state=closed] { animation:lfx-sheet-out .24s ease-in forwards; }
+@keyframes lfx-sheet-in { from { transform:translateX(100%); } to { transform:translateX(0); } }
+@keyframes lfx-sheet-out { from { transform:translateX(0); } to { transform:translateX(100%); } }
+.lfx-sheet-content>.lfx-close { top:max(18px,env(safe-area-inset-top)); right:20px; width:44px; height:44px; }
+.lfx-menu-head { display:flex; align-items:center; min-height:44px; padding:0 84px 0 24px; }
+.lfx-menu-icon img { width:44px; height:44px; border-radius:11px; }
+.lfx-menu-viewport { flex:1; min-height:0; overflow:hidden; margin-top:14px; }
+.lfx-menu-track { display:grid; grid-template-columns:100% 100%; height:100%; transition:transform .34s cubic-bezier(.22,.68,0,1); }
+.lfx-menu-track[data-panel=services] { transform:translateX(-100%); }
+.lfx-menu-panel { height:100%; overflow-y:auto; overscroll-behavior:contain; padding:6px 24px 32px; }
+.lfx-menu-panel>* { max-width:560px; margin-left:auto; margin-right:auto; }
 .lfx-menu-title { font-size:27px; letter-spacing:-1px; font-weight:400; }
 .lfx-menu-description { margin-top:18px!important; color:#707d61; font-size:12px; line-height:1.8; }
-.lfx-mobile-nav { margin:40px 0; }
-.lfx-mobile-nav a { display:flex; align-items:center; gap:15px; padding:18px 0; border-bottom:1px solid #d4dcc7; font-size:19px; }
+.lfx-mobile-nav { margin-top:26px; margin-bottom:30px; }
+.lfx-mobile-nav :is(a,button) { display:flex; align-items:center; gap:15px; width:100%; padding:18px 0; border:0; border-bottom:1px solid #d4dcc7; background:transparent; color:inherit; font:inherit; font-size:21px; text-align:left; cursor:pointer; }
 .lfx-mobile-nav a>span { font-size:10px; color:#949f83; }
-.lfx-mobile-nav a>svg { margin-left:auto; }
+.lfx-menu-count { margin-left:auto; font-size:11px; line-height:1; padding:5px 9px; border-radius:999px; background:#e2e7d6; color:#58654b; }
+.lfx-menu-more>svg { flex-shrink:0; color:#58654b; }
+.lfx-menu-back { display:inline-flex; align-items:center; gap:6px; padding:10px 0; border:0; background:transparent; color:#58654b; font-size:13px; cursor:pointer; }
+.lfx .lfx-menu-panel-title { font-size:34px; letter-spacing:-1.2px; font-weight:400; margin-top:8px; }
+.lfx-menu-services section { padding-top:24px; }
+.lfx-menu-services h3 { font-size:11px; letter-spacing:1.4px; text-transform:uppercase; color:#707d61; font-weight:500; }
+.lfx-menu-services .lfx-mobile-nav { margin-top:4px; margin-bottom:0; }
+.lfx-menu-services .lfx-mobile-nav a { font-size:17px; padding:14px 0; }
+.lfx-mobile-nav :is(a,button):focus-visible,.lfx-menu-back:focus-visible { outline:2px solid #6f8259; outline-offset:2px; }
 .lfx-estimate-dialog { width:min(650px,calc(100vw - 32px)); }
 .lfx-form-steps { display:flex; gap:20px; justify-content:space-between; margin:28px 0; padding:17px 0; border-top:1px solid #d7dfc9; border-bottom:1px solid #d7dfc9; }
 .lfx-form-steps>span { display:flex; align-items:center; gap:7px; font-size:9px; color:#818d73; }
@@ -332,3 +352,17 @@ dialog.lfx-dialog-content:not([open]) { display:none; }
 /* Keep the two hero actions together at every viewport width. */
 .lfx-hero-ctas { flex-wrap:nowrap; }
 @media (max-width:600px) { .lfx-hero-ctas { gap:8px; } .lfx-hero-ctas .lfx-button { flex:1; min-width:0; padding:13px 8px; gap:6px; font-size:10px; } .lfx-hero-ctas .lfx-button svg { width:15px; height:15px; flex-shrink:0; } }
+
+/* Mobile homepage sliders: filters scroll on one row; What we do, Inspiration and Process show 1.5 cards.
+   Rows bleed past the container gutter so the half card meets the screen edge. */
+@media (max-width:760px) {
+ .lfx { --lfx-gutter:20px; --lfx-slide-gap:14px; }
+ .lfx :is(.lfx-filter-row,.lfx-service-grid,.lfx-inspiration-grid,.lfx-process-grid) { display:flex; flex-wrap:nowrap; overflow-x:auto; overscroll-behavior-x:contain; margin-inline:calc(var(--lfx-gutter) * -1); padding-inline:var(--lfx-gutter); scroll-padding-inline:var(--lfx-gutter); scrollbar-width:none; }
+ .lfx :is(.lfx-filter-row,.lfx-service-grid,.lfx-inspiration-grid,.lfx-process-grid)::-webkit-scrollbar { display:none; }
+ .lfx .lfx-filter-row { padding-block:3px; }
+ .lfx .lfx-filter-row button { flex:0 0 auto; white-space:nowrap; }
+ .lfx :is(.lfx-service-grid,.lfx-inspiration-grid,.lfx-process-grid) { gap:var(--lfx-slide-gap); padding-block:4px; scroll-snap-type:x mandatory; }
+ .lfx :is(.lfx-service-grid,.lfx-inspiration-grid,.lfx-process-grid)>* { flex:0 0 calc((100% + var(--lfx-gutter) - var(--lfx-slide-gap)) / 1.5); min-width:0; scroll-snap-align:start; }
+ .lfx .lfx-inspiration-image { height:320px; }
+}
+@media (max-width:390px) { .lfx { --lfx-gutter:17px; } .lfx .lfx-inspiration-image { height:290px; } }

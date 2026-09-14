@@ -18,3 +18,8 @@
 @media(max-width:1100px){.lfx .lfx-compact-header .lfx-desktop-nav{display:none}.lfx .lfx-compact-header .lfx-menu-button{display:inline-flex}}
 @media(max-width:1050px){.lfx .lfx-studio-header .lfx-header-inner{min-height:64px;height:64px;padding-inline:12px}.lfx .lfx-studio-header .lfx-app-icon img{width:32px;height:32px}}
 .lfx .lfx-compact-header .lfx-mega-panel{left:50%;right:auto;width:min(780px,calc(100vw - 48px));transform:translateX(-50%)}
+html[data-frontend-theme=dark] .lfx :is(.lfx-mobile-nav a,.lfx-mobile-nav button){border-color:var(--lfx-line)}
+html[data-frontend-theme=dark] .lfx :is(.lfx-mobile-nav button,.lfx-menu-panel-title){color:var(--lfx-ink)}
+html[data-frontend-theme=dark] .lfx :is(.lfx-menu-back,.lfx-menu-more>svg,.lfx-menu-services h3){color:var(--lfx-muted)}
+html[data-frontend-theme=dark] .lfx .lfx-menu-count{background:var(--lfx-line);color:var(--lfx-ink)}
+@media(prefers-reduced-motion:reduce){.lfx .lfx-sheet-content,.lfx .lfx-sheet-content[data-state=closed]{animation:none}.lfx .lfx-menu-track{transition:none}}

@@ -7,7 +7,7 @@ Source pins: CTRL+P `015a7b58b80e63ef87c73bec549a23242b88f3e3`; Channel Cast `8c
 - The sole public `/` route and supplied homepage/Three.js components remain intact.
 - Existing `/admin/(operations)` route group provides one server-checked LayeredFX session and one shell for Pipeline, Workspace, Plans and the first CTRL+P Coupons adaptation.
 - Cookies remain `lfx_ops_access` / `lfx_ops_refresh`; `currentActor` verifies the Supabase user and active LayeredFX organization membership. Coupons does not introduce the source browser token/session or source business profile.
-- Coupon management uses a separate normalized `lfx_coupons` table through a server-only repository, the same organization/member identities and only `LFX_` database configuration. The SQL is an unapplied review draft. No production fallback or browser data policy is added.
+- Coupon management uses a separate normalized `lfx_coupons` table through a server-only repository, the same organization/member identities and only `LFX_` database configuration. The schema was applied on 2026-09-14 (`supabase/migrations/20260914_layeredfx_coupons.sql`). No production fallback or browser data policy is added.
 - Existing Channel Cast adaptations still use the bounded operations JSONB store. They are **not yet reconciled** with CTRL+P's normalized business tables. The full integration must replace that gap deliberately, with migration and ID mapping, not a second disconnected CRM.
 
 ## Canonical identity and relationship contract
@@ -29,6 +29,6 @@ CTRL+P dashboard routes retain `/admin/...`; Projects specifically retains `/adm
 
 ## Configuration and acceptance
 
-Use `../channel-cast/SETUP.md` for the existing isolated session/store configuration. Coupon SQL depends on `lfx_ops_members`; it has RLS enabled with direct anon/authenticated access revoked. Only active server-verified staff/admin may mutate. Coupon edits require revision, have field allowlists and bounded body parsing, and return 409 on stale writes. Used coupons are deactivated to preserve history. Schema execution, PostgREST persistence and direct browser RLS denial remain unverified.
+Use `../channel-cast/SETUP.md` for the existing isolated session/store configuration. Coupon SQL depends on `lfx_ops_members`; it has RLS enabled with direct anon/authenticated access revoked. Only active server-verified staff/admin may mutate. Coupon edits require revision, have field allowlists and bounded body parsing, and return 409 on stale writes. Used coupons are deactivated to preserve history. The schema is applied, and a read-only PostgREST check on 2026-09-14 confirmed service-role reads succeed and anon requests are denied (401). Authenticated coupon CRUD through the app remains unverified.
 
 No provider configuration has been copied. Payment, messaging, voice, booking, storage, vendor fulfillment, notifications and Agent integrations remain required. Preserve their implementation when ported, disable only actions requiring absent LayeredFX configuration, and never report false success. No external action or deployment was performed.

@@ -1,13 +1,13 @@
-import {LayoutDashboard,ChartNoAxesCombined,ShoppingBag,CalendarRange,Boxes,CalendarCheck,Palette,HardHat,CircleDollarSign,MessageSquare,Phone,Users,UserCog,PackageCheck,LayoutTemplate,Tag,FileText,Truck,Megaphone,BookOpen,Bot,Settings,UserRound,TrendingUp,ClipboardList,BriefcaseBusiness} from 'lucide-react';
+import {LayoutDashboard,ChartNoAxesCombined,ShoppingBag,CalendarRange,Boxes,CalendarCheck,Palette,HardHat,CircleDollarSign,MessageSquare,Phone,Users,UserCog,PackageCheck,LayoutTemplate,Tag,FileText,Truck,Megaphone,BookOpen,Bot,Settings,UserRound,TrendingUp,ClipboardList,BriefcaseBusiness,IdCard} from 'lucide-react';
 export const dashboardNavigation=[
  {label:'Main',items:[
   {label:'Dashboard',href:'/admin',icon:LayoutDashboard},{label:'Analytics',href:'/admin/analytics',icon:ChartNoAxesCombined},
-  {label:'Contacts',href:'/admin/contacts',icon:Users},{label:'Leads',href:'/admin/leads',icon:UserRound},{label:'Pipeline',href:'/admin/pipeline',icon:TrendingUp},{label:'Orders',href:'/admin/orders',icon:ShoppingBag},
+  {label:'Contacts',href:'/admin/contacts',icon:Users},{label:'Leads',href:'/admin/leads',icon:UserRound},{label:'Pipeline',href:'/admin/pipeline',icon:TrendingUp},{label:'Business Cards',href:'/admin/business-cards',icon:IdCard},{label:'Orders',href:'/admin/orders',icon:ShoppingBag},
   {label:'Jobs',href:'/admin/jobs',icon:BriefcaseBusiness},{label:'Projects',href:'/admin/production-schedule',icon:CalendarRange},
   {label:'Production',href:'/admin/production',icon:Boxes},{label:'Bookings',href:'/admin/bookings',icon:CalendarCheck},
   {label:'Designers',href:'/admin/designers',icon:Palette},{label:'Installers',href:'/admin/installers',icon:HardHat},
   {label:'Payments',href:'/admin/payments',icon:CircleDollarSign},{label:'Messages',href:'/admin/messages',icon:MessageSquare},
-  {label:'Communication',href:'/admin/communications',icon:Phone},{label:'Customers',href:'/admin/customers',icon:Users},
+  {label:'Form Submissions',href:'/admin/contact-submissions',icon:FileText},{label:'Communication',href:'/admin/communications',icon:Phone},{label:'Customers',href:'/admin/customers',icon:Users},
   {label:'Users',href:'/admin/users',icon:UserCog},{label:'Portals',href:'/admin/portals',icon:Users},{label:'Workspace',href:'/admin/workspace',icon:FileText},
   {label:'Plans',href:'/admin/plans',icon:ClipboardList},
  ]},

@@ -39,7 +39,7 @@ Actual source behavior: list with active/inactive and usage counts; create/edit 
 
 Destination: app/admin/(operations)/coupons/page.tsx, components/admin/coupons.tsx, app/api/admin/coupons/route.ts, lib/admin/coupons.ts, lib/admin/coupon-repository.ts. Adapted management logic and fields, shared LayeredFX shell/session, labeled Radix dialog, bounded server JSON, allowlisted fields, organization-scoped normalized storage, compare-and-swap updates/deletes. Used coupons must be deactivated to preserve history.
 
-Remaining: order-history expansion, coupon application/redemption, manual order integration, source totals across all pages, schema execution, real authenticated persistence and browser CRUD. The schema is a review draft, not an applied migration. Status: In progress.
+Remaining: order-history expansion, coupon application/redemption, manual order integration, source totals across all pages, real authenticated persistence and browser CRUD. The schema was applied to the LayeredFX Supabase project on 2026-09-14 (`supabase/migrations/20260914_layeredfx_coupons.sql`). Status: In progress.
 
 ## Source implementation limits to verify
 

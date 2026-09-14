@@ -5,6 +5,8 @@ import {mode,configured} from '@/lib/operations/server';
 import {OperationError} from '@/lib/operations/engine.mjs';
 import {isUuid} from '@/lib/operations/security.mjs';
 import {mutateBlog,published,type BlogState} from './model';
+import {launchContent} from './launch';
+const initial=():BlogState=>({revision:0,items:launchContent()});
 const file=()=>path.join(process.cwd(),'.local-data','blog.json');
 async function database(query:string,init:RequestInit={}){
  if(!configured())throw new OperationError('Blog storage requires LayeredFX server configuration.',503);
@@ -13,10 +15,10 @@ async function database(query:string,init:RequestInit={}){
  if(!response.ok)throw new OperationError('Blog storage is unavailable. Verify the reviewed blog schema and server configuration.',503);return response;
 }
 export async function readBlog():Promise<BlogState>{
- if(mode()==='demo'){try{return JSON.parse(await readFile(file(),'utf8'));}catch(e){if((e as NodeJS.ErrnoException).code==='ENOENT')return {revision:0,items:[]};throw e;}}
- const rows=await (await database('&select=revision,items')).json();return rows[0]||{revision:0,items:[]};
+ if(mode()==='demo'){try{return JSON.parse(await readFile(file(),'utf8'));}catch(e){if((e as NodeJS.ErrnoException).code==='ENOENT')return initial();throw e;}}
+ const rows=await (await database('&select=revision,items')).json();return rows[0]||initial();
 }
-export async function publicPosts(){if(mode()!=='demo'&&!configured())return [];return published((await readBlog()).items);}
+export async function publicPosts(){if(mode()!=='demo'&&!configured())return published(launchContent());return published((await readBlog()).items);}
 export async function saveBlog(method:string,body:Record<string,unknown>){
  let lock:Awaited<ReturnType<typeof open>>|undefined;
  if(mode()==='demo'){await mkdir(path.dirname(file()),{recursive:true});try{lock=await open(file()+'.lock','wx');}catch{throw new OperationError('Another save is in progress. Try again.',409);}}

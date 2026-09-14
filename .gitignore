@@ -8,3 +8,6 @@ out/
 .review/
 
 .local-data/
+
+# Exceeds GitHub's 100 MB file limit; keep the 3M DI-NOC catalog source archive local.
+docs/library/3m/dinoc-catalog-pages.zip

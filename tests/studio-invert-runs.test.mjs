@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import ts from 'typescript';const code=ts.transpileModule(readFileSync(new URL('../lib/studio/invert-runs.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext}}).outputText;const {invertRuns}=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
+test('wall complement protects objects, missing rows and both edges',()=>{assert.deepEqual(invertRuns([0,1,2,2,0,1,2,3,1],4,3),[0,0,1,0,3,1,1,0,4,2,1,2]);});
+test('full wall leaves no foreground; empty wall protects all',()=>{assert.deepEqual(invertRuns([0,0,3],3,1),[]);assert.deepEqual(invertRuns([],3,2),[0,0,3,1,0,3]);});

@@ -7,6 +7,12 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "./ui/dial
 import { Button } from "./ui/button";
 import { useEstimate } from "./estimate-context";
 const filters = [{ id: "all", label: "All services" }, { id: "wraps", label: "Wrap & resurface" }, { id: "finishes", label: "Architectural finishes" }, { id: "film-paint", label: "Film & paint" }];
+const sceneImages: Record<string, { src: string; alt: string }> = {
+  wraps: { src: "/images/kitchen-photo.png", alt: "Kitchen design concept with an oak slatted island, stone counters, and olive cabinetry" },
+  finishes: { src: "/images/wallpaper-room-photo.png", alt: "Living room design concept with botanical wallpaper, an arched doorway, and natural oak" },
+  film: { src: "/images/commercial-window-film-photo.png", alt: "Commercial office mockup with frosted privacy film on glass conference room partitions" },
+  paint: { src: "/images/paint-photo.png", alt: "Paint design concept with peach and sage walls, an arched niche, and a cream chair" },
+};
 export function Services() {
   const [filter, setFilter] = useState("all");
   const [selected, setSelected] = useState<(typeof serviceGroups)[number] | null>(null);
@@ -16,8 +22,8 @@ export function Services() {
     <div className="lfx-section-heading"><div><div className="lfx-eyebrow">01 / What we do</div><h2>A surface for<br /><em>every possibility.</em></h2></div><p>From the smallest detail to an entirely new atmosphere. Discover a different way to transform the spaces around you.</p></div>
     <div className="lfx-filter-row" role="group" aria-label="Filter services">{filters.map(item => <button key={item.id} aria-pressed={filter === item.id} onClick={() => setFilter(item.id)}>{item.label}</button>)}</div>
     <div className="lfx-service-grid" aria-live="polite">{groups.map(group => <article className="lfx-service-card" key={group.id}>
-      <button className="lfx-service-image" onClick={() => setSelected(group)} aria-label={`Explore ${group.title}`}><Image src={group.image} alt={`${group.title} illustrative surface concept`} fill sizes="(max-width: 600px) 90vw, (max-width: 1000px) 45vw, 25vw" /><span className="lfx-service-number">{group.number}</span><span className="lfx-round-arrow"><ArrowUpRight size={20} /></span></button>
-      <h3><button onClick={() => setSelected(group)}>{group.title}</button></h3><p>{group.subtitle}</p><div className="lfx-service-list">{group.services.join(" · ")}</div>
+      <button className="lfx-service-image" onClick={() => setSelected(group)} aria-label={`Explore ${group.title}`}><Image src={sceneImages[group.id].src} alt={sceneImages[group.id].alt} fill sizes="(max-width: 600px) 90vw, (max-width: 1000px) 45vw, 25vw" /><span className="lfx-service-number">{group.number}</span><span className="lfx-round-arrow"><ArrowUpRight size={20} /></span></button>
+      <h3><button onClick={() => setSelected(group)}>{group.title}</button></h3><p>{group.subtitle}</p><div className="lfx-service-list">{group.services.filter(service => group.id !== "wraps" || service !== "Countertop wraps").join(" · ")}</div>
     </article>)}</div>
     <Dialog open={!!selected} onOpenChange={value => !value && setSelected(null)}><DialogContent>{selected && <>
       <div className="lfx-eyebrow">LayeredFX / Our services</div><DialogTitle>{selected.title}</DialogTitle><DialogDescription>{selected.detail}</DialogDescription>

@@ -1,3 +1,3 @@
-import {PublicRequest} from '@/components/layeredfx/public-request';
+import {ContactPage} from '@/components/layeredfx/contact-page';
 export const metadata={title:'Contact | LayeredFX'};
-export default function ContactPage(){return <PublicRequest/>;}
+export default ContactPage;

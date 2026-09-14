@@ -198,17 +198,19 @@ const BLOCK_DEFAULTS: Record<EmailBlockType, EmailBlockProps> = {
 };
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function uid() { return Math.random().toString(36).slice(2); }
+let templateRevision=0;
 async function apiCall(method: string, body: Record<string, unknown>) {
     const db = getSupabaseBrowserClient();
     const token = (await db?.auth.getSession())?.data.session?.access_token;
-    const res = await sourceFetch("/api/ctrlp/admin/content", {
+    const res = await fetch("/api/blog/manage", {
         method,
         headers: { "content-type": "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify(body),
+        body: JSON.stringify({...body,revision:templateRevision}),
     });
     const json = await res.json().catch(() => ({})) as Record<string, unknown>;
     if (!res.ok)
         throw new Error(String(json.error || "Request failed"));
+    templateRevision=Number(json.revision);
     return json;
 }
 async function getToken() {
@@ -229,10 +231,12 @@ async function adminPost(path: string, body: Record<string, unknown>, method = "
     return res.json();
 }
 async function fetchTemplates(): Promise<ContentItem[]> {
-    const json = await adminGet<{
-        items?: ContentItem[];
-    }>("/api/ctrlp/admin/content?type=email_template");
-    return json.items ?? [];
+    const token=await getToken();
+    const response=await fetch('/api/blog/manage?type=email_template',{headers:{...(token?{authorization:`Bearer ${token}`}:{})}});
+    const data=await response.json();
+    if(!response.ok)throw new Error(data.error||data.message||'Could not load templates.');
+    templateRevision=data.revision;
+    return data.items;
 }
 function blockToHtml(block: EmailBlock): string {
     const p = block.props;
@@ -527,7 +531,7 @@ export function AdminEmail() {
     useEffect(() => {
         if (tab === "templates" || tab === "send") {
             setLoadingTemplates(true);
-            fetchTemplates().then((t) => { setTemplates(t); setLoadingTemplates(false); });
+            fetchTemplates().then((t) => { setTemplates(t); }).catch((error)=>alert(error.message)).finally(()=>setLoadingTemplates(false));
         }
         if (tab === "submissions") {
             setSubLoading(true);

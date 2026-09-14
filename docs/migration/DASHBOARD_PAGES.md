@@ -16,7 +16,8 @@ These are source client ports for local review, not completed server/provider mi
 | Users | /admin/users | CTRL+P user management client |
 | Products | /admin/products | CTRL+P catalog management client |
 | Wall Studio | /admin/wall-studio | CTRL+P Wall Studio administration client |
-| Coupons | /admin/coupons | Prior coupon adaptation, protected server repository, unapplied SQL draft |
+| Coupons | /admin/coupons | Prior coupon adaptation, protected server repository, schema applied 2026-09-14 |
+| Business Cards | /admin/business-cards | Channel Cast business-card module adaptation: builder, public /card/[slug], QR/vCard/NFC, lead inbox, analytics; see BUSINESS_CARDS.md |
 | Artwork | /admin/artwork | CTRL+P files/proof management client |
 | Marketing | /admin/marketing | CTRL+P marketing client |
 | Blog Posts | /admin/blog | CTRL+P blog management client |

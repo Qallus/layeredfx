@@ -1,6 +1,7 @@
+import {morphAlpha} from './mask-morph';
 import {projection,projectPoint,type Point} from './homography';
 import {drawTexturedTriangle} from './triangle';
-export type Mask={points:Point[];radius:number;polygon:boolean;restore:boolean;runs?:number[];gridWidth?:number;gridHeight?:number;hidden?:boolean;label?:string};
+export type Mask={replace?:boolean;operation?:'grow'|'shrink'|'clear';points:Point[];radius:number;polygon:boolean;restore:boolean;runs?:number[];gridWidth?:number;gridHeight?:number;hidden?:boolean;label?:string};
 export const finishes=[
  {id:'clay',name:'Warm Roman clay',category:'Roman clay',color:'#bba38b'},
  {id:'concrete',name:'Soft concrete',category:'Concrete',color:'#a8aaa3'},
@@ -27,7 +28,7 @@ export function surface(id:string,scale:number,art:HTMLImageElement|null,rotatio
  }return c;
 }
 const projectedCache=new WeakMap<HTMLCanvasElement,{key:string;image:HTMLCanvasElement}>();
-export function renderStudio(target:HTMLCanvasElement,photo:HTMLImageElement,corners:Point[],texture:HTMLCanvasElement|null,masks:Mask[],opacity:number,before:boolean,showMask=false){
+export function renderStudio(target:HTMLCanvasElement,photo:HTMLImageElement,corners:Point[],texture:HTMLCanvasElement|null,masks:Mask[],opacity:number,before:boolean,showMask=false,wallArea:Point[]=[]){
  if(!texture)return;
  const w=target.width,h=target.height,ctx=target.getContext('2d')!;ctx.clearRect(0,0,w,h);ctx.drawImage(photo,0,0,w,h);if(before)return;
  const layer=canvas(w,h),lc=layer.getContext('2d')!,H=projection(1000,1000,corners.map(p=>({x:p.x*w,y:p.y*h})));
@@ -42,8 +43,9 @@ export function renderStudio(target:HTMLCanvasElement,photo:HTMLImageElement,cor
  }
  const saved=canvas(w,h);saved.getContext('2d')!.drawImage(layer,0,0);projectedCache.set(texture,{key:cacheKey,image:saved});
  }
+ if(wallArea.length>=3){lc.globalCompositeOperation='destination-in';lc.beginPath();lc.moveTo(wallArea[0].x*w,wallArea[0].y*h);for(const p of wallArea.slice(1))lc.lineTo(p.x*w,p.y*h);lc.closePath();lc.fillStyle='#000';lc.fill();lc.globalCompositeOperation='source-over';}
  const mask=canvas(w,h),mc=mask.getContext('2d')!;
- for(const stroke of masks){if(stroke.hidden)continue;if(stroke.runs&&stroke.gridWidth&&stroke.gridHeight){mc.globalCompositeOperation=stroke.restore?'destination-out':'source-over';mc.fillStyle='#000';for(let i=0;i<stroke.runs.length;i+=3)mc.fillRect(stroke.runs[i+1]*w/stroke.gridWidth,stroke.runs[i]*h/stroke.gridHeight,stroke.runs[i+2]*w/stroke.gridWidth,h/stroke.gridHeight);continue;}if(!stroke.points.length)continue;mc.globalCompositeOperation=stroke.restore?'destination-out':'source-over';mc.fillStyle='#000';mc.strokeStyle='#000';mc.lineWidth=stroke.radius*w*2;mc.lineCap='round';mc.lineJoin='round';mc.beginPath();mc.moveTo(stroke.points[0].x*w,stroke.points[0].y*h);for(const p of stroke.points.slice(1))mc.lineTo(p.x*w,p.y*h);if(stroke.polygon){mc.closePath();mc.fill();}else{mc.stroke();if(stroke.points.length===1){mc.beginPath();mc.arc(stroke.points[0].x*w,stroke.points[0].y*h,stroke.radius*w,0,Math.PI*2);mc.fill();}}}
+ for(const stroke of masks){if(stroke.hidden)continue;if(stroke.replace)mc.clearRect(0,0,w,h);if(stroke.operation){if(stroke.operation==='clear')mc.clearRect(0,0,w,h);else{const data=mc.getImageData(0,0,w,h);morphAlpha(data.data,w,h,stroke.operation==='grow');mc.putImageData(data,0,0);}continue;}if(stroke.runs&&stroke.gridWidth&&stroke.gridHeight){mc.globalCompositeOperation=stroke.restore?'destination-out':'source-over';mc.fillStyle='#000';for(let i=0;i<stroke.runs.length;i+=3)mc.fillRect(stroke.runs[i+1]*w/stroke.gridWidth,stroke.runs[i]*h/stroke.gridHeight,stroke.runs[i+2]*w/stroke.gridWidth,h/stroke.gridHeight);continue;}if(!stroke.points.length)continue;mc.globalCompositeOperation=stroke.restore?'destination-out':'source-over';mc.fillStyle='#000';mc.strokeStyle='#000';mc.lineWidth=stroke.radius*w*2;mc.lineCap='round';mc.lineJoin='round';mc.beginPath();mc.moveTo(stroke.points[0].x*w,stroke.points[0].y*h);for(const p of stroke.points.slice(1))mc.lineTo(p.x*w,p.y*h);if(stroke.polygon){mc.closePath();mc.fill();}else{mc.stroke();if(stroke.points.length===1){mc.beginPath();mc.arc(stroke.points[0].x*w,stroke.points[0].y*h,stroke.radius*w,0,Math.PI*2);mc.fill();}}}
  lc.globalCompositeOperation='destination-out';lc.drawImage(mask,0,0);
  ctx.globalAlpha=opacity;ctx.globalCompositeOperation='multiply';ctx.drawImage(layer,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
  if(showMask){mc.globalCompositeOperation='source-in';mc.fillStyle='#d6ff4166';mc.fillRect(0,0,w,h);ctx.drawImage(mask,0,0);}

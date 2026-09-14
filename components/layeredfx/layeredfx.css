@@ -60,7 +60,7 @@
 .lfx-hero h1 { font-size:clamp(63px,6.55vw,94px); line-height:.99; letter-spacing:-5px; margin:34px 0 27px; }
 .lfx-hero h1 em { font-size:1.01em; letter-spacing:-5.1px; }
 .lfx-hero-copy>p { max-width:355px; font-size:14px; line-height:1.85; color:var(--lfx-muted); }
-.lfx-hero-ctas { display:flex; align-items:flex-start; flex-direction:column; gap:18px; margin-top:29px; }
+.lfx-hero-ctas { display:flex; align-items:center; flex-direction:row; gap:12px; margin-top:29px; }
 .lfx-text-link { display:inline-flex; gap:14px; align-items:center; font-size:12px; font-weight:500; }
 .lfx-text-link:hover { color:#8e8065; }
 .lfx-hero-bottom { display:flex; align-items:center; gap:13px; margin-top:auto; padding-top:42px; font-size:11px; line-height:1.65; color:var(--lfx-muted); }
@@ -328,3 +328,7 @@ dialog.lfx-dialog-content:not([open]) { display:none; }
 
 .lfx .lfx-dialog-title{font-size:29px;line-height:1.16;letter-spacing:-1px}.lfx .lfx-menu-title{font-size:27px;line-height:1.2;letter-spacing:-1px}
 @media(max-width:760px){.lfx .lfx-dialog-title{font-size:27px}.lfx .lfx-menu-title{font-size:27px}}
+
+/* Keep the two hero actions together at every viewport width. */
+.lfx-hero-ctas { flex-wrap:nowrap; }
+@media (max-width:600px) { .lfx-hero-ctas { gap:8px; } .lfx-hero-ctas .lfx-button { flex:1; min-width:0; padding:13px 8px; gap:6px; font-size:10px; } .lfx-hero-ctas .lfx-button svg { width:15px; height:15px; flex-shrink:0; } }

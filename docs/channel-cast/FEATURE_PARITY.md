@@ -76,7 +76,7 @@ The initial server store is bounded JSONB per organization, not a high-volume no
 Production setup, backups, abuse protections and integration tests remain mandatory. See SETUP.md and QA_REPORT.md.
 # Customer and partner portal increment
 
-LayeredFX now includes separate customer and partner portal routes with frontend login/registration and staff partner approval. Exact implemented behavior and remaining integration gaps are in `../migration/PORTALS.md`. This is not full CTRL+P customer/partner portal parity. Live Supabase activation and staging verification remain outstanding; the SQL is a review draft only.
+LayeredFX now includes separate customer and partner portal routes with frontend login/registration and staff partner approval. Exact implemented behavior and remaining integration gaps are in `../migration/PORTALS.md`. This is not full CTRL+P customer/partner portal parity. The portal schema and private `lfx-portal-media` bucket were applied to the LayeredFX Supabase project on 2026-09-14 (`supabase/migrations/20260914_layeredfx_portals.sql`); authenticated end-to-end portal flows and staging verification remain outstanding.
 
 ## Frontend contact and booking entry
 
@@ -102,3 +102,11 @@ Object selection accumulates automatically across repeated taps, including queue
 Object Detection includes a sticky next action. Mark Wall shows marching ants and shared, editable width/height inputs linked to estimate and saved looks. Wilsonart supplied catalog now exposes 2,526 entries with search, family filters and paging, using source images on demand; physical suitability, pricing, vendor rights and availability still require confirmation.
 
 Studio cancellation clears worker state so tap selection restarts. Wall Specs uses sidebar-only dimensions. Materials uses selectable cards with one apply action, no concept cards or outgoing details links. Customize has icon actions; Patterns/upload are available in the sticky rail.
+
+### Wall Studio editor layout refinement
+The existing studio now uses a dedicated desktop rail/canvas/properties layout and a mobile bottom properties drawer. Foreground mask history supports grow/shrink edges and undoable clear-all. Review supports a before/after slider, measured wall summary and PNG sharing (native share when available, download fallback). Existing seven stages and material/estimate/customization functions are retained. Pricing remains based on entered rates, and saved looks remain local to the device.
+Estimate and intake refinement: final-step estimate summary, requested installation details and rush tiers, configurable private-address OSM routing, Wall Studio lead/pipeline/job handoff, and direct graphic dragging/alignment are implemented. Live travel requires configured providers; Project Deposit currently submits a request and does not collect money. See current-review.md for exact limits.
+
+## Digital business cards
+
+`/admin/business-cards` ports Channel Cast's business card module: builder panels, public `/card/[slug]` page, QR/vCard, Web NFC writing, lead inbox, analytics, and lead → LayeredFX lead/opportunity conversion through operations commands. Storage is organization-scoped with revision checks (review-draft SQL, not applied). Email automations are not available (no LayeredFX email provider). Owner SMS requires LayeredFX Twilio. Image upload requires the configured bucket. See [Business cards](../migration/BUSINESS_CARDS.md) for exact behavior and limits.

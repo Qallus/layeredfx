@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "checks": [
+    "Brush grow shrink clear and pixel-exact undo",
+    "Three desktop panels",
+    "Material and review comparison",
+    "Mobile drawer and no overflow"
+  ]
+}

@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+html,body{margin:0;height:100%;background:#f6f5f0}
+a{color:#292d25}a:hover{color:#777c64}
+input[type=range]{accent-color:#4c5440;width:100%}
+input[type=number]{font:inherit}
+@keyframes ants{to{stroke-dashoffset:-24}}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#d3d6c6;border-radius:6px;border:2px solid #fbfaf6}
+</style>
+</helmet>
+<div data-screen-label="Wall Studio 2" style="height:100dvh;display:flex;flex-direction:column;overflow:hidden;font-family:Arial,Helvetica,sans-serif;color:#292d25;background:#f6f5f0;font-size:14px;line-height:1.5">
+  <header style="flex:0 0 auto;height:54px;display:flex;align-items:center;gap:14px;padding:0 14px;background:#22261e;color:#f3f2ea">
+    <img src="public/brand/layeredfx_logo_white_simple.svg" alt="LayeredFX" style="height:20px;display:block">
+    <span style="width:1px;height:22px;background:#454a3c"></span>
+    <span style="font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:#b9bfa9">Wall Studio</span>
+    <span style="font-size:10px;font-weight:700;background:#d6ff41;color:#22261e;border-radius:3px;padding:2px 6px;letter-spacing:.5px">2</span>
+    <span style="flex:1"></span>
+    <sc-if value="{{ notMobile }}" hint-placeholder-val="{{ true }}">
+      <button onClick="{{ saveLook }}" style="white-space:nowrap;background:transparent;border:1px solid #4b5142;color:#e8e9dd;border-radius:5px;padding:8px 14px;font:inherit;font-size:12px;cursor:pointer" style-hover="background:#31362b">Save look</button>
+      <button onClick="{{ shareLook }}" style="white-space:nowrap;background:transparent;border:1px solid #4b5142;color:#e8e9dd;border-radius:5px;padding:8px 14px;font:inherit;font-size:12px;cursor:pointer" style-hover="background:#31362b">Share</button>
+    </sc-if>
+    <button onClick="{{ bookNow }}" style="white-space:nowrap;background:#d6ff41;border:0;color:#22261e;border-radius:5px;padding:9px 16px;font:inherit;font-size:12px;font-weight:700;cursor:pointer" style-hover="background:#e4ff77">Book a consultation</button>
+  </header>
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:0 0 auto;display:flex;gap:8px;padding:10px 12px;overflow-x:auto;background:#f0efe8;border-bottom:1px solid #dcdfd3">
+      <sc-for list="{{ steps }}" as="s" hint-placeholder-count="5">
+        <button onClick="{{ s.go }}" disabled="{{ s.locked }}" style="{{ s.chipStyle }}"><span style="font-weight:700;margin-right:6px">{{ s.n }}</span>{{ s.label }}</button>
+      </sc-for>
+    </div>
+  </sc-if>
+  <div style="flex:1;display:flex;min-height:0">
+    <sc-if value="{{ notMobile }}" hint-placeholder-val="{{ true }}">
+      <nav aria-label="Steps" style="flex:0 0 86px;display:flex;flex-direction:column;gap:6px;padding:12px 8px;background:#f0efe8;border-right:1px solid #dcdfd3">
+        <sc-for list="{{ steps }}" as="s" hint-placeholder-count="5">
+          <button onClick="{{ s.go }}" disabled="{{ s.locked }}" style="{{ s.railStyle }}">
+            <span style="{{ s.numStyle }}">{{ s.n }}</span>
+            <span style="font-size:10px;letter-spacing:.3px">{{ s.label }}</span>
+          </button>
+        </sc-for>
+      </nav>
+    </sc-if>
+    <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+      <div style="flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #e3e5d8;background:#f6f5f0">
+        <strong style="font-size:13px;font-weight:700">{{ stageTitle }}</strong>
+        <span style="flex:1"></span>
+        <div style="display:flex;border:1px solid #cfd3c0;border-radius:6px;overflow:hidden">
+          <button onClick="{{ showBefore }}" disabled="{{ compareLocked }}" style="{{ beforeStyle }}">Before</button>
+          <button onClick="{{ showAfter }}" disabled="{{ compareLocked }}" style="{{ afterStyle }}">After</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:2px;border:1px solid #cfd3c0;border-radius:6px;padding:2px">
+          <button onClick="{{ zoomOut }}" aria-label="Zoom out" style="border:0;background:transparent;width:26px;height:24px;cursor:pointer;font:inherit;color:#4c5244">−</button>
+          <span style="font-size:11px;color:#707365;min-width:36px;text-align:center">{{ zoomLabel }}</span>
+          <button onClick="{{ zoomIn }}" aria-label="Zoom in" style="border:0;background:transparent;width:26px;height:24px;cursor:pointer;font:inherit;color:#4c5244">+</button>
+        </div>
+      </div>
+      <div style="{{ viewportStyle }}">
+        <div ref="{{ stageRef }}" onPointerDown="{{ stagePointerDown }}" style="{{ stageStyle }}">
+          <div role="img" aria-label="Your room" style="{{ photoBgStyle }}"></div>
+          <sc-if value="{{ showFinish }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ finishLayerStyle }}"></div>
+          </sc-if>
+          <canvas ref="{{ overlayRef }}" style="{{ overlayStyle }}"></canvas>
+          <sc-if value="{{ isWall }}" hint-placeholder-val="{{ false }}">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible">
+              <polygon points="{{ wallPoints }}" fill="rgba(214,255,65,.14)" stroke="#93a11c" stroke-width="0.45" stroke-dasharray="2.4 1.6" vector-effect="non-scaling-stroke" style="animation:ants 1.2s linear infinite"></polygon>
+            </svg>
+            <sc-for list="{{ handles }}" as="h" hint-placeholder-count="4">
+              <button onPointerDown="{{ h.down }}" aria-label="{{ h.label }}" style="{{ h.style }}"></button>
+            </sc-for>
+          </sc-if>
+          <sc-if value="{{ showCompare }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ compareBeforeStyle }}"></div>
+            <div style="{{ compareLineStyle }}">
+              <button onPointerDown="{{ compareDown }}" aria-label="Drag to compare" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;border:0;background:#22261e;color:#d6ff41;cursor:ew-resize;font:inherit;font-size:13px;box-shadow:0 4px 14px rgba(34,38,30,.35)">⇔</button>
+            </div>
+            <span style="position:absolute;left:12px;top:12px;background:rgba(246,245,240,.9);border-radius:4px;padding:4px 8px;font-size:10px;letter-spacing:1px;text-transform:uppercase">Before</span>
+            <span style="position:absolute;right:12px;top:12px;background:rgba(34,38,30,.82);color:#d6ff41;border-radius:4px;padding:4px 8px;font-size:10px;letter-spacing:1px;text-transform:uppercase">After</span>
+          </sc-if>
+        </div>
+      </div>
+      <p role="status" style="flex:0 0 auto;margin:0;padding:9px 14px;font-size:12px;color:#707365;border-top:1px solid #e3e5d8;background:#f2f1ea">{{ msg }}</p>
+    </div>
+    <div style="{{ panelStyle }}">
+      <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ toggleSheet }}" aria-label="Toggle panel" style="border:0;background:transparent;padding:10px 0 4px;cursor:pointer;display:grid;place-items:center">
+          <span style="width:44px;height:5px;border-radius:3px;background:#cfd3c0;display:block"></span>
+        </button>
+      </sc-if>
+      <div style="flex:1;overflow-y:auto;overflow-x:hidden;padding:16px 18px;min-height:0">
+        <sc-if value="{{ isSpace }}" hint-placeholder-val="{{ true }}">
+          <h2 style="margin:0 0 6px;font-size:19px;font-weight:400;letter-spacing:-.4px">Start with your space</h2>
+          <p style="margin:0 0 16px;font-size:12px;color:#707365">A straight-on photo works best. Your photo never leaves this device.</p>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+            <button onClick="{{ takePhoto }}" style="background:#292d25;color:#f6f5f0;border:0;border-radius:6px;min-height:44px;font:inherit;font-size:13px;font-weight:600;cursor:pointer" style-hover="background:#3a4033">Take a photo</button>
+            <button onClick="{{ uploadPhoto }}" style="background:transparent;color:#292d25;border:1px solid #aeb4a0;border-radius:6px;min-height:44px;font:inherit;font-size:13px;cursor:pointer" style-hover="background:#e8e9df">Upload a photo</button>
+            <button onClick="{{ openSaved }}" style="background:transparent;color:#5b634f;border:0;min-height:38px;font:inherit;font-size:12px;text-decoration:underline;cursor:pointer">Open my saved look</button>
+          </div>
+          <h3 style="margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#777c64">Or try a sample room</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <button onClick="{{ sampleRes }}" style="{{ resStyle }}">
+              <img src="public/studio/room-residential.png" alt="" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:5px;display:block">
+              <span style="display:block;padding:8px 2px 2px;font-size:12px">Residential</span>
+            </button>
+            <button onClick="{{ sampleCom }}" style="{{ comStyle }}">
+              <img src="public/studio/room-commercial.png" alt="" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:5px;display:block">
+              <span style="display:block;padding:8px 2px 2px;font-size:12px">Commercial</span>
+            </button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isProtect }}" hint-placeholder-val="{{ false }}">
+          <h2 style="margin:0 0 6px;font-size:19px;font-weight:400;letter-spacing:-.4px">Keep your things in front</h2>
+          <p style="margin:0 0 14px;font-size:12px;color:#707365">Tap an object in the photo to select it — keep tapping to add more. Selected areas stay in front of the new finish.</p>
+          <div style="display:flex;gap:6px;margin-bottom:14px">
+            <sc-for list="{{ selModes }}" as="m" hint-placeholder-count="3">
+              <button onClick="{{ m.pick }}" aria-pressed="{{ m.active }}" style="{{ m.style }}">{{ m.label }}</button>
+            </sc-for>
+          </div>
+          <sc-if value="{{ showTolerance }}" hint-placeholder-val="{{ true }}">
+            <label style="display:block;font-size:11px;color:#5b634f;margin-bottom:14px">Selection reach
+              <input type="range" min="10" max="90" value="{{ toleranceVal }}" onChange="{{ setTolerance }}">
+              <small style="display:block;font-size:10px;color:#8a9077;margin-top:2px">Higher reaches further across similar colors. Adjusting re-runs your last tap.</small>
+            </label>
+          </sc-if>
+          <sc-if value="{{ showBrushSize }}" hint-placeholder-val="{{ false }}">
+            <label style="display:block;font-size:11px;color:#5b634f;margin-bottom:14px">Brush size
+              <input type="range" min="8" max="64" value="{{ brushVal }}" onChange="{{ setBrush }}">
+            </label>
+          </sc-if>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+            <button onClick="{{ growSel }}" disabled="{{ noMask }}" style="background:transparent;border:1px solid #cfd3c0;color:#4c5244;border-radius:6px;min-height:38px;font:inherit;font-size:12px;cursor:pointer" style-hover="background:#eceee1">Grow edges</button>
+            <button onClick="{{ shrinkSel }}" disabled="{{ noMask }}" style="background:transparent;border:1px solid #cfd3c0;color:#4c5244;border-radius:6px;min-height:38px;font:inherit;font-size:12px;cursor:pointer" style-hover="background:#eceee1">Shrink edges</button>
+            <button onClick="{{ undoSel }}" disabled="{{ noUndo }}" style="background:transparent;border:1px solid #cfd3c0;color:#4c5244;border-radius:6px;min-height:38px;font:inherit;font-size:12px;cursor:pointer" style-hover="background:#eceee1">Undo</button>
+            <button onClick="{{ clearSel }}" disabled="{{ noMask }}" style="background:transparent;border:1px solid #cfd3c0;color:#4c5244;border-radius:6px;min-height:38px;font:inherit;font-size:12px;cursor:pointer" style-hover="background:#eceee1">Clear all</button>
+          </div>
+          <p style="margin:0;font-size:11px;color:#8a9077">{{ keptSummary }}</p>
+          <p style="margin:10px 0 0;font-size:10px;color:#8a9077;line-height:1.7">Tap-to-select runs an AI model (SlimSAM) on your device — the first tap downloads it. Your photo never leaves the browser. Use Grow, Shrink, Brush and Erase to refine edges.</p>
+        </sc-if>
+        <sc-if value="{{ isWall }}" hint-placeholder-val="{{ false }}">
+          <h2 style="margin:0 0 6px;font-size:19px;font-weight:400;letter-spacing:-.4px">Mark the wall</h2>
+          <p style="margin:0 0 16px;font-size:12px;color:#707365">Drag the four corners to the edges of the wall you want to transform.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+            <label style="font-size:11px;color:#5b634f">Width (ft)
+              <input type="number" min="1" step="0.5" value="{{ wallW }}" onChange="{{ setW }}" style="display:block;width:100%;margin-top:5px;padding:10px;border:1px solid #c9d4bc;border-radius:5px;background:#fcfcf6;font-size:14px;box-sizing:border-box">
+            </label>
+            <label style="font-size:11px;color:#5b634f">Height (ft)
+              <input type="number" min="1" step="0.5" value="{{ wallH }}" onChange="{{ setH }}" style="display:block;width:100%;margin-top:5px;padding:10px;border:1px solid #c9d4bc;border-radius:5px;background:#fcfcf6;font-size:14px;box-sizing:border-box">
+            </label>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 13px;background:#e9ebdf;border-radius:6px;margin-bottom:12px">
+            <span style="font-size:12px;color:#5b634f">Wall area</span>
+            <strong style="font-size:15px">{{ sqft }} sq ft</strong>
+          </div>
+          <button onClick="{{ resetCorners }}" style="background:transparent;border:0;padding:0;font:inherit;font-size:12px;color:#5b634f;text-decoration:underline;cursor:pointer">Reset outline</button>
+          <p style="margin:14px 0 0;font-size:11px;color:#8a9077">Enter measured dimensions — a photo alone can’t determine real-world size. They feed your estimate.</p>
+        </sc-if>
+        <sc-if value="{{ isFinish }}" hint-placeholder-val="{{ false }}">
+          <h2 style="margin:0 0 6px;font-size:19px;font-weight:400;letter-spacing:-.4px">Choose a finish</h2>
+          <p style="margin:0 0 12px;font-size:12px;color:#707365">Your selection stays in front. Everything previews live on your wall.</p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+            <sc-for list="{{ cats }}" as="c" hint-placeholder-count="6">
+              <button onClick="{{ c.pick }}" aria-pressed="{{ c.active }}" style="{{ c.style }}">{{ c.label }}</button>
+            </sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+            <sc-for list="{{ swatches }}" as="w" hint-placeholder-count="6">
+              <div>
+                <button onClick="{{ w.pick }}" aria-pressed="{{ w.active }}" title="{{ w.name }}" style="{{ w.style }}"></button>
+                <small style="display:block;font-size:10px;color:#5b634f;margin-top:5px;text-align:center">{{ w.name }}</small>
+              </div>
+            </sc-for>
+          </div>
+          <div style="border-top:1px solid #e3e5d8;padding-top:14px">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px">
+              <strong style="font-size:13px">{{ selName }}</strong>
+              <sc-if value="{{ showPricing }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;color:#707365">{{ rateLabel }}</span></sc-if>
+            </div>
+            <sc-if value="{{ showScale }}" hint-placeholder-val="{{ false }}">
+              <label style="display:block;font-size:11px;color:#5b634f;margin-bottom:12px">Pattern scale
+                <input type="range" min="60" max="320" value="{{ scaleVal }}" onChange="{{ setScale }}">
+              </label>
+            </sc-if>
+            <label style="display:block;font-size:11px;color:#5b634f">Intensity
+              <input type="range" min="40" max="100" value="{{ intensityVal }}" onChange="{{ setIntensity }}">
+            </label>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}">
+          <h2 style="margin:0 0 6px;font-size:19px;font-weight:400;letter-spacing:-.4px">Your look</h2>
+          <p style="margin:0 0 14px;font-size:12px;color:#707365">Drag the handle on the photo to compare before and after.</p>
+          <div style="border:1px solid #dcdfd3;border-radius:8px;overflow:hidden;margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;gap:10px;padding:10px 13px;border-bottom:1px solid #e8eadd;font-size:12px"><span style="color:#707365">Finish</span><strong>{{ selName }}</strong></div>
+            <div style="display:flex;justify-content:space-between;gap:10px;padding:10px 13px;border-bottom:1px solid #e8eadd;font-size:12px"><span style="color:#707365">Wall</span><strong>{{ wallSummary }}</strong></div>
+            <div style="display:flex;justify-content:space-between;gap:10px;padding:10px 13px;border-bottom:1px solid #e8eadd;font-size:12px"><span style="color:#707365">Kept in front</span><strong>{{ keptLabel }}</strong></div>
+            <sc-if value="{{ showPricing }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;justify-content:space-between;gap:10px;padding:12px 13px;background:#e9ebdf;font-size:12px"><span style="color:#4c5244">Estimated installed</span><strong style="font-size:14px">{{ estimate }}</strong></div>
+            </sc-if>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button onClick="{{ bookNow }}" style="background:#292d25;color:#f6f5f0;border:0;border-radius:6px;min-height:46px;font:inherit;font-size:13px;font-weight:700;cursor:pointer" style-hover="background:#3a4033">Book a consultation</button>
+            <button onClick="{{ downloadPreview }}" style="background:transparent;color:#292d25;border:1px solid #aeb4a0;border-radius:6px;min-height:44px;font:inherit;font-size:13px;cursor:pointer" style-hover="background:#e8e9df">Download preview</button>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <button onClick="{{ saveLook }}" style="background:transparent;color:#292d25;border:1px solid #aeb4a0;border-radius:6px;min-height:42px;font:inherit;font-size:12px;cursor:pointer" style-hover="background:#e8e9df">Save look</button>
+              <button onClick="{{ shareLook }}" style="background:transparent;color:#292d25;border:1px solid #aeb4a0;border-radius:6px;min-height:42px;font:inherit;font-size:12px;cursor:pointer" style-hover="background:#e8e9df">Share</button>
+            </div>
+          </div>
+          <p style="margin:14px 0 0;font-size:10px;color:#8a9077;line-height:1.7">Preview colors are illustrative. Pricing is an estimate and excludes prep, taxes and minimums; a physical sample and site visit confirm the spec.</p>
+        </sc-if>
+      </div>
+      <sc-if value="{{ footerVisible }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:0 0 auto;display:flex;gap:8px;padding:12px 18px;border-top:1px solid #e3e5d8;background:#fbfaf6">
+          <sc-if value="{{ backVisible }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ goBack }}" style="background:transparent;border:1px solid #cfd3c0;color:#4c5244;border-radius:6px;min-height:46px;padding:0 16px;font:inherit;font-size:13px;cursor:pointer" style-hover="background:#eceee1">Back</button>
+          </sc-if>
+          <button onClick="{{ goNext }}" disabled="{{ continueDisabled }}" style="flex:1;background:#d6ff41;border:0;color:#22261e;border-radius:6px;min-height:46px;font:inherit;font-size:13px;font-weight:700;cursor:pointer" style-hover="background:#e4ff77">{{ continueLabel }}</button>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+  <input ref="{{ fileRef }}" type="file" accept="image/jpeg,image/png,image/webp" onChange="{{ fileChange }}" style="display:none">
+  <input ref="{{ cameraRef }}" type="file" accept="image/*" capture="environment" onChange="{{ fileChange }}" style="display:none">
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showPricing&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;defaultRoom&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;residential&quot;,&quot;commercial&quot;],&quot;default&quot;:&quot;residential&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = {
+    step: 'space', maxStep: 0,
+    photoKey: null, customSrc: null,
+    corners: [{x:.05,y:.06},{x:.95,y:.06},{x:.95,y:.84},{x:.05,y:.84}],
+    cat: 'paint', finish: null, scale: 150, intensity: 88,
+    zoom: 1, before: false, comparePos: 55,
+    wallW: '12', wallH: '9',
+    msg: 'Pick a sample room, or upload your own photo — it never leaves this device.',
+    isMobile: false, sheetOpen: true, aspect: 1.5,
+    selMode: 'tap', tolerance: 34, brush: 26, hasMask: false, maskV: 0,
+    engine: 'model', selBusy: false,
+  };
+  STEPS = [
+    {id:'space', label:'Space', title:'Your room photo'},
+    {id:'protect', label:'Protect', title:'Tap objects to keep them in front'},
+    {id:'wall', label:'Wall', title:'Drag the corners to fit your wall'},
+    {id:'finish', label:'Finish', title:'Preview finishes on your wall'},
+    {id:'review', label:'Review', title:'Compare, estimate and book'},
+  ];
+  CATS = [
+    {id:'paint', label:'Paint', rate:3.5, blend:'multiply', scalable:false, items:[
+      {name:'Linen', bg:'#e4ddcd', solid:'#e4ddcd'}, {name:'Sand', bg:'#c6ae8e', solid:'#c6ae8e'},
+      {name:'Sage', bg:'#87947c', solid:'#87947c'}, {name:'Graphite', bg:'#414945', solid:'#414945'},
+      {name:'Terracotta', bg:'#ad735c', solid:'#ad735c'}, {name:'Ivory', bg:'#f0ece1', solid:'#f0ece1'},
+    ]},
+    {id:'limewash', label:'Limewash', rate:6.5, blend:'multiply', scalable:false, items:[
+      {name:'Chalk', bg:'linear-gradient(165deg,#efe9dc,#ddd5c4 55%,#e8e1d2)', solid:'#e5decd'},
+      {name:'Fog', bg:'linear-gradient(160deg,#dcd8cb,#c8c4b5 60%,#d5d1c2)', solid:'#d2cebf'},
+      {name:'Putty', bg:'linear-gradient(170deg,#cfc5b1,#bcb09a 55%,#c8bda8)', solid:'#c5bba7'},
+      {name:'Eucalyptus', bg:'linear-gradient(160deg,#b5bda6,#9daa8e 60%,#adb69e)', solid:'#a8b099'},
+      {name:'Umber', bg:'linear-gradient(165deg,#a89680,#93816b 55%,#a08d76)', solid:'#9b8a74'},
+      {name:'Slate', bg:'linear-gradient(160deg,#96988f,#83857c 60%,#8f918a)', solid:'#8b8d84'},
+    ]},
+    {id:'clay', label:'Roman clay', rate:9, blend:'multiply', scalable:false, items:[
+      {name:'Bone', bg:'radial-gradient(ellipse at 25% 75%,#e6dac6 0%,transparent 55%),radial-gradient(ellipse at 80% 15%,#cbbda4 0%,transparent 50%),#d9cbb6', solid:'#d9cbb6'},
+      {name:'Sienna', bg:'radial-gradient(ellipse at 22% 80%,#f3dec6 0%,transparent 55%),radial-gradient(ellipse at 86% 6%,#a68a6e 0%,transparent 50%),#c8b399', solid:'#c8b399'},
+      {name:'Ochre', bg:'radial-gradient(ellipse at 30% 70%,#cf9d78 0%,transparent 55%),radial-gradient(ellipse at 80% 20%,#9c6a48 0%,transparent 50%),#b68160', solid:'#b68160'},
+      {name:'Rosewood', bg:'radial-gradient(ellipse at 25% 75%,#b57e66 0%,transparent 55%),radial-gradient(ellipse at 80% 15%,#8a5744 0%,transparent 50%),#a06a55', solid:'#a06a55'},
+      {name:'Moss', bg:'radial-gradient(ellipse at 30% 70%,#9ba184 0%,transparent 55%),radial-gradient(ellipse at 80% 20%,#767c60 0%,transparent 50%),#8a8f74', solid:'#8a8f74'},
+      {name:'Charcoal', bg:'radial-gradient(ellipse at 25% 75%,#676c60 0%,transparent 55%),radial-gradient(ellipse at 80% 15%,#464a42 0%,transparent 50%),#565a50', solid:'#565a50'},
+    ]},
+    {id:'wallpaper', label:'Wallpaper', rate:8, blend:'multiply', scalable:true, items:[
+      {name:'Sage stripe', bg:'repeating-linear-gradient(90deg,#e9e7da 0 26px,#aebd9c 26px 34px)', solid:'#cfd4bd'},
+      {name:'Clay stripe', bg:'repeating-linear-gradient(90deg,#efe7d8 0 22px,#c2937b 22px 30px)', solid:'#dbc0ac'},
+      {name:'Linen check', bg:'repeating-conic-gradient(#e7e1d0 0% 25%,#d3c9b1 0% 50%)', solid:'#ddd5c1'},
+      {name:'Dot trellis', bg:'radial-gradient(#77836a 2.6px,transparent 2.8px) #e8e5d6', solid:'#dcdbc9'},
+      {name:'Herringbone', bg:'repeating-linear-gradient(45deg,#ddd8c6 0 12px,#c9c2ab 12px 24px),repeating-linear-gradient(-45deg,transparent 0 12px,#00000010 12px 24px)', solid:'#d3cdb8'},
+      {name:'Wave sand', bg:'repeating-radial-gradient(circle at 0 0,#e6ddc9 0 14px,#cdbf9f 14px 18px)', solid:'#d9cfb4'},
+    ]},
+    {id:'wood', label:'Wood panels', rate:14, blend:'normal', scalable:false, items:[
+      {name:'White River Forest', img:'public/materials/wilsonart/white-river-forest-8227.jpg'},
+      {name:'Colombian Walnut', img:'public/materials/wilsonart/colombian-walnut-7943.jpg'},
+      {name:'Biltmore Cherry', img:'public/materials/wilsonart/biltmore-cherry-7924.jpg'},
+      {name:'Kensington Maple', img:'public/materials/wilsonart/kensington-maple-10776.jpg'},
+      {name:'Bannister Oak', img:'public/materials/wilsonart/bannister-oak-7806.jpg'},
+      {name:'Beigewood', img:'public/materials/wilsonart/beigewood-7850.jpg'},
+    ]},
+    {id:'mural', label:'Murals', rate:12, blend:'normal', scalable:false, items:[
+      {name:'Meadow wash', bg:'linear-gradient(200deg,#d8ddc9,#9aa885 45%,#5f6b52)', solid:'#9aa885'},
+      {name:'Dawn clay', bg:'linear-gradient(210deg,#efe0cc,#d3a684 50%,#96654c)', solid:'#c99e7f'},
+      {name:'Stone mist', bg:'linear-gradient(195deg,#e8e6dd,#b9b8ad 55%,#7e7f76)', solid:'#b3b2a7'},
+      {name:'Olive dusk', bg:'linear-gradient(205deg,#c8cbb4,#8a916f 50%,#4c5440)', solid:'#8a916f'},
+      {name:'Sand drift', bg:'linear-gradient(200deg,#f0e8d6,#d5bd95 55%,#a98d63)', solid:'#d0b78f'},
+      {name:'Ink fade', bg:'linear-gradient(210deg,#a7aba0,#5d6157 55%,#33362f)', solid:'#5d6157'},
+    ]},
+  ];
+  stageRef = (el) => { this.stage = el; };
+  overlayRef = (el) => { this.overlay = el; if (el && this.work) { el.width = this.work.w; el.height = this.work.h; this.drawOverlay(); } };
+  fileRef = (el) => { this.fileInput = el; };
+  cameraRef = (el) => { this.cameraInput = el; };
+  componentDidMount() {
+    this.buildWork(this.photoSrc());
+    this.mq = window.matchMedia('(max-width: 860px)');
+    this.onMq = () => this.setState({isMobile: this.mq.matches});
+    this.mq.addEventListener('change', this.onMq);
+    this.onMq();
+  }
+  componentWillUnmount() { this.mq && this.mq.removeEventListener('change', this.onMq); this.worker && this.worker.terminate(); }
+  tapSelect(nx, ny) {
+    if (this.state.engine === 'fallback') {
+      this.pushUndo(); this.lastSeed = {nx, ny}; this.lastWasTap = true;
+      this.flood(nx, ny);
+      this.finishOp('Selection added. Tap more, adjust reach, or refine with Brush and Erase.');
+      return;
+    }
+    this.selQueue = this.selQueue || [];
+    if (this.selQueue.length >= 8) { this.setState({msg: 'Hold on — a few taps are still processing.'}); return; }
+    this.selQueue.push({nx, ny});
+    this.setState({selBusy: true, msg: this.modelReady ? 'Finding the object…' : 'Downloading the selection model — the first tap can take a minute…'});
+    if (!this.selRunning) this.processQueue();
+  }
+  processQueue() {
+    const next = this.selQueue.shift();
+    if (!next) { this.selRunning = false; this.setState({selBusy: false}); return; }
+    this.selRunning = true;
+    try {
+      if (!this.worker) {
+        this.worker = new Worker(new URL('segment-worker.js', location.href), {type: 'module'});
+        this.worker.onmessage = (e) => {
+          const d = e.data;
+          if (d.status) { this.setState({msg: d.status}); return; }
+          if (this.pendingToken !== this.workToken) { this.processQueue(); return; }
+          if (d.error) { this.toFallback(); return; }
+          this.modelReady = true;
+          this.applyRuns(d.runs, d.gridWidth, d.gridHeight);
+          this.processQueue();
+        };
+        this.worker.onerror = () => this.toFallback();
+      }
+      this.pendingToken = this.workToken;
+      this.worker.postMessage({src: this.work.src, x: next.nx, y: next.ny});
+    } catch { this.toFallback(); }
+  }
+  toFallback() {
+    this.worker && this.worker.terminate(); this.worker = null; this.selRunning = false;
+    const pending = (this.selQueue || []).slice(); this.selQueue = [];
+    this.setState({engine: 'fallback', selBusy: false, msg: 'The AI model could not load here — using on-device color selection instead. Tune it with the Selection reach slider.'});
+    pending.forEach(p => { this.pushUndo(); this.lastSeed = p; this.lastWasTap = true; this.flood(p.nx, p.ny); });
+    this.finishOp();
+  }
+  applyRuns(runs, gw, gh) {
+    const {w, h} = this.work;
+    this.pushUndo(); this.lastWasTap = false;
+    for (let i = 0; i < runs.length; i += 3) {
+      const gy = runs[i], gx = runs[i + 1], len = runs[i + 2];
+      const y = gh === h ? gy : Math.round(gy * h / gh);
+      if (y < 0 || y >= h) continue;
+      for (let k = 0; k < len; k++) {
+        const x = gw === w ? gx + k : Math.round((gx + k) * w / gw);
+        if (x >= 0 && x < w) this.mask[y * w + x] = 1;
+      }
+    }
+    this.finishOp('Object selected. Tap more objects, or refine with Grow, Shrink, Brush and Erase.');
+  }
+  componentDidUpdate() {
+    const s = this.state;
+    const sig = [s.step, s.maskV, s.before, s.finish && s.finish.name, this.photoKey()].join('|');
+    if (sig !== this._sig) { this._sig = sig; this.drawOverlay(); }
+  }
+  photoKey() { return this.state.photoKey || this.props.defaultRoom || 'residential'; }
+  photoSrc() {
+    const k = this.photoKey();
+    return k === 'custom' ? this.state.customSrc : 'public/studio/room-' + k + '.png';
+  }
+  loadImg(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+  buildWork(src) {
+    return this.loadImg(src).then(img => {
+      if (this.photoSrc() !== src) return;
+      const W = Math.min(560, img.width), H = Math.round(W * img.height / img.width);
+      const pc = document.createElement('canvas'); pc.width = W; pc.height = H;
+      pc.getContext('2d').drawImage(img, 0, 0, W, H);
+      this.work = {w: W, h: H, photo: pc.getContext('2d').getImageData(0, 0, W, H)};
+      const bc = document.createElement('canvas'); bc.width = W; bc.height = H;
+      const bx = bc.getContext('2d');
+      bx.filter = 'blur(2px)'; bx.drawImage(pc, 0, 0);
+      this.work.sm = bx.getImageData(0, 0, W, H).data;
+      this.work.src = pc.toDataURL('image/png');
+      this.workToken = (this.workToken || 0) + 1;
+      this.selQueue = []; this.selRunning = false;
+      this.mask = new Uint8Array(W * H);
+      this.undoStack = []; this.lastSeed = null; this.lastWasTap = false;
+      if (this.overlay) { this.overlay.width = W; this.overlay.height = H; }
+      this.setState(s => ({aspect: +(img.width / img.height).toFixed(4), hasMask: false, maskV: s.maskV + 1}));
+    }).catch(() => {});
+  }
+  // --- selection engine ---
+  pushUndo() { if (!this.mask) return; this.undoStack.push(this.mask.slice()); if (this.undoStack.length > 25) this.undoStack.shift(); }
+  finishOp(msg) {
+    let has = false; const m = this.mask;
+    for (let i = 0; i < m.length; i++) if (m[i]) { has = true; break; }
+    this.setState(s => ({hasMask: has, maskV: s.maskV + 1, msg: msg || s.msg}));
+  }
+  flood(nx, ny) {
+    const {w, h} = this.work, d = this.work.sm, m = this.mask;
+    const sx = Math.round(nx * (w - 1)), sy = Math.round(ny * (h - 1));
+    let r = 0, g = 0, b = 0, n = 0;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      const x = sx + dx, y = sy + dy;
+      if (x < 0 || y < 0 || x >= w || y >= h) continue;
+      const o = (y * w + x) * 4; r += d[o]; g += d[o + 1]; b += d[o + 2]; n++;
+    }
+    r /= n; g /= n; b /= n;
+    const t = this.state.tolerance, thr = 11 * Math.pow(t * 1.15, 2);
+    const maxR2 = Math.pow((t / 100) * 1.3 * Math.max(w, h), 2);
+    const seen = new Uint8Array(w * h), q = new Int32Array(w * h);
+    let head = 0, tail = 0;
+    const si = sy * w + sx; q[tail++] = si; seen[si] = 1;
+    while (head < tail) {
+      const i = q[head++], x = i % w, y = (i / w) | 0;
+      const o = i * 4, dr = d[o] - r, dg = d[o + 1] - g, db = d[o + 2] - b;
+      if (3 * dr * dr + 6 * dg * dg + 2 * db * db > thr) continue;
+      if ((x - sx) * (x - sx) + (y - sy) * (y - sy) > maxR2) continue;
+      m[i] = 1;
+      const step = (j) => { if (!seen[j]) { seen[j] = 1; q[tail++] = j; } };
+      if (x > 0) step(i - 1);
+      if (x < w - 1) step(i + 1);
+      if (y > 0) step(i - w);
+      if (y < h - 1) step(i + w);
+    }
+    this.morph(true); this.morph(false); // close pinholes
+  }
+  morph(grow) {
+    const {w, h} = this.work, src = this.mask, out = src.slice();
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const i = y * w + x;
+      const nb = (x > 0 && src[i - 1]) || (x < w - 1 && src[i + 1]) || (y > 0 && src[i - w]) || (y < h - 1 && src[i + w]);
+      if (grow) { if (!src[i] && nb) out[i] = 1; }
+      else { const gap = (x > 0 && !src[i - 1]) || (x < w - 1 && !src[i + 1]) || (y > 0 && !src[i - w]) || (y < h - 1 && !src[i + w]); if (src[i] && gap) out[i] = 0; }
+    }
+    this.mask = out;
+  }
+  paintAt(nx, ny, erase) {
+    const {w, h} = this.work, m = this.mask;
+    const rect = this.stage.getBoundingClientRect();
+    const rad = Math.max(2, Math.round(this.state.brush * (w / rect.width) / 2));
+    const cx = Math.round(nx * (w - 1)), cy = Math.round(ny * (h - 1));
+    for (let dy = -rad; dy <= rad; dy++) for (let dx = -rad; dx <= rad; dx++) {
+      if (dx * dx + dy * dy > rad * rad) continue;
+      const x = cx + dx, y = cy + dy;
+      if (x < 0 || y < 0 || x >= w || y >= h) continue;
+      m[y * w + x] = erase ? 0 : 1;
+    }
+  }
+  norm(e) {
+    const r = this.stage.getBoundingClientRect();
+    return {nx: Math.min(.999, Math.max(0, (e.clientX - r.left) / r.width)), ny: Math.min(.999, Math.max(0, (e.clientY - r.top) / r.height))};
+  }
+  stagePointerDown(e) {
+    if (this.state.step !== 'protect' || !this.work) return;
+    const {nx, ny} = this.norm(e), mode = this.state.selMode;
+    if (mode === 'tap') { this.tapSelect(nx, ny); return; }
+    e.preventDefault();
+    this.pushUndo(); this.lastWasTap = false;
+    const erase = mode === 'erase';
+    this.paintAt(nx, ny, erase); this.drawOverlay();
+    const move = (ev) => { const p = this.norm(ev); this.paintAt(p.nx, p.ny, erase); this.drawOverlay(); };
+    const up = () => {
+      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
+      this.finishOp(erase ? 'Erased. Switch back to Tap select to add more objects.' : 'Painted into the selection.');
+    };
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
+  }
+  drawOverlay() {
+    const o = this.overlay;
+    if (!o || !this.work) return;
+    const {w, h, photo} = this.work, m = this.mask;
+    const ctx = o.getContext('2d');
+    ctx.clearRect(0, 0, w, h);
+    const S = this.state;
+    const finishMode = !!S.finish && !S.before && (S.step === 'finish' || S.step === 'review');
+    if (S.step !== 'protect' && !finishMode) return;
+    if (!S.hasMask && S.step !== 'protect') return;
+    const out = ctx.createImageData(w, h), od = out.data, pd = photo.data;
+    if (S.step === 'protect') {
+      for (let i = 0; i < m.length; i++) if (m[i]) { const o4 = i * 4; od[o4] = 158; od[o4 + 1] = 178; od[o4 + 2] = 20; od[o4 + 3] = 130; }
+    } else {
+      for (let i = 0; i < m.length; i++) if (m[i]) { const o4 = i * 4; od[o4] = pd[o4]; od[o4 + 1] = pd[o4 + 1]; od[o4 + 2] = pd[o4 + 2]; od[o4 + 3] = 255; }
+    }
+    ctx.putImageData(out, 0, 0);
+  }
+  // --- navigation / misc ---
+  go(i, msg) {
+    const id = this.STEPS[i].id;
+    this.setState(s => ({step: id, maxStep: Math.max(s.maxStep, i), before: false, sheetOpen: true, msg: msg || this.defaultMsg(id)}));
+  }
+  defaultMsg(id) {
+    return {
+      space: 'Pick a sample room, or upload your own photo — it never leaves this device.',
+      protect: 'Tap an object in the photo to select it. Adjust reach, grow or shrink edges, or refine with the brush.',
+      wall: 'Drag the four corner handles to the wall edges, then enter its real size.',
+      finish: 'Pick a category and a swatch — the wall updates live. Your selection stays in front.',
+      review: 'Drag the handle across the photo to compare before and after.',
+    }[id];
+  }
+  stepIndex() { return this.STEPS.findIndex(s => s.id === this.state.step); }
+  startDrag(kind, idx, e) {
+    e.preventDefault(); e.stopPropagation();
+    const move = (ev) => {
+      if (!this.stage) return;
+      const r = this.stage.getBoundingClientRect();
+      const x = Math.min(.99, Math.max(.01, (ev.clientX - r.left) / r.width));
+      const y = Math.min(.99, Math.max(.01, (ev.clientY - r.top) / r.height));
+      if (kind === 'corner') this.setState(s => ({corners: s.corners.map((c, j) => j === idx ? {x, y} : c)}));
+      else this.setState({comparePos: Math.round(x * 100)});
+    };
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  }
+  async loadFile(e) {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!f) return;
+    if (!['image/jpeg','image/png','image/webp'].includes(f.type) || f.size > 24 * 1024 * 1024) {
+      this.setState({msg: 'Choose a JPEG, PNG or WebP under 24 MB.'}); return;
+    }
+    const url = URL.createObjectURL(f);
+    this.setState({customSrc: url, photoKey: 'custom', finish: null, hasMask: false, corners: [{x:.05,y:.06},{x:.95,y:.06},{x:.95,y:.84},{x:.05,y:.84}]});
+    await this.buildWork(url);
+    this.go(1, 'Photo loaded. Tap the furniture and plants you want to keep in front.');
+  }
+  pickRoom(key) {
+    this.setState({photoKey: key, customSrc: null, finish: null, hasMask: false, corners: [{x:.05,y:.06},{x:.95,y:.06},{x:.95,y:.84},{x:.05,y:.84}]});
+    this.buildWork('public/studio/room-' + key + '.png').then(() => this.go(1));
+  }
+  maskPng() {
+    if (!this.work) return '';
+    const {w, h} = this.work, c = document.createElement('canvas'); c.width = w; c.height = h;
+    const ctx = c.getContext('2d'), im = ctx.createImageData(w, h);
+    for (let i = 0; i < this.mask.length; i++) if (this.mask[i]) im.data[i * 4 + 3] = 255;
+    ctx.putImageData(im, 0, 0);
+    return c.toDataURL('image/png');
+  }
+  saveLook() {
+    const {corners, finish, cat, scale, intensity, wallW, wallH} = this.state;
+    try {
+      localStorage.setItem('lfx-ws2-look', JSON.stringify({photoKey: this.photoKey(), corners, finish, cat, scale, intensity, wallW, wallH, mask: this.maskPng()}));
+      this.setState({msg: 'Look saved on this device, including your selection.'});
+    } catch { this.setState({msg: 'Could not save on this device.'}); }
+  }
+  openSaved() {
+    try {
+      const d = JSON.parse(localStorage.getItem('lfx-ws2-look'));
+      if (!d) throw 0;
+      if (d.photoKey === 'custom') { this.setState({msg: 'Saved looks with uploaded photos reload in the full app. Pick a room to start fresh.'}); return; }
+      this.setState({photoKey: d.photoKey, customSrc: null, corners: d.corners, finish: d.finish, cat: d.cat, scale: d.scale, intensity: d.intensity, wallW: d.wallW, wallH: d.wallH, maxStep: 4});
+      this.buildWork('public/studio/room-' + d.photoKey + '.png').then(async () => {
+        if (d.mask) {
+          const img = await this.loadImg(d.mask);
+          const {w, h} = this.work, c = document.createElement('canvas'); c.width = w; c.height = h;
+          const ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
+          const a = ctx.getImageData(0, 0, w, h).data;
+          for (let i = 0; i < this.mask.length; i++) this.mask[i] = a[i * 4 + 3] > 127 ? 1 : 0;
+          this.finishOp();
+        }
+        this.go(4, 'Saved look restored.');
+      });
+    } catch { this.setState({msg: 'No saved look on this device yet.'}); }
+  }
+  shareLook() {
+    const done = () => this.setState({msg: 'Link copied — share it to show off your wall.'});
+    if (navigator.clipboard) navigator.clipboard.writeText(location.href).then(done, done); else done();
+  }
+  maskedCanvas() {
+    const {w, h, photo} = this.work, c = document.createElement('canvas'); c.width = w; c.height = h;
+    const ctx = c.getContext('2d'), im = ctx.createImageData(w, h);
+    for (let i = 0; i < this.mask.length; i++) if (this.mask[i]) { const o = i * 4; im.data[o] = photo.data[o]; im.data[o + 1] = photo.data[o + 1]; im.data[o + 2] = photo.data[o + 2]; im.data[o + 3] = 255; }
+    ctx.putImageData(im, 0, 0);
+    return c;
+  }
+  async downloadPreview() {
+    try {
+      const img = await this.loadImg(this.photoSrc());
+      const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+      const x = c.getContext('2d');
+      x.drawImage(img, 0, 0);
+      const f = this.state.finish, cat = this.CATS.find(k => k.id === (f && f.catId));
+      if (f) {
+        x.save();
+        x.beginPath();
+        this.state.corners.forEach((p, i) => x[i ? 'lineTo' : 'moveTo'](p.x * c.width, p.y * c.height));
+        x.closePath(); x.clip();
+        x.globalAlpha = this.state.intensity / 100;
+        if (f.img) { const t = await this.loadImg(f.img); x.drawImage(t, 0, 0, c.width, c.height); }
+        else {
+          x.globalCompositeOperation = cat && cat.blend === 'multiply' ? 'multiply' : 'source-over';
+          x.fillStyle = f.solid || '#c8b399';
+          x.fillRect(0, 0, c.width, c.height);
+        }
+        x.restore();
+        if (this.state.hasMask) x.drawImage(this.maskedCanvas(), 0, 0, c.width, c.height);
+      }
+      c.toBlob(b => {
+        const u = URL.createObjectURL(b), a = document.createElement('a');
+        a.href = u; a.download = 'LayeredFX-wall-preview.png'; a.click();
+        setTimeout(() => URL.revokeObjectURL(u), 10000);
+        this.setState({msg: 'Preview downloaded.'});
+      }, 'image/png');
+    } catch { this.setState({msg: 'Preview export failed — try again.'}); }
+  }
+  renderVals() {
+    const S = this.state, idx = this.stepIndex(), key = this.photoKey();
+    const cat = this.CATS.find(c => c.id === S.cat) || this.CATS[0];
+    const selCat = S.finish ? this.CATS.find(c => c.id === S.finish.catId) : null;
+    const sqftN = (parseFloat(S.wallW) || 0) * (parseFloat(S.wallH) || 0);
+    const clip = 'polygon(' + [S.corners[0], S.corners[1], S.corners[2], S.corners[3]].map(p => (p.x * 100).toFixed(2) + '% ' + (p.y * 100).toFixed(2) + '%').join(',') + ')';
+    const contLabels = ['Use this photo', S.hasMask ? 'Selection kept — mark the wall' : 'Nothing to keep — mark the wall', 'Wall marked — choose a finish', S.finish ? 'Review & estimate' : 'Pick a finish to continue', ''];
+    const steps = this.STEPS.map((st, i) => {
+      const active = i === idx;
+      const locked = i > Math.max(S.maxStep + 1, idx) || (st.id === 'review' && !S.finish);
+      const base = 'display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 4px;border:0;border-radius:8px;cursor:pointer;font-family:inherit;';
+      return {
+        n: i + 1, label: st.label,
+        go: () => { if (!locked) this.go(i); },
+        locked,
+        railStyle: base + (active ? 'background:#292d25;color:#f6f5f0' : 'background:transparent;color:#4c5244') + (locked ? ';opacity:.4;cursor:not-allowed' : ''),
+        numStyle: 'display:grid;place-items:center;width:24px;height:24px;border-radius:50%;font-size:11px;font-weight:700;' + (active ? 'background:#d6ff41;color:#22261e' : 'background:#dfe2d2;color:#4c5244'),
+        chipStyle: 'flex:0 0 auto;display:flex;align-items:center;white-space:nowrap;border:1px solid;border-radius:20px;padding:8px 14px;font-family:inherit;font-size:12px;cursor:pointer;' + (active ? 'background:#292d25;border-color:#292d25;color:#d6ff41' : 'background:transparent;border-color:#cfd3c0;color:#4c5244') + (locked ? ';opacity:.4' : ''),
+      };
+    });
+    const showFinish = !!S.finish && !S.before && (S.step === 'finish' || S.step === 'review');
+    const src = this.photoSrc();
+    const bgImg = 'background-image:url(' + JSON.stringify(src) + ');background-size:100% 100%;';
+    const finishLayerStyle = S.finish ? 'position:absolute;inset:0;pointer-events:none;border-radius:8px;clip-path:' + clip +
+      ';background:' + (S.finish.img ? 'url(' + JSON.stringify(S.finish.img) + ') center/cover' : S.finish.bg) +
+      ';background-size:' + (S.finish.img ? 'cover' : (selCat && selCat.scalable ? S.scale + 'px' : 'auto')) +
+      ';mix-blend-mode:' + (selCat ? selCat.blend : 'multiply') + ';opacity:' + (S.intensity / 100) : '';
+    const overlayVisible = S.step === 'protect' || (showFinish && S.hasMask);
+    const rate = selCat ? selCat.rate : 0;
+    const low = Math.round(sqftN * rate), high = Math.round(sqftN * rate * 1.35);
+    const modeDefs = [['tap','Tap select'],['add','Brush add'],['erase','Erase']];
+    return {
+      isMobile: S.isMobile, notMobile: !S.isMobile,
+      steps,
+      stageTitle: this.STEPS[idx].title,
+      msg: S.msg,
+      stageRef: this.stageRef, overlayRef: this.overlayRef, fileRef: this.fileRef, cameraRef: this.cameraRef,
+      stagePointerDown: (e) => this.stagePointerDown(e),
+      photoBgStyle: 'width:100%;aspect-ratio:' + S.aspect + ';border-radius:8px;' + bgImg,
+      viewportStyle: 'flex:1;overflow:auto;min-height:0;padding:' + (S.isMobile ? '12px 12px ' + (S.sheetOpen ? '58dvh' : '210px') + ' 12px' : '18px'),
+      stageStyle: 'position:relative;margin:0 auto;touch-action:none;' + (S.step === 'protect' ? 'cursor:crosshair;' : '') + 'width:' + (S.zoom === 1 ? '100%' : Math.round(S.zoom * 100) + '%') + ';max-width:' + (S.zoom === 1 ? '1100px' : 'none'),
+      overlayStyle: 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;border-radius:8px;display:' + (overlayVisible ? 'block' : 'none'),
+      zoomLabel: Math.round(S.zoom * 100) + '%',
+      zoomIn: () => this.setState(s => ({zoom: Math.min(2.5, +(s.zoom + .25).toFixed(2))})),
+      zoomOut: () => this.setState(s => ({zoom: Math.max(1, +(s.zoom - .25).toFixed(2))})),
+      compareLocked: S.step === 'space' || !S.finish,
+      showBefore: () => this.setState({before: true, msg: 'Showing your original photo.'}),
+      showAfter: () => this.setState({before: false, msg: this.defaultMsg(S.step)}),
+      beforeStyle: 'border:0;padding:7px 13px;font-family:inherit;font-size:11px;cursor:pointer;' + (S.before ? 'background:#292d25;color:#f6f5f0' : 'background:transparent;color:#4c5244'),
+      afterStyle: 'border:0;padding:7px 13px;font-family:inherit;font-size:11px;cursor:pointer;' + (!S.before ? 'background:#292d25;color:#f6f5f0' : 'background:transparent;color:#4c5244'),
+      showFinish, finishLayerStyle,
+      isSpace: S.step === 'space', isProtect: S.step === 'protect', isWall: S.step === 'wall', isFinish: S.step === 'finish', isReview: S.step === 'review',
+      selModes: modeDefs.map(([id, label]) => ({
+        label, active: S.selMode === id,
+        pick: () => this.setState({selMode: id, msg: id === 'tap' ? 'Tap an object in the photo to select it.' : id === 'add' ? 'Drag on the photo to paint areas into the selection.' : 'Drag on the photo to erase from the selection.'}),
+        style: 'flex:1;white-space:nowrap;border:1px solid;border-radius:6px;min-height:38px;font-family:inherit;font-size:12px;cursor:pointer;' + (S.selMode === id ? 'background:#292d25;border-color:#292d25;color:#f5f7ee' : 'background:transparent;border-color:#cfd3c0;color:#4c5244'),
+      })),
+      showTolerance: S.selMode === 'tap' && S.engine === 'fallback',
+      toleranceVal: S.tolerance,
+      setTolerance: (e) => {
+        const v = +e.target.value;
+        this.setState({tolerance: v}, () => {
+          if (this.lastWasTap && this.lastSeed && this.undoStack.length) {
+            this.mask = this.undoStack[this.undoStack.length - 1].slice();
+            this.flood(this.lastSeed.nx, this.lastSeed.ny);
+            this.finishOp('Selection re-run at new reach.');
+          }
+        });
+      },
+      showBrushSize: S.selMode !== 'tap',
+      brushVal: S.brush,
+      setBrush: (e) => this.setState({brush: +e.target.value}),
+      growSel: () => { this.pushUndo(); this.lastWasTap = false; this.morph(true); this.finishOp('Edges grown by one step.'); },
+      shrinkSel: () => { this.pushUndo(); this.lastWasTap = false; this.morph(false); this.finishOp('Edges shrunk by one step.'); },
+      undoSel: () => { if (this.undoStack && this.undoStack.length) { this.mask = this.undoStack.pop(); this.lastWasTap = false; this.finishOp('Undid the last edit.'); } },
+      clearSel: () => { this.pushUndo(); this.lastWasTap = false; this.mask.fill(0); this.finishOp('Selection cleared.'); },
+      noMask: !S.hasMask,
+      noUndo: !(this.undoStack && this.undoStack.length),
+      keptSummary: S.selBusy ? 'Working on your selection — you can keep tapping.' : S.hasMask ? 'Green areas stay in front of every finish.' : 'Nothing selected yet — tap an object to begin, or continue if the wall is empty.',
+      wallPoints: [S.corners[0], S.corners[1], S.corners[2], S.corners[3]].map(p => (p.x * 100).toFixed(2) + ',' + (p.y * 100).toFixed(2)).join(' '),
+      handles: S.corners.map((p, i) => ({
+        label: 'Wall corner ' + ['top left','top right','bottom right','bottom left'][i],
+        down: (e) => this.startDrag('corner', i, e),
+        style: 'position:absolute;left:' + (p.x * 100) + '%;top:' + (p.y * 100) + '%;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;border:3px solid #22261e;background:#d6ff41;cursor:grab;box-shadow:0 2px 8px rgba(34,38,30,.4);touch-action:none',
+      })),
+      showCompare: S.step === 'review' && !!S.finish,
+      compareBeforeStyle: 'position:absolute;inset:0;border-radius:8px;pointer-events:none;' + bgImg + 'clip-path:inset(0 ' + (100 - S.comparePos) + '% 0 0)',
+      compareLineStyle: 'position:absolute;top:0;bottom:0;left:' + S.comparePos + '%;width:2px;background:#f6f5f0;box-shadow:0 0 0 1px rgba(34,38,30,.25)',
+      compareDown: (e) => this.startDrag('compare', 0, e),
+      panelStyle: S.isMobile
+        ? 'position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fbfaf6;border-top:1px solid #dcdfd3;border-radius:16px 16px 0 0;box-shadow:0 -12px 40px rgba(41,45,37,.18);display:flex;flex-direction:column;height:' + (S.sheetOpen ? '56dvh' : '188px') + ';transition:height .25s ease'
+        : 'flex:0 0 340px;width:340px;border-left:1px solid #dcdfd3;background:#fbfaf6;display:flex;flex-direction:column;min-height:0',
+      toggleSheet: () => this.setState(s => ({sheetOpen: !s.sheetOpen})),
+      takePhoto: () => this.cameraInput && this.cameraInput.click(),
+      uploadPhoto: () => this.fileInput && this.fileInput.click(),
+      fileChange: (e) => this.loadFile(e),
+      openSaved: () => this.openSaved(),
+      sampleRes: () => this.pickRoom('residential'),
+      sampleCom: () => this.pickRoom('commercial'),
+      resStyle: 'border:2px solid ' + (key === 'residential' ? '#292d25' : '#dcdfd3') + ';border-radius:8px;padding:4px;background:#fff;cursor:pointer;font-family:inherit;font-size:12px;color:#4c5244;text-align:left',
+      comStyle: 'border:2px solid ' + (key === 'commercial' ? '#292d25' : '#dcdfd3') + ';border-radius:8px;padding:4px;background:#fff;cursor:pointer;font-family:inherit;font-size:12px;color:#4c5244;text-align:left',
+      wallW: S.wallW, wallH: S.wallH,
+      setW: (e) => this.setState({wallW: e.target.value}),
+      setH: (e) => this.setState({wallH: e.target.value}),
+      sqft: sqftN ? sqftN.toFixed(0) : '—',
+      resetCorners: () => this.setState({corners: [{x:.05,y:.06},{x:.95,y:.06},{x:.95,y:.84},{x:.05,y:.84}]}),
+      cats: this.CATS.map(c => ({
+        label: c.label, active: c.id === S.cat,
+        pick: () => this.setState({cat: c.id}),
+        style: 'white-space:nowrap;border:1px solid;border-radius:16px;padding:7px 12px;font-family:inherit;font-size:11px;cursor:pointer;' + (c.id === S.cat ? 'background:#292d25;border-color:#292d25;color:#f5f7ee' : 'background:transparent;border-color:#d7dccb;color:#626956'),
+      })),
+      swatches: cat.items.map(it => {
+        const active = !!S.finish && S.finish.name === it.name;
+        return {
+          name: it.name, active,
+          pick: () => this.setState({finish: {...it, catId: cat.id}, msg: it.name + ' applied. Adjust intensity, or continue to review.'}),
+          style: 'display:block;width:100%;aspect-ratio:1;border-radius:8px;cursor:pointer;background:' + (it.img ? 'url(' + JSON.stringify(it.img) + ') center/cover' : it.bg) + ';border:' + (active ? '3px solid #292d25' : '1px solid #dcdfd3') + ';background-size:' + (it.img ? 'cover' : cat.scalable ? '46px' : 'auto'),
+        };
+      }),
+      selName: S.finish ? S.finish.name : 'No finish selected',
+      rateLabel: selCat ? 'from $' + selCat.rate.toFixed(2) + '/sq ft installed' : '',
+      showScale: !!(cat.scalable && S.finish && S.finish.catId === cat.id),
+      scaleVal: S.scale, setScale: (e) => this.setState({scale: +e.target.value}),
+      intensityVal: S.intensity, setIntensity: (e) => this.setState({intensity: +e.target.value}),
+      showPricing: this.props.showPricing !== false,
+      wallSummary: S.wallW + ' × ' + S.wallH + ' ft — ' + (sqftN ? sqftN.toFixed(0) : 0) + ' sq ft',
+      keptLabel: S.hasMask ? 'Your tapped selection' : 'None',
+      estimate: sqftN && selCat ? '$' + low.toLocaleString() + '–$' + high.toLocaleString() : 'Enter wall size',
+      saveLook: () => this.saveLook(),
+      shareLook: () => this.shareLook(),
+      downloadPreview: () => this.downloadPreview(),
+      bookNow: () => this.setState({msg: 'Booking opens the consultation flow in the full app — your look and estimate come with it.'}),
+      footerVisible: S.step !== 'review',
+      backVisible: idx > 0,
+      goBack: () => this.go(idx - 1),
+      goNext: () => this.go(idx + 1),
+      continueLabel: contLabels[idx],
+      continueDisabled: S.step === 'finish' && !S.finish,
+    };
+  }
+}
+</script>
+</body>
+</html>

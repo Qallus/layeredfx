@@ -7,8 +7,8 @@ C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\app\about
   3:592  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
 C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\app\inspiration\[slug]\page.tsx
-  8:565  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
-  8:740  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  8:599  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  8:774  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
 C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\app\inspiration\page.tsx
   5:420  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
@@ -27,22 +27,20 @@ C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\cmi\compo
 C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\cmi\components\ui\searchable-select.tsx
   53:14  warning  Unused eslint-disable directive (no problems were reported from 'jsx-a11y/no-autofocus')
 
+C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\components\layeredfx\header.tsx
+  27:200  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
 C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\components\layeredfx\home-page.tsx
    3:10  warning  'ArrowRight' is defined but never used  @typescript-eslint/no-unused-vars
   11:10  warning  'Logo' is defined but never used        @typescript-eslint/no-unused-vars
 
 C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\components\layeredfx\wall-studio.tsx
-   4:23    warning  'Download' is defined but never used                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
-   4:44    warning  'Layers3' is defined but never used                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
-  23:741   warning  'category' is assigned a value but never used                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
-  23:750   warning  'setCategory' is assigned a value but never used                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
-  23:820   warning  'materialQuery' is assigned a value but never used                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
-  23:834   warning  'setMaterialQuery' is assigned a value but never used                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
-  67:17    warning  'chooseVendor' is defined but never used                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
-  71:1190  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+   4:9     warning  'Camera' is defined but never used                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  95:32    warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  96:2116  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
 C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\components\layeredfx\wilsonart-library.tsx
-  5:871  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  6:693  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
 C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\components\operations\mobile-bottom-nav.tsx
   57:742  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
@@ -148,8 +146,8 @@ C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\ctrlp\com
   443:44  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
 C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\ctrlp\components\admin\admin-email.tsx
-  284:24  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
-  304:20  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  288:24  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  308:20  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
 C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\ctrlp\components\admin\admin-installers.tsx
   111:16  warning  'handleSignOut' is defined but never used                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
@@ -172,14 +170,14 @@ C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\ctrlp\com
   69:11  warning  The 'products' logical expression could make the dependencies of useMemo Hook (at line 74) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'products' in its own useMemo() Hook  react-hooks/exhaustive-deps
 
 C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\ctrlp\components\admin\admin-messages.tsx
-   98:16  warning  'handleSignOut' is defined but never used                                                                                                                                                         @typescript-eslint/no-unused-vars
-  106:11  warning  'pathname' is assigned a value but never used                                                                                                                                                     @typescript-eslint/no-unused-vars
-  107:12  warning  'theme' is assigned a value but never used                                                                                                                                                        @typescript-eslint/no-unused-vars
-  107:19  warning  'setTheme' is assigned a value but never used                                                                                                                                                     @typescript-eslint/no-unused-vars
-  111:19  warning  'setQuery' is assigned a value but never used                                                                                                                                                     @typescript-eslint/no-unused-vars
-  234:11  warning  'payments' is assigned a value but never used                                                                                                                                                     @typescript-eslint/no-unused-vars
-  235:11  warning  The 'messages' logical expression could make the dependencies of useMemo Hook (at line 242) change on every render. To fix this, wrap the initialization of 'messages' in its own useMemo() Hook  react-hooks/exhaustive-deps
-  235:11  warning  The 'messages' logical expression could make the dependencies of useMemo Hook (at line 253) change on every render. To fix this, wrap the initialization of 'messages' in its own useMemo() Hook  react-hooks/exhaustive-deps
+   99:16  warning  'handleSignOut' is defined but never used                                                                                                                                                         @typescript-eslint/no-unused-vars
+  107:11  warning  'pathname' is assigned a value but never used                                                                                                                                                     @typescript-eslint/no-unused-vars
+  108:12  warning  'theme' is assigned a value but never used                                                                                                                                                        @typescript-eslint/no-unused-vars
+  108:19  warning  'setTheme' is assigned a value but never used                                                                                                                                                     @typescript-eslint/no-unused-vars
+  112:19  warning  'setQuery' is assigned a value but never used                                                                                                                                                     @typescript-eslint/no-unused-vars
+  235:11  warning  'payments' is assigned a value but never used                                                                                                                                                     @typescript-eslint/no-unused-vars
+  236:11  warning  The 'messages' logical expression could make the dependencies of useMemo Hook (at line 243) change on every render. To fix this, wrap the initialization of 'messages' in its own useMemo() Hook  react-hooks/exhaustive-deps
+  236:11  warning  The 'messages' logical expression could make the dependencies of useMemo Hook (at line 254) change on every render. To fix this, wrap the initialization of 'messages' in its own useMemo() Hook  react-hooks/exhaustive-deps
 
 C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\ctrlp\components\admin\admin-orders.tsx
    56:16  warning  'handleSignOut' is defined but never used                                                                                                                                                           @typescript-eslint/no-unused-vars
@@ -308,6 +306,9 @@ C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\ctrlp\com
   221:36  warning  'profile' is defined but never used                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
   221:45  warning  'onSignOut' is defined but never used                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
 
-✖ 235 problems (0 errors, 235 warnings)
+C:\Users\jwate\Projects\Layered FX\astra\LayeredFX\.review\integration\lib\contact\model.ts
+  20:83  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 232 problems (0 errors, 232 warnings)
   0 errors and 1 warning potentially fixable with the `--fix` option.
 

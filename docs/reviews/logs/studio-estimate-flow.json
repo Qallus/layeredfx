@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": [
+    "Opaque material action",
+    "Canvas text drag and alignment",
+    "Estimate calculations and project submission",
+    "Lead visible and Add to Pipeline preserves project",
+    "Job conversion waits for won stage"
+  ]
+}

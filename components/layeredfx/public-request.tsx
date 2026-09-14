@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import {Footer} from "./footer";
-import {useState} from 'react';
+import {useState,useEffect} from 'react';
 import {ArrowUpRight, CalendarDays, MessageCircle, Layers3} from 'lucide-react';
 import {BookingChoices} from './booking-choices';
 import '@/components/admin/dashboard.css';
@@ -12,6 +12,7 @@ import {Button} from './ui/button';
 export function PublicRequest({booking=false}:{booking?:boolean}) {
  const [details,setDetails]=useState<Record<string,string>>({});
  const [step,setStep]=useState(1),[service,setService]=useState('Surface consultation'),[date,setDate]=useState(''),[period,setPeriod]=useState(''),[error,setError]=useState('');
+ useEffect(()=>{if(!booking||new URLSearchParams(location.search).get('from')!=='studio')return;try{const draft=JSON.parse(sessionStorage.getItem('lfx:studio-booking')||'null');if(draft){const names=draft.details.name.trim().split(' ');setDetails({firstName:names[0],lastName:names.slice(1).join(' '),email:draft.details.email,phone:draft.details.phone,message:draft.summary.slice(0,3000)});setDate(draft.details.requestedAt.slice(0,10));setPeriod(draft.details.requestedAt.slice(11,16));setService('Installation consultation');}}catch{}},[booking]);
  function continueRequest(form:HTMLFormElement){
   const data=new FormData(form);
   const body=[`Name: ${data.get('name')||[data.get('firstName'),data.get('lastName')].filter(Boolean).join(' ')}`,`Email: ${data.get('email')}`,`Phone: ${data.get('phone')||'Not provided'}`,`Company: ${data.get('company')||'Not provided'}`,booking?`Preferred time: ${period} (America/Phoenix). Subject to confirmation.`:'',String(data.get('message'))].filter(Boolean).join('\n');

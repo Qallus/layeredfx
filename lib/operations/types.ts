@@ -48,6 +48,9 @@ export interface Contact {
     details?: Record<string,string>;
 }
 export interface Lead {
+    contactSubmissions?: import("@/lib/contact/model").Intake[];
+    studioProjects?: {id:string;details:Record<string,unknown>;[key:string]:unknown}[];
+    cardLeads?: {id:string;cardId:string;cardName:string;name:string;email:string;phone:string;company:string;message:string;createdAt:string}[];
     contactId?: string;
     id: string;
     name: string;
@@ -61,6 +64,7 @@ export interface Lead {
     createdAt: string;
 }
 export interface Deal {
+    contactSubmissions?: import("@/lib/contact/model").Intake[];
     id: string;
     name: string;
     client: string;

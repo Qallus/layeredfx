@@ -1,5 +1,6 @@
 // Adapted from CTRL+P 015a7b58b80e63ef87c73bec549a23242b88f3e3: components/admin/admin-messages.tsx
 "use client";
+import {MessageScrollerProvider,MessageScroller,MessageScrollerViewport,MessageScrollerContent,MessageScrollerItem,MessageScrollerButton} from '@/components/layeredfx/ui/message-scroller';
 import { Badge } from "@/ctrlp/components/ui/badge";
 import { Button } from "@/ctrlp/components/ui/button";
 import { Card,CardContent,CardDescription,CardHeader,CardTitle } from "@/ctrlp/components/ui/card";
@@ -966,7 +967,7 @@ function MessageDetailSheet({ message, open, onOpenChange, order, user, onCompos
           </div>
           <div className="rounded-xl border bg-background/40 p-4">
             <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Full message</div>
-            <div className="whitespace-pre-wrap break-words text-sm leading-6">{message.body || "No message body was saved for this record."}</div>
+            <div style={{height:'min(48dvh, 420px)',minHeight:180}}><MessageScrollerProvider key={message.id} autoScroll defaultScrollPosition="start"><MessageScroller><MessageScrollerViewport aria-label="Customer message"><MessageScrollerContent><MessageScrollerItem messageId={message.id}><div className="whitespace-pre-wrap break-words text-sm leading-6">{message.body || "No message body was saved for this record."}</div></MessageScrollerItem></MessageScrollerContent></MessageScrollerViewport><MessageScrollerButton/></MessageScroller></MessageScrollerProvider></div>
           </div>
           <div className="flex gap-2">
             <Button onClick={onCompose}><Send className="h-4 w-4"/> Reply or forward</Button>

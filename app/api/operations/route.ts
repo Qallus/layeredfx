@@ -1,6 +1,10 @@
 import { applyCommand, visibleState, OperationError } from '@/lib/operations/engine.mjs';
 import { parseCommandBody, verifyRevision, readBody } from '@/lib/operations/security.mjs';
 import { currentActor, readState, writeState, checkOrigin, errorResponse } from '@/lib/operations/server';
+import {getIntake} from '@/lib/contact/server';
+import {metadata} from '@/lib/contact/model';
+import {cardRepository} from '@/lib/business-cards/repository';
+import {operationsCardLead, requireCardWriter} from '@/lib/business-cards/model';
 export const dynamic = 'force-dynamic';
 const headers = { 'Cache-Control': 'private, no-store', Vary: 'Cookie' };
 export async function GET() { try {
@@ -20,6 +24,8 @@ export async function POST(request: Request) { try {
     if (declared > 512000)
         throw new OperationError('Request is too large.', 413);
     const body = parseCommandBody(await readBody(request));
+    if(body.command.type==='submission.import'||body.command.type==='submission.pipeline'){if(actor.role==='viewer')throw new OperationError('Staff access required.',403);body.command.submission=metadata(await getIntake(String(body.command.submissionId||'')));}
+    if(body.command.type==='cardlead.import'||body.command.type==='cardlead.pipeline'){requireCardWriter(actor);const stored=await cardRepository().getLead(String(body.command.cardLeadId||''));if(!stored||(actor.role!=='admin'&&stored.owner_id!==actor.id))throw new OperationError('Card lead not found.',404);body.command.cardLead=operationsCardLead(stored);body.command.owner=stored.owner_id||actor.id;}
     const original = await readState();
     verifyRevision(original.revision, body.revision);
     const result = applyCommand(original, body.command, actor);

@@ -102,11 +102,12 @@ function EmailTool({deal,contact,caps,readOnly}:{deal?:Deal;contact?:ContactReco
 function ScheduleTool({deal,readOnly,onDone}:{deal?:Deal;readOnly:boolean;onDone:()=>void}){
  const {state,dispatch,busy}=useOperations();
  return <div className="ops-quick-tool">
-  {deal?<form className="ops-quick-tool" onSubmit={async e=>{e.preventDefault();const f=Object.fromEntries(new FormData(e.currentTarget).entries());if(await dispatch({type:'deal.next',id:deal.id,action:f.action,dueDate:f.dueDate,assignee:f.assignee,stepType:'meeting',priority:f.priority}))onDone();}}>
+  {deal?<form className="ops-quick-tool" onSubmit={async e=>{e.preventDefault();const f=Object.fromEntries(new FormData(e.currentTarget).entries());if(await dispatch({type:'deal.next',id:deal.id,action:f.action,dueDate:f.dueDate,dueTime:f.dueTime,assignee:f.assignee,stepType:'meeting',priority:f.priority}))onDone();}}>
    <p className="ops-muted">Sets this opportunity’s next step. It does not send a calendar invitation.</p>
    <Field label="Appointment"><BrandedInput name="action" required maxLength={200} defaultValue="Consultation appointment"/></Field>
    <div className="ops-form-grid">
     <Field label="Date"><BrandedInput name="dueDate" type="date" required/></Field>
+    <Field label="Time"><BrandedInput name="dueTime" type="time" defaultValue="09:00"/></Field>
     <Field label="Assignee"><BrandedSelect name="assignee" defaultValue={deal.owner}>{state.people.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</BrandedSelect></Field>
     <Field label="Priority"><BrandedSelect name="priority" defaultValue="normal"><option>low</option><option>normal</option><option>high</option></BrandedSelect></Field>
    </div>

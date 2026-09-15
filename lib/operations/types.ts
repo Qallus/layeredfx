@@ -107,6 +107,7 @@ export interface Deal {
     nextStep: {
         action: string;
         dueDate: string;
+        dueTime?: string;
         assignee: string;
         type: string;
         priority: string;
@@ -250,7 +251,26 @@ export interface Task {
     updated_at: string;
     completed_at: string | null;
 }
+export interface TeamMember {
+    id: string;
+    name: string;
+    title?: string;
+    department?: string;
+    email?: string;
+    phone?: string;
+    status: 'active' | 'inactive';
+    tagline?: string;
+    bio?: string;
+    availability?: string;
+    photoUrl?: string;
+    secondaryPhotoUrl?: string;
+    attributes?: string[];
+    sortOrder: number;
+    createdAt: string;
+    updatedAt: string;
+}
 export interface OperationState {
+    team?: TeamMember[];
     contactActivities?: {id:string;contactId:string;kind:string;body:string;actorId:string;occurredAt:string}[];
     directMessages?: {id:string;senderId:string;recipientId:string;body:string;createdAt:string}[];
     quickNotes?: {id:string;ownerId:string;title:string;body:string;updatedAt:string;revision?:number}[];

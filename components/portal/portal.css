@@ -186,3 +186,11 @@ body:has(.portal.dark){--field-bg:#19202e;--field-ink:#eef1f5;--field-line:#4753
 @keyframes portal-flip-domain{0%,69%{opacity:0;transform:translateY(10px)}75%,92%{opacity:1;transform:translateY(0)}97%,100%{opacity:0;transform:translateY(0)}}
 @media(max-width:1000px){.portal-flip-item{gap:12px;font-size:20px}.portal-flip-final img{width:56px;height:56px;border-radius:13px}}
 @media(prefers-reduced-motion:reduce){.portal-flip-item{animation:none;opacity:0}.portal-flip-final img,.portal-flip-final span{animation:none;opacity:1}}
+/* Portal layout: one gutter for the top bar, preview note, content and footer, and a centered max width so wide
+   screens don't stretch cards edge to edge. Backgrounds stay full width; only the content is constrained. */
+.portal{--portal-gutter:clamp(16px,2.6vw,48px);--portal-max:1320px}
+.portal-topbar,.portal-preview,.portal-main,.portal-footer{padding-inline:max(var(--portal-gutter),calc((100% - var(--portal-max)) / 2))}
+.portal-main{padding-block:32px 48px}
+.portal-compose,.portal-profile{max-width:880px}
+/* Keep the fixed sidebar (a parent overflow setting prevents sticky positioning); only reflow the metric cards. */
+@media(min-width:761px){.portal-metrics{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}}

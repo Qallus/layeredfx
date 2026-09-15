@@ -66,3 +66,32 @@ html[data-frontend-theme=dark] .lfx :is(.lfx-studio-art-footer .lfx-eyebrow,.lfx
 .lfx-story-sidebar .lfx-page-actions a:hover{color:var(--brand-primary-hover-foreground)}
 
 html[data-frontend-theme=dark] .lfx .lfx-material-note small{color:#47536b}
+/* About page: team and partner profiles published from the dashboard. */
+.lfx-about-people{margin-top:72px}
+.lfx-about-people h2{margin:0 0 28px}
+.lfx-profile-group{margin-top:36px}
+.lfx-profile-group:first-of-type{margin-top:0}
+.lfx-profile-group h3{margin:0 0 16px;font-size:18px;font-weight:500}
+.lfx-profile-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+.lfx-profile-card{display:grid;align-content:start;gap:16px;padding:22px;border:1px solid var(--lfx-line);border-radius:14px}
+.lfx-profile-card>img,.lfx-profile-initials{width:84px;height:84px;border-radius:50%;object-fit:cover}
+.lfx-profile-initials{display:grid;place-items:center;background:#f5ffcc;color:#63790d;font-size:24px;font-weight:600}
+html[data-frontend-theme=dark] .lfx .lfx-profile-initials{background:#2a3346;color:#d6ff41}
+.lfx-profile-card h4{margin:0;font-size:18px;font-weight:500}
+.lfx-profile-role{margin:4px 0 0;font-size:13px;color:var(--lfx-muted)}
+.lfx-profile-meta{margin:2px 0 0;font-size:12px;color:var(--lfx-muted)}
+.lfx-profile-tagline{margin:12px 0 0;font-size:14px}
+.lfx-profile-bio{margin:8px 0 0;font-size:13px;line-height:1.7;color:var(--lfx-muted);white-space:pre-line}
+.lfx-profile-tags{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0;padding:0;list-style:none}
+.lfx-profile-tags li{padding:3px 10px;border:1px solid var(--lfx-line);border-radius:999px;font-size:11px}
+.lfx-profile-links{display:grid;gap:4px;margin-top:12px;font-size:13px}
+.lfx-profile-links a{color:var(--lfx-olive);overflow-wrap:anywhere}
+@media(max-width:760px){.lfx-about-people{margin-top:48px}.lfx-profile-grid{grid-template-columns:1fr}}
+
+/* Profile card text: override the public page paragraph spacing so card details stay compact. */
+.lfx .lfx-profile-card h4,.lfx .lfx-profile-card p{margin-bottom:0;line-height:1.5}
+.lfx .lfx-profile-card .lfx-profile-role{margin-top:4px}
+.lfx .lfx-profile-card .lfx-profile-meta{margin-top:2px}
+.lfx .lfx-profile-card .lfx-profile-tagline{margin-top:10px}
+.lfx .lfx-profile-card .lfx-profile-bio{margin-top:6px;line-height:1.65}
+.lfx .lfx-profile-card .lfx-profile-tags{margin-bottom:0}

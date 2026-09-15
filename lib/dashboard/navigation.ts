@@ -1,4 +1,4 @@
-import {LayoutDashboard,ChartNoAxesCombined,ShoppingBag,CalendarRange,Boxes,CalendarCheck,Palette,HardHat,CircleDollarSign,MessageSquare,Phone,Users,UserCog,PackageCheck,LayoutTemplate,Tag,FileText,Truck,Megaphone,BookOpen,Bot,Settings,UserRound,TrendingUp,ClipboardList,BriefcaseBusiness,IdCard,Contact,Store,PanelsTopLeft,UsersRound,type LucideIcon} from 'lucide-react';
+import {LayoutDashboard,ChartNoAxesCombined,ShoppingBag,CalendarRange,Boxes,CalendarCheck,Palette,HardHat,CircleDollarSign,MessageSquare,Phone,Users,UserCog,PackageCheck,LayoutTemplate,Tag,FileText,Truck,Megaphone,BookOpen,Bot,Settings,UserRound,TrendingUp,ClipboardList,BriefcaseBusiness,IdCard,Contact,Store,PanelsTopLeft,UsersRound,Handshake,type LucideIcon} from 'lucide-react';
 // Items with children render as an expandable group: the label opens the parent page, the chevron shows sub-pages.
 // `soon` marks a planned page that has no route yet; it is shown but not linked.
 export type DashboardNavItem={label:string;href:string;icon:LucideIcon;children?:DashboardNavItem[];soon?:boolean};
@@ -29,7 +29,7 @@ export const dashboardNavigation:{label:string;items:DashboardNavItem[]}[]=[
   ]},
   {label:'Wall Studio',href:'/admin/wall-studio',icon:LayoutTemplate},{label:'Artwork',href:'/admin/artwork',icon:FileText},{label:'Marketing',href:'/admin/marketing',icon:Megaphone},
   {label:'CMS',href:'/admin/content',icon:PanelsTopLeft,children:[
-   {label:'LFX Team',href:'/admin/team',icon:UsersRound},{label:'Blog Posts',href:'/admin/blog',icon:BookOpen},
+   {label:'LFX Team',href:'/admin/team',icon:UsersRound},{label:'Partners',href:'/admin/partners',icon:Handshake},{label:'Blog Posts',href:'/admin/blog',icon:BookOpen},
   ]},
  ]},
  {label:'System',items:[{label:'Agents',href:'/admin/agent',icon:Bot},{label:'Settings',href:'/admin/settings',icon:Settings},{label:'Profile',href:'/admin/profile',icon:UserRound}]},

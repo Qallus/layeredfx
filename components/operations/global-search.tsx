@@ -28,8 +28,8 @@ export function GlobalSearch(){
   const leads=state.leads.filter(l=>match(l.name,l.email,l.company)).map(l=>({id:`lead:${l.id}`,label:l.name,sub:[l.email,l.company,l.status].filter(Boolean).join(' · '),href:l.opportunityId?`/admin/pipeline/${l.opportunityId}`:'/admin/leads'}));
   const documents=state.documents.filter(d=>!d.archived_at&&match(d.title)).map(d=>({id:`doc:${d.id}`,label:d.title,sub:'Workspace document',href:`/admin/workspace/${d.id}`}));
   const plans=state.plans.filter(p=>!p.archived_at&&match(p.name)).map(p=>({id:`plan:${p.id}`,label:p.name,sub:'Plan',href:`/admin/plans/${p.id}`}));
-  const team=(state.team||[]).filter(m=>match(m.name,m.title,m.department,m.email)).map(m=>({id:`team:${m.id}`,label:m.name,sub:[m.title,m.department].filter(Boolean).join(' · ')||'LFX Team',href:'/admin/team'}));
-  return [{name:'Opportunities',results:deals},{name:'Contacts',results:contacts},{name:'Leads',results:leads},{name:'Documents',results:documents},{name:'Plans',results:plans},{name:'LFX Team',results:team},{name:'Pages',results:pages}]
+  const team=(state.team||[]).filter(m=>match(m.name,m.title,m.department,m.company,m.email)).map(m=>({id:`team:${m.id}`,label:m.name,sub:[m.title,m.company].filter(Boolean).join(' · ')||((m.group||'team')==='team'?'LFX Team':'Partner'),href:(m.group||'team')==='team'?'/admin/team':'/admin/partners'}));
+  return [{name:'Opportunities',results:deals},{name:'Contacts',results:contacts},{name:'Leads',results:leads},{name:'Documents',results:documents},{name:'Plans',results:plans},{name:'Team & partners',results:team},{name:'Pages',results:pages}]
    .map(g=>({...g,results:g.results.slice(0,PER_GROUP)})).filter(g=>g.results.length);
  },[query,state]);
  const flat=groups.flatMap(g=>g.results);

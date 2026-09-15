@@ -251,9 +251,16 @@ export interface Task {
     updated_at: string;
     completed_at: string | null;
 }
+export type ProfileGroup = 'team' | 'installer' | 'designer' | 'contractor' | 'vendor';
 export interface TeamMember {
     id: string;
     name: string;
+    group?: ProfileGroup;
+    visibility?: 'dashboard' | 'public';
+    showContact?: boolean;
+    company?: string;
+    website?: string;
+    location?: string;
     title?: string;
     department?: string;
     email?: string;

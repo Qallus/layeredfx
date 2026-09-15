@@ -49,3 +49,18 @@
 .ops .bc-swatch{width:26px;height:26px;padding:0;border-radius:999px;border:1px solid #c9ced8;cursor:pointer}
 .ops .bc-swatch[aria-checked="true"]{outline:2px solid #19202e;outline-offset:2px}
 .ops .bc-swatch:focus-visible{outline:2px solid #d6ff41;outline-offset:2px;box-shadow:0 0 0 5px #19202e}
+
+/* shadcn/ui slider (Radix primitive) in brand colors for the card builder. */
+.ops .lfx-slider{position:relative;display:flex;align-items:center;width:100%;height:24px;touch-action:none;user-select:none}
+.ops .lfx-slider-track{position:relative;flex-grow:1;height:6px;overflow:hidden;border-radius:999px;background:#eef1f5;box-shadow:inset 0 0 0 1px #c9ced8}
+.ops .lfx-slider-range{position:absolute;height:100%;background:#aedb22}
+.ops .lfx-slider-thumb{display:block;width:18px;height:18px;border-radius:999px;background:#ffffff;border:2px solid #19202e;box-shadow:0 1px 3px #0e121b33;cursor:grab;transition:box-shadow .15s ease}
+.ops .lfx-slider-thumb:hover{box-shadow:0 0 0 4px #d6ff4166}
+.ops .lfx-slider-thumb:focus-visible{outline:none;box-shadow:0 0 0 2px #ffffff,0 0 0 4px #d6ff41,0 0 0 5px #19202e}
+.ops .lfx-slider-thumb:active{cursor:grabbing}
+.ops .lfx-slider[data-disabled]{opacity:.5}
+.ops.dark .lfx-slider-track{background:#2a3346;box-shadow:inset 0 0 0 1px #47536b}
+.ops.dark .lfx-slider-thumb{background:#19202e;border-color:#d6ff41}
+.ops .bc-range .lfx-slider{margin-top:4px}
+.ops .bc-check{accent-color:#aedb22;width:16px;height:16px}
+@media (prefers-reduced-motion:reduce){.ops .lfx-slider-thumb{transition:none}}

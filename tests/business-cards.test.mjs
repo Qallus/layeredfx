@@ -239,3 +239,18 @@ test('cards saved with off-palette colors publish with LayeredFX brand colors', 
   assert.equal(saved.background_color, '#19202e');
   assert.equal(saved.accent_color, '#ff6b2c');
 });
+
+test('logo margins default to breathing room and are clamped', () => {
+  const plain = model.normalizeCard({}, null, {actor: ADMIN, owners: OWNERS, now: NOW}).media_settings;
+  assert.equal(plain.logo_margin_top, 8);
+  assert.equal(plain.logo_margin_bottom, 12);
+  const custom = model.normalizeCard({media_settings: {logo_margin_top: 300, logo_margin_bottom: -1}}, null, {actor: ADMIN, owners: OWNERS, now: NOW}).media_settings;
+  assert.equal(custom.logo_margin_top, 96);
+  assert.equal(custom.logo_margin_bottom, 0);
+});
+
+test('card builder uses brand sliders, selects and switches, not native controls', () => {
+  const source = readFileSync(new URL('../components/business-cards/card-builder.tsx', import.meta.url), 'utf8');
+  assert.doesNotMatch(source, /type="range"|<select[\s>]/);
+  assert.match(source, /<Slider /);
+});

@@ -31,6 +31,8 @@ export type MediaSettings = {
   use_background_image?: boolean;
   logo_height?: number;
   logo_width?: number;
+  logo_margin_top?: number;
+  logo_margin_bottom?: number;
   logo_link_url?: string;
 };
 

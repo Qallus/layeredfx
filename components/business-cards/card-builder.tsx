@@ -5,7 +5,9 @@ import {
   ArrowDown, ArrowLeft, ArrowUp, ClipboardList, Copy, Eye, EyeOff, GalleryHorizontal, Image as ImageIcon, Layers,
   Link as LinkIcon, ListChecks, Palette, PlayCircle, Plus, QrCode, Save, Settings, Smartphone, Trash2, Upload, User, Wand2, Zap,
 } from 'lucide-react';
+import {BrandedSelect} from '@/components/operations/branded-fields';
 import {Button} from '@/components/operations/shared';
+import {Slider} from '@/components/layeredfx/ui/slider';
 import {useUnsavedChanges} from '@/components/operations/use-unsaved-changes';
 import {cn} from '@/lib/layeredfx/utils';
 import {BRAND_PALETTE, COLOR_PRESETS, LINK_TYPES, makeNewCard, publicCardUrl, uid, withBrandColors} from '@/lib/business-cards/model';
@@ -33,6 +35,14 @@ const Group = ({title, children}: {title: string; children: React.ReactNode}) =>
 const Toggle = ({on, onChange, label}: {on: boolean; onChange: () => void; label: [string, string]}) => (
   <Button type="button" variant="outline" size="sm" aria-pressed={on} onClick={onChange}>{on ? <Eye aria-hidden size={15}/> : <EyeOff aria-hidden size={15}/>}{on ? label[0] : label[1]}</Button>
 );
+/** Brand on/off switch (dashboard .ops-switch) for every yes/no setting in the builder. */
+const Switch = ({checked, onChange, label, disabled}: {checked: boolean; onChange: (v: boolean) => void; label: string; disabled?: boolean}) => (
+  <label className="ops-switch"><input type="checkbox" role="switch" checked={checked} disabled={disabled} onChange={e => onChange(e.target.checked)}/><span aria-hidden/>{label}</label>
+);
+/** shadcn/ui slider (Radix) in brand colors; the label carries the current value. */
+function RangeField({label, value, min, max, step = 1, hint, onChange}: {label: string; value: number; min: number; max: number; step?: number; hint?: string; onChange: (v: number) => void}) {
+  return <div className="ops-field bc-range"><span>{label}</span><Slider label={label} value={[value]} min={min} max={max} step={step} onValueChange={v => onChange(v[0])}/>{hint && <small className="text-[11px]">{hint}</small>}</div>;
+}
 
 /** Brand palette swatches only (docs/BRAND_COLORS.md); other colors are replaced when the card is saved. */
 function ColorField({label, value, onChange}: {label: string; value: string; onChange: (v: string) => void}) {
@@ -203,10 +213,10 @@ function PanelBody({panel, draft, set, setDraft, setSections, actor, ownerOption
           <Button type="button" size="icon" variant="ghost" aria-label={`Move ${s.label} down`} disabled={i === sections.length - 1} onClick={() => setSections(list => { const n = [...list]; [n[i + 1], n[i]] = [n[i], n[i + 1]]; return n; })}><ArrowDown aria-hidden size={15}/></Button>
           <Button type="button" size="icon" variant="ghost" aria-pressed={s.is_visible} aria-label={`${s.is_visible ? 'Hide' : 'Show'} ${s.label}`} onClick={() => toggleSection(s.section_type)}>{s.is_visible ? <Eye aria-hidden size={15}/> : <EyeOff aria-hidden size={15}/>}</Button>
         </div>
-        <label className="mt-2 flex items-center gap-2 text-[11px]">Space below
-          <input type="range" min={0} max={48} value={s.margin_bottom} onChange={e => setSections(list => list.map(x => x.id === s.id ? {...x, margin_bottom: Number(e.target.value)} : x))} className="flex-1"/>
-          <span className="w-8 text-right">{s.margin_bottom}px</span>
-        </label>
+        <div className="bc-range mt-2 flex items-center gap-3 text-[11px]"><span className="shrink-0">Space below</span>
+          <Slider label={`Space below ${s.label}`} value={[s.margin_bottom]} min={0} max={48} onValueChange={v => setSections(list => list.map(x => x.id === s.id ? {...x, margin_bottom: v[0]} : x))}/>
+          <span className="w-10 shrink-0 text-right">{s.margin_bottom}px</span>
+        </div>
       </div>)}
     </Group>;
 
@@ -226,8 +236,8 @@ function PanelBody({panel, draft, set, setDraft, setSections, actor, ownerOption
           <input aria-label="Link URL" className={cn(inputCls, 'mb-2')} maxLength={2000} value={l.url} onChange={e => update(l.id, {url: e.target.value})} placeholder="https://…"/>
           {!l.url.trim() && <p className="mb-2 text-[11px] text-[#d63b30]">No valid URL — this link is hidden on the public card. Unsupported links are removed when you save.</p>}
           <div className="flex flex-wrap items-center gap-3">
-            <select aria-label="Link type" value={l.link_type} onChange={e => update(l.id, {link_type: e.target.value as BusinessCardLink['link_type']})}>{LINK_TYPES.map(t => <option key={t} value={t}>{t}</option>)}</select>
-            <label className="ops-inline"><input type="checkbox" checked={l.open_in_new_tab} onChange={e => update(l.id, {open_in_new_tab: e.target.checked})}/> New tab</label>
+            <BrandedSelect aria-label="Link type" value={l.link_type} onChange={e => update(l.id, {link_type: e.target.value as BusinessCardLink['link_type']})}>{LINK_TYPES.map(t => <option key={t} value={t}>{t}</option>)}</BrandedSelect>
+            <Switch label="New tab" checked={l.open_in_new_tab} onChange={v => update(l.id, {open_in_new_tab: v})}/>
           </div>
         </div>)}
         <Button type="button" size="sm" variant="outline" disabled={draft.links.length >= 30} onClick={() => set('links', [...draft.links, {id: uid(), label: 'New link', url: '', link_type: 'custom', display_order: draft.links.length + 1, is_visible: true, open_in_new_tab: true}])}><Plus aria-hidden size={14}/> Add link</Button>
@@ -235,9 +245,9 @@ function PanelBody({panel, draft, set, setDraft, setSections, actor, ownerOption
     }
 
     case 'color': return <Group title="Colors & theme">
-      <F label="Visitor theme"><select value={draft.theme_mode} onChange={e => set('theme_mode', e.target.value as ThemeMode)}>
+      <F label="Visitor theme"><BrandedSelect value={draft.theme_mode} onChange={e => set('theme_mode', e.target.value as ThemeMode)}>
         <option value="dark">Card colors only</option><option value="light">Light card colors</option><option value="both">Let visitors switch to light</option>
-      </select></F>
+      </BrandedSelect></F>
       <div className="mb-4"><div className="mb-1.5 text-[11px] font-medium">Presets</div><div className="flex flex-wrap gap-2">
         {COLOR_PRESETS.map(p => <Button type="button" key={p.name} size="sm" variant="outline" onClick={() => setDraft(d => ({...d, background_color: p.bg, accent_color: p.accent, text_color: p.text}))}>
           <span aria-hidden className="h-3 w-3 rounded-full" style={{background: p.bg, border: `2px solid ${p.accent}`}}/>{p.name}</Button>)}
@@ -257,9 +267,9 @@ function PanelBody({panel, draft, set, setDraft, setSections, actor, ownerOption
         <div className="mb-4"><Toggle on={Boolean(opener?.is_visible)} onChange={() => toggleSection('opener')} label={['Splash enabled', 'Splash disabled']}/></div>
         <div className="ops-form-grid">
           <F label="Auto-close after (seconds)" hint="0 = stay until tapped"><input type="number" min={0} max={60} value={Number(c.duration_seconds || 0)} onChange={e => put({duration_seconds: Number(e.target.value)})}/></F>
-          <F label="Transition"><select value={str('transition') || 'fade'} onChange={e => put({transition: e.target.value})}>
+          <F label="Transition"><BrandedSelect value={str('transition') || 'fade'} onChange={e => put({transition: e.target.value})}>
             <option value="none">None</option><option value="fade">Fade</option><option value="slide-up">Slide up</option><option value="slide-down">Slide down</option><option value="zoom">Zoom</option>
-          </select></F>
+          </BrandedSelect></F>
         </div>
         <div className="ops-views mb-4" aria-label="Splash type">{[['standard', 'Standard'], ['video', 'Video'], ['slideshow', 'Slideshow']].map(([key, label]) => <button type="button" key={key} aria-pressed={mode === key} className={mode === key ? 'active' : ''} onClick={() => put({mode: key})}>{label}</button>)}</div>
         {mode === 'standard' && <>
@@ -273,7 +283,7 @@ function PanelBody({panel, draft, set, setDraft, setSections, actor, ownerOption
             <F label="Start (seconds)"><input type="number" min={0} value={Number(c.video_start || 0)} onChange={e => put({video_start: Number(e.target.value)})}/></F>
             <F label="End (seconds)" hint="0 = play to end"><input type="number" min={0} value={Number(c.video_end || 0)} onChange={e => put({video_end: Number(e.target.value)})}/></F>
           </div>
-          <label className="ops-inline"><input type="checkbox" checked={c.video_muted === false} onChange={e => put({video_muted: !e.target.checked})}/> Play with audio</label>
+          <Switch label="Play with audio" checked={c.video_muted === false} onChange={v => put({video_muted: !v})}/>
           <p className="ops-muted mt-1">Browsers usually block autoplay with sound; visitors may need to tap to hear it.</p>
         </>}
         {mode === 'slideshow' && <SlideEditor slides={(Array.isArray(c.slides) ? c.slides : []) as SlideshowSlide[]} onChange={slides => put({slides})}/>}
@@ -310,8 +320,8 @@ function PanelBody({panel, draft, set, setDraft, setSections, actor, ownerOption
         <div className="mb-1.5 text-[11px] font-medium">Fields</div>
         {lf.fields.map((field, i) => <div key={field.key} className="mb-1.5 flex flex-wrap items-center gap-3 rounded-md border px-2.5 py-1.5 text-sm">
           <input aria-label={`${field.key} label`} className="min-w-0 flex-1" maxLength={60} value={field.label} onChange={e => put({fields: lf.fields.map((f, j) => j === i ? {...f, label: e.target.value} : f)})}/>
-          <label className="ops-inline"><input type="checkbox" checked={field.enabled} onChange={e => put({fields: lf.fields.map((f, j) => j === i ? {...f, enabled: e.target.checked, required: e.target.checked && f.required} : f)})}/> Show</label>
-          <label className="ops-inline"><input type="checkbox" checked={field.required} disabled={!field.enabled} onChange={e => put({fields: lf.fields.map((f, j) => j === i ? {...f, required: e.target.checked} : f)})}/> Required</label>
+          <Switch label="Show" checked={field.enabled} onChange={v => put({fields: lf.fields.map((f, j) => j === i ? {...f, enabled: v, required: v && f.required} : f)})}/>
+          <Switch label="Required" checked={field.required} disabled={!field.enabled} onChange={v => put({fields: lf.fields.map((f, j) => j === i ? {...f, required: v} : f)})}/>
         </div>)}
         <p className="ops-muted mt-2">Submissions land in the Leads tab. Convert them into LayeredFX leads or opportunities from there.</p>
       </Group>;
@@ -332,28 +342,32 @@ function PanelBody({panel, draft, set, setDraft, setSections, actor, ownerOption
       const m = draft.media_settings;
       const put = (patch: Partial<MediaSettings>) => setDraft(d => ({...d, media_settings: {...d.media_settings, ...patch}}));
       return <>
-        <Group title="Logo size">
-          <F label={`Height — ${m.logo_height || 24}px`}><input type="range" min={12} max={120} value={m.logo_height || 24} onChange={e => put({logo_height: Number(e.target.value)})}/></F>
-          <F label={m.logo_width ? `Max width — ${m.logo_width}px` : 'Max width — auto'} hint="0 = auto; the aspect ratio is kept."><input type="range" min={0} max={320} value={m.logo_width || 0} onChange={e => put({logo_width: Number(e.target.value)})}/></F>
+        <Group title="Logo size & spacing">
+          <RangeField label={`Height — ${m.logo_height || 24}px`} min={12} max={120} value={m.logo_height || 24} onChange={v => put({logo_height: v})}/>
+          <RangeField label={m.logo_width ? `Max width — ${m.logo_width}px` : 'Max width — auto'} hint="0 = auto; the aspect ratio is kept." min={0} max={320} value={m.logo_width || 0} onChange={v => put({logo_width: v})}/>
+          <div className="ops-form-grid">
+            <RangeField label={`Margin top — ${m.logo_margin_top ?? 8}px`} min={0} max={96} step={2} value={m.logo_margin_top ?? 8} onChange={v => put({logo_margin_top: v})}/>
+            <RangeField label={`Margin bottom — ${m.logo_margin_bottom ?? 12}px`} min={0} max={96} step={2} value={m.logo_margin_bottom ?? 12} onChange={v => put({logo_margin_bottom: v})}/>
+          </div>
           <F label="Logo links to (optional)"><input type="url" maxLength={2000} value={m.logo_link_url ?? ''} onChange={e => put({logo_link_url: e.target.value})} placeholder="https://…"/></F>
         </Group>
         <Group title="Background">
           <ImageField label="Background image" value={draft.background_image_url} onChange={v => set('background_image_url', v)}/>
-          <label className="ops-inline"><input type="checkbox" checked={Boolean(m.use_background_image)} onChange={e => put({use_background_image: e.target.checked})}/> Use background image with a color overlay</label>
+          <Switch label="Use background image with a color overlay" checked={Boolean(m.use_background_image)} onChange={v => put({use_background_image: v})}/>
         </Group>
         <Group title="Profile image">
-          <F label="Shape"><select value={m.profile_shape || 'circle'} onChange={e => put({profile_shape: e.target.value as MediaSettings['profile_shape']})}><option value="circle">Circle</option><option value="rounded">Rounded</option><option value="square">Square</option></select></F>
-          <label className="ops-inline mb-3"><input type="checkbox" checked={Boolean(m.profile_outline)} onChange={e => put({profile_outline: e.target.checked})}/> Outline around photo</label>
+          <F label="Shape"><BrandedSelect value={m.profile_shape || 'circle'} onChange={e => put({profile_shape: e.target.value as MediaSettings['profile_shape']})}><option value="circle">Circle</option><option value="rounded">Rounded</option><option value="square">Square</option></BrandedSelect></F>
+          <div className="mb-3"><Switch label="Outline around photo" checked={Boolean(m.profile_outline)} onChange={v => put({profile_outline: v})}/></div>
           {m.profile_outline && <ColorField label="Outline color" value={m.profile_outline_color || draft.accent_color} onChange={v => put({profile_outline_color: v})}/>}
           <F label="Photo links to (optional)"><input type="url" maxLength={2000} value={m.profile_link_url ?? ''} onChange={e => put({profile_link_url: e.target.value})} placeholder="https://…"/></F>
-          <label className="ops-switch mb-3"><input type="checkbox" role="switch" checked={Boolean(m.profile_spacing)} onChange={e => put({profile_spacing: e.target.checked})}/><span aria-hidden/>Margin options</label>
+          <div className="mb-3"><Switch label="Margin options" checked={Boolean(m.profile_spacing)} onChange={v => put({profile_spacing: v})}/></div>
           {m.profile_spacing && <div className="ops-form-grid">
-            <F label={`Margin top — ${m.profile_margin_top ?? 0}px`}><input type="range" min={0} max={96} step={2} value={m.profile_margin_top ?? 0} onChange={e => put({profile_margin_top: Number(e.target.value)})}/></F>
-            <F label={`Margin bottom — ${m.profile_margin_bottom ?? 12}px`}><input type="range" min={0} max={96} step={2} value={m.profile_margin_bottom ?? 12} onChange={e => put({profile_margin_bottom: Number(e.target.value)})}/></F>
+            <RangeField label={`Margin top — ${m.profile_margin_top ?? 0}px`} min={0} max={96} step={2} value={m.profile_margin_top ?? 0} onChange={v => put({profile_margin_top: v})}/>
+            <RangeField label={`Margin bottom — ${m.profile_margin_bottom ?? 12}px`} min={0} max={96} step={2} value={m.profile_margin_bottom ?? 12} onChange={v => put({profile_margin_bottom: v})}/>
           </div>}
         </Group>
         <Group title="Layout">
-          <F label="Profile alignment"><select value={m.content_align || 'center'} onChange={e => put({content_align: e.target.value as MediaSettings['content_align']})}><option value="center">Centered</option><option value="left">Left aligned</option></select></F>
+          <F label="Profile alignment"><BrandedSelect value={m.content_align || 'center'} onChange={e => put({content_align: e.target.value as MediaSettings['content_align']})}><option value="center">Centered</option><option value="left">Left aligned</option></BrandedSelect></F>
         </Group>
       </>;
     }
@@ -385,14 +399,14 @@ function PanelBody({panel, draft, set, setDraft, setSections, actor, ownerOption
         <div className="flex items-center gap-1 text-sm"><span className="shrink-0 text-[#47536b]">/card/</span>
           <input className={inputCls} maxLength={60} value={draft.slug} onChange={e => set('slug', e.target.value.toLowerCase())} placeholder="auto" pattern="[a-z0-9-]*"/></div>
       </F>
-      <F label="Status"><select value={draft.status} onChange={e => set('status', e.target.value as BusinessCard['status'])}>
+      <F label="Status"><BrandedSelect value={draft.status} onChange={e => set('status', e.target.value as BusinessCard['status'])}>
         <option value="draft">Draft</option><option value="published">Published</option><option value="unpublished">Unpublished</option><option value="archived">Archived</option>
-      </select></F>
+      </BrandedSelect></F>
       {actor.role === 'admin' && <F label="Card owner" hint="Owners see and manage their card and its leads. Only administrators can reassign.">
-        <select value={draft.owner_id ?? ''} onChange={e => { const o = ownerOptions.find(x => x.id === e.target.value); setDraft(d => ({...d, owner_id: o?.id ?? null, owner_name: o?.name ?? null, owner_email: o?.email ?? null})); }}>
+        <BrandedSelect value={draft.owner_id ?? ''} onChange={e => { const o = ownerOptions.find(x => x.id === e.target.value); setDraft(d => ({...d, owner_id: o?.id ?? null, owner_name: o?.name ?? null, owner_email: o?.email ?? null})); }}>
           <option value="">Unassigned (administrators only)</option>
           {ownerOptions.map(o => <option key={o.id} value={o.id}>{o.name}{o.email ? ` (${o.email})` : ''}</option>)}
-        </select>
+        </BrandedSelect>
       </F>}
     </Group>;
 
@@ -463,9 +477,9 @@ function NfcPanel({draft, set, siteUrl, nfcSection, toggle}: {draft: BusinessCar
   const supported = useWebNfc();
   const url = publicCardUrl(siteUrl, draft.slug, 'nfc');
   return <Group title="NFC tap-to-share">
-    <F label="NFC status"><select value={draft.nfc_status} onChange={e => set('nfc_status', e.target.value as NfcStatus)}>
+    <F label="NFC status"><BrandedSelect value={draft.nfc_status} onChange={e => set('nfc_status', e.target.value as NfcStatus)}>
       <option value="not_ordered">Not ordered</option><option value="ordered">Ordered</option><option value="assigned">Assigned to a tag</option><option value="active">Active</option>
-    </select></F>
+    </BrandedSelect></F>
     {draft.id && draft.slug ? <>
       <div className="ops-field"><span>Tag URL</span><CopyField label="Tag URL" value={url}/><small>Program NFC items to open this URL. Taps are counted as NFC taps.</small></div>
       {supported === null ? null : supported
@@ -496,7 +510,7 @@ function AutomationsPanel({draft, set, support}: {draft: BusinessCard; set: Sett
       const available = support[a.channel];
       return <div key={a.action} className="mb-2 rounded-lg border p-3">
         <label className="flex items-start gap-2">
-          <input type="checkbox" className="mt-1" disabled={!available} checked={Boolean(rule?.enabled) && available} onChange={e => setRule(a.action, {enabled: e.target.checked})}/>
+          <input type="checkbox" className="bc-check mt-1" disabled={!available} checked={Boolean(rule?.enabled) && available} onChange={e => setRule(a.action, {enabled: e.target.checked})}/>
           <span><span className="block text-sm font-medium">{a.label}</span><span className="block text-[11px] text-[#47536b]">{a.desc}</span>
             {!available && <span className="mt-1 block text-[11px] text-[#d63b30]">{a.channel === 'email' ? 'Unavailable: LayeredFX has no email delivery provider. Nothing is sent.' : 'Unavailable: LayeredFX Twilio SMS is not configured in this environment. Nothing is sent.'}</span>}</span>
         </label>

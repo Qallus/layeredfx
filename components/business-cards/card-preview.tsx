@@ -32,6 +32,8 @@ export function CardPreview({card, links, sections, onLink, onAction}: {
   const outlineColor = media.profile_outline ? (media.profile_outline_color || accent) : border;
   // Custom margins replace the default gap between the logo, photo and name.
   const photoSpacing = media.profile_spacing ? {marginTop: media.profile_margin_top ?? 0, marginBottom: media.profile_margin_bottom ?? 12} : undefined;
+  // Logo spacing defaults leave room above the logo; both margins are adjustable in Media.
+  const logoSpacing = {marginTop: media.logo_margin_top ?? 8, marginBottom: media.logo_margin_bottom ?? 12};
   const alignClass = media.content_align === 'left' ? 'items-start text-left' : 'items-center text-center';
   const useBgImage = Boolean(media.use_background_image && card.background_image_url);
   const name = card.display_name || [card.first_name, card.last_name].filter(Boolean).join(' ') || 'Your name';
@@ -61,12 +63,13 @@ export function CardPreview({card, links, sections, onLink, onAction}: {
           ? <img src={card.profile_photo_url} alt={name} className={cn('h-24 w-24 object-cover', shapeClass)} style={{border: `2px solid ${outlineColor}`}}/>
           : <div aria-hidden className={cn('grid h-24 w-24 place-items-center text-2xl font-semibold', shapeClass)} style={{background: surface, color: accent, border: `2px solid ${outlineColor}`}}>{name.slice(0, 1)}</div>;
         return wrap(<div className={cn('flex flex-col', alignClass)}>
-          {logo ? <div className="mb-3">{media.logo_link_url ? <a href={media.logo_link_url} target="_blank" rel="noopener noreferrer" className="inline-block">{logo}</a> : logo}</div>
-            : <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.2em]" style={{color: hexAlpha(text, 0.55)}}>{card.company_name || 'Digital card'}</div>}
+          {logo ? <div style={logoSpacing}>{media.logo_link_url ? <a href={media.logo_link_url} target="_blank" rel="noopener noreferrer" className="inline-block">{logo}</a> : logo}</div>
+            : <div className="text-[10px] font-semibold uppercase tracking-[0.2em]" style={{...logoSpacing, color: hexAlpha(text, 0.55)}}>{card.company_name || 'Digital card'}</div>}
           <div style={photoSpacing}>{media.profile_link_url ? <a href={media.profile_link_url} target="_blank" rel="noopener noreferrer" className="inline-block">{photo}</a> : photo}</div>
           <h1 className={cn('text-lg font-semibold', !photoSpacing && 'mt-3')} style={{color: text}}>{name}</h1>
           {subtitle && <div className="mt-0.5 text-xs font-medium" style={{color: hexAlpha(text, 0.72)}}>{subtitle}</div>}
-          {card.bio && <p className="mt-2 whitespace-pre-line text-xs leading-5" style={{color: hexAlpha(text, 0.72)}}>{card.bio}</p>}
+          {/* A divider separates the name, title and company from the bio. */}
+          {card.bio && <><div aria-hidden className="my-4 h-px w-full" style={{background: border}}/><p className="m-0 whitespace-pre-line text-xs leading-5" style={{color: hexAlpha(text, 0.72)}}>{card.bio}</p></>}
         </div>);
       }
       case 'quick_actions': {

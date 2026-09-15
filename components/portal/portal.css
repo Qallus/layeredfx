@@ -131,3 +131,32 @@ body:has(.portal.dark){--field-bg:#19202e;--field-ink:#eef1f5;--field-line:#4753
 @keyframes portal-eq-design{0%,18%{opacity:.35}30%,82%{opacity:1;color:#eef1f5}94%,100%{opacity:.35}}
 @keyframes portal-eq-result{0%,40%{opacity:.35}54%,82%{opacity:1;color:#63790d}94%,100%{opacity:.35}}
 @media(prefers-reduced-motion:reduce){.portal-plate,.portal-equation li{animation:none;opacity:1}.portal-equation li:nth-child(5){color:#63790d}}
+/* Desktop: the story column takes two thirds of the page. */
+@media(min-width:1101px){.portal-auth{grid-template-columns:minmax(400px,1fr) 2fr}}
+/* Wall-wrap story animation (8s loop): quick color swipes, check in the final color, blur into the app icon. */
+.portal-wall-scene{position:relative;flex:1;min-height:340px;display:grid;place-items:center;perspective:1600px;margin-top:10px}
+.portal-wall{position:relative;width:min(640px,88%);aspect-ratio:16/10;border-radius:6px;overflow:hidden;background:repeating-linear-gradient(90deg,#c9ced8 0 calc(25% - 1px),#8a93a6 calc(25% - 1px) 25%);box-shadow:0 40px 80px #0e121b99,0 0 0 1px #47536b;transform:rotateY(-16deg) rotateX(3deg);transform-origin:40% 50%}
+.portal-wall-wrap{position:absolute;inset:0;background:var(--wrap);transform:translateX(-101%);animation:8s infinite both}
+.portal-wall-wrap::after{content:'';position:absolute;top:0;bottom:0;left:100%;width:22px;background:linear-gradient(90deg,#ffffffcc,#ffffff00);filter:blur(2px)}
+.portal-wall-wrap-1{animation-name:portal-wrap-1}
+.portal-wall-wrap-2{animation-name:portal-wrap-2}
+.portal-wall-wrap-3{animation-name:portal-wrap-3}
+.portal-wall-wrap-4{animation-name:portal-wrap-4}
+.portal-wall-wrap-5{animation-name:portal-wrap-5}
+.portal-wall-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,#ffffff26 0%,#ffffff00 38%,#0e121b00 62%,#0e121b40 100%)}
+.portal-wall-check{position:absolute;left:50%;top:50%;width:132px;height:132px;margin:-66px 0 0 -66px;opacity:0;animation:portal-wall-check 8s infinite both}
+.portal-wall-check svg{width:100%;height:100%;overflow:visible}
+.portal-wall-check circle{fill:#19202e;stroke:#d6ff41;stroke-width:2}
+.portal-wall-check path{fill:none;stroke:#d6ff41;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;animation:portal-wall-check-draw 8s infinite both}
+.portal-wall-icon{position:absolute;left:50%;top:50%;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:28px;box-shadow:0 18px 40px #0e121b66;opacity:0;animation:portal-wall-icon 8s infinite both}
+.portal-wall-floor{position:absolute;left:14%;right:14%;bottom:4%;height:34px;border-radius:50%;background:radial-gradient(ellipse at center,#0e121bcc,#0e121b00 70%);filter:blur(6px);z-index:-1}
+@keyframes portal-wrap-1{0%,5%{transform:translateX(-101%);opacity:1;animation-timing-function:cubic-bezier(.75,0,.25,1)}12%,92%{transform:translateX(0);opacity:1}97%,100%{transform:translateX(0);opacity:0}}
+@keyframes portal-wrap-2{0%,13%{transform:translateX(-101%);opacity:1;animation-timing-function:cubic-bezier(.75,0,.25,1)}20%,92%{transform:translateX(0);opacity:1}97%,100%{transform:translateX(0);opacity:0}}
+@keyframes portal-wrap-3{0%,21%{transform:translateX(-101%);opacity:1;animation-timing-function:cubic-bezier(.75,0,.25,1)}28%,92%{transform:translateX(0);opacity:1}97%,100%{transform:translateX(0);opacity:0}}
+@keyframes portal-wrap-4{0%,29%{transform:translateX(-101%);opacity:1;animation-timing-function:cubic-bezier(.75,0,.25,1)}36%,92%{transform:translateX(0);opacity:1}97%,100%{transform:translateX(0);opacity:0}}
+@keyframes portal-wrap-5{0%,38%{transform:translateX(-101%);opacity:1;animation-timing-function:cubic-bezier(.6,0,.2,1)}48%,92%{transform:translateX(0);opacity:1}97%,100%{transform:translateX(0);opacity:0}}
+@keyframes portal-wall-check{0%,50%{opacity:0;transform:scale(.6);filter:blur(0)}55%{opacity:1;transform:scale(1.06);filter:blur(0)}58%,64%{opacity:1;transform:scale(1);filter:blur(0)}72%,100%{opacity:0;transform:scale(1.25);filter:blur(16px)}}
+@keyframes portal-wall-check-draw{0%,53%{stroke-dashoffset:1}60%,100%{stroke-dashoffset:0}}
+@keyframes portal-wall-icon{0%,64%{opacity:0;transform:scale(.8);filter:blur(16px)}76%,92%{opacity:1;transform:scale(1);filter:blur(0)}97%,100%{opacity:0;transform:scale(1);filter:blur(0)}}
+@media(max-width:1000px){.portal-wall-scene{min-height:260px}.portal-wall{width:94%}.portal-wall-check{width:96px;height:96px;margin:-48px 0 0 -48px}.portal-wall-icon{width:88px;height:88px;margin:-44px 0 0 -44px;border-radius:21px}}
+@media(prefers-reduced-motion:reduce){.portal-wall-wrap,.portal-wall-check,.portal-wall-check path,.portal-wall-icon{animation:none}.portal-wall-wrap-5{transform:none}.portal-wall-icon{opacity:1}}

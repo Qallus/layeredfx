@@ -7,6 +7,7 @@ import Link from 'next/link';
 import {ArrowLeft,ArrowRight,Check,Eye,EyeOff,MailCheck,ShieldCheck} from 'lucide-react';
 import {accountTypes,businessAccountTypes,type AccountType} from '@/lib/portal/model';
 import {SocialLinks} from './social-links';
+import {AuthStoryAnimation} from './auth-animations';
 
 type AuthMode='login'|'register'|'forgot'|'reset';
 const COPY:Record<AuthMode,{kicker:string;title:string;intro:string}>={
@@ -103,12 +104,7 @@ export function PortalAuth({mode='login',register=false,demo=false}:{mode?:AuthM
   <span className="portal-kicker"><ShieldCheck size={16}/> YOUR LAYEREDFX SPACE</span>
   <h2>Layered products<br/>with designs,<br/><em>equals Layered FX.</em></h2>
   <p>From the first idea to the finishing details, keep your project and the people behind it connected.</p>
-  <div className="portal-layers" aria-hidden="true">
-   <div className="portal-plate portal-plate-product"/>
-   <div className="portal-plate portal-plate-design"/>
-   <div className="portal-plate portal-plate-result"><img src="/brand/layeredfx_app_icon.svg" alt="" width={72} height={72}/></div>
-  </div>
-  <ol className="portal-equation" aria-label="Layered products plus designs equals Layered FX"><li>Layered products</li><li aria-hidden="true">+</li><li>Designs</li><li aria-hidden="true">=</li><li>Layered FX</li></ol>
+  <AuthStoryAnimation/>
   <div className="portal-story-bottom"><div><b>Your space</b><span>Residential & commercial</span></div><div><b>Your team</b><span>Customers & partners</span></div><div><b>Your next step</b><span>Plan. Share. Create.</span></div></div>
  </aside></main><div className="lfx"><Footer/></div></EstimateProvider>;
 }

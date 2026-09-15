@@ -254,3 +254,21 @@ test('card builder uses brand sliders, selects and switches, not native controls
   assert.doesNotMatch(source, /type="range"|<select[\s>]/);
   assert.match(source, /<Slider /);
 });
+
+test('splash icon shape, size, outline and fit are saved and clamped', () => {
+  const opener = sections => sections.find(s => s.section_type === 'opener');
+  const defaults = opener(model.normalizeCard({}, null, {actor: ADMIN, owners: OWNERS, now: NOW}).sections).content;
+  assert.equal(defaults.logo_shape, 'circle');
+  assert.equal(defaults.logo_size, 80);
+  assert.equal(defaults.logo_outline, true);
+  assert.equal(defaults.logo_fit, 'cover');
+  const card = model.normalizeCard({sections: [{section_type: 'opener', is_visible: true, content: {logo_shape: 'rounded', logo_size: 999, logo_outline: false, logo_fit: 'contain'}}]}, null, {actor: ADMIN, owners: OWNERS, now: NOW});
+  const saved = opener(card.sections).content;
+  assert.equal(saved.logo_shape, 'rounded');
+  assert.equal(saved.logo_size, 240);
+  assert.equal(saved.logo_outline, false);
+  assert.equal(saved.logo_fit, 'contain');
+  const bad = opener(model.normalizeCard({sections: [{section_type: 'opener', is_visible: true, content: {logo_shape: 'blob', logo_fit: 'stretch'}}]}, null, {actor: ADMIN, owners: OWNERS, now: NOW}).sections).content;
+  assert.equal(bad.logo_shape, 'circle');
+  assert.equal(bad.logo_fit, 'cover');
+});

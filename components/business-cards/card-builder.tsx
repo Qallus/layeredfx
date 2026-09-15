@@ -274,6 +274,16 @@ function PanelBody({panel, draft, set, setDraft, setSections, actor, ownerOption
         <div className="ops-views mb-4" aria-label="Splash type">{[['standard', 'Standard'], ['video', 'Video'], ['slideshow', 'Slideshow']].map(([key, label]) => <button type="button" key={key} aria-pressed={mode === key} className={mode === key ? 'active' : ''} onClick={() => put({mode: key})}>{label}</button>)}</div>
         {mode === 'standard' && <>
           <ImageField label="Logo or photo" value={str('logo_url')} onChange={v => put({logo_url: v})}/>
+          {Boolean(str('logo_url')) && <>
+            <F label="Icon shape"><BrandedSelect aria-label="Splash icon shape" value={String(c.logo_shape || 'circle')} onChange={e => put({logo_shape: e.target.value})}>
+              <option value="circle">Circle</option><option value="rounded">Rounded square</option><option value="square">Square</option>
+            </BrandedSelect></F>
+            <RangeField label={`Icon size — ${Number(c.logo_size || 80)}px`} min={48} max={240} step={4} value={Number(c.logo_size || 80)} onChange={v => put({logo_size: v})}/>
+            <div className="mb-3"><Switch label="Outline around the icon" checked={c.logo_outline !== false} onChange={v => put({logo_outline: v})}/></div>
+            <F label="Icon fit" hint="Cover crops to fill the shape; contain shows the whole image, which suits app icons and logos."><BrandedSelect aria-label="Splash icon fit" value={String(c.logo_fit || 'cover')} onChange={e => put({logo_fit: e.target.value})}>
+              <option value="cover">Cover (crop to fill)</option><option value="contain">Contain (show all)</option>
+            </BrandedSelect></F>
+          </>}
           {([['eyebrow', 'Eyebrow', 'Digital card'], ['title', 'Title', 'Welcome'], ['subtitle', 'Subtitle', 'Tap to view my digital business card.'], ['primary_label', 'Primary button', 'View card'], ['secondary_label', 'Secondary button (calls your phone)', 'Call me']] as const)
             .map(([key, label, placeholder]) => <F key={key} label={label}><input maxLength={key === 'subtitle' ? 200 : 80} value={str(key)} placeholder={placeholder} onChange={e => put({[key]: e.target.value})}/></F>)}
         </>}

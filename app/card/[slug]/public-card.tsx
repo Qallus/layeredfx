@@ -148,7 +148,12 @@ function Splash({content, card, onDone}: {content: Record<string, unknown>; card
         : mode === 'slideshow' ? <><SplashSlideshow slides={slides}/><div className="mt-6">{primaryButton}</div></>
         : <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          {typeof content.logo_url === 'string' && content.logo_url && <img src={content.logo_url} alt="" className="mb-5 h-20 w-20 rounded-full object-cover" style={{border: `2px solid ${accent}`}}/>}
+          {typeof content.logo_url === 'string' && content.logo_url && <img src={content.logo_url} alt="" className="mb-5" style={{
+            width: Number(content.logo_size) || 80, height: Number(content.logo_size) || 80,
+            borderRadius: content.logo_shape === 'square' ? 0 : content.logo_shape === 'rounded' ? 16 : 999,
+            objectFit: content.logo_fit === 'contain' ? 'contain' : 'cover',
+            border: content.logo_outline === false ? 'none' : `2px solid ${accent}`,
+          }}/>}
           <div className="text-[11px] font-semibold uppercase tracking-[0.25em]" style={{opacity: 0.65}}>{String(content.eyebrow || 'Digital card')}</div>
           <h1 className="mt-3 text-4xl font-bold sm:text-5xl">{String(content.title || 'Welcome')}</h1>
           <p className="mt-2 text-sm" style={{opacity: 0.75}}>{String(content.subtitle || 'Tap to view my digital business card.')}</p>

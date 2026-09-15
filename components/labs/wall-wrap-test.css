@@ -29,8 +29,8 @@
 .wwt-sectional{left:20.0713%;top:54.7820%;width:59.7783%;height:39.5921%}
 .wwt-plant{left:78.0285%;top:44.5148%;width:14.8852%;height:39.6624%}
 
-/* Wraps: keyframes are generated per finish in wall-wrap-test.tsx on a shared 16s clock. */
-.wwt-wrap,.wwt-now em,.wwt-card-swatch i,.wwt-card-names>div,.wwt-card-progress i{animation-duration:16s;animation-iteration-count:infinite;animation-fill-mode:both}
+/* Wraps: keyframes are generated per finish in wall-wrap-test.tsx on a shared 22s clock. */
+.wwt-wrap,.wwt-now em,.wwt-card-swatch i,.wwt-card-names>div,.wwt-card-progress i{animation-duration:22s;animation-iteration-count:infinite;animation-fill-mode:both}
 .wwt-wrap{position:absolute;inset:0}
 .wwt-swipe .wwt-wrap{transform:translateX(-101%)}
 .wwt-swipe .wwt-wrap::after{content:'';position:absolute;top:0;bottom:0;left:100%;width:2.5%;background:linear-gradient(90deg,#ffffffb3,#ffffff00);filter:blur(3px)}
@@ -43,8 +43,8 @@
 .wwt-finishes li{display:inline-flex;align-items:center;gap:8px}
 .wwt-finishes i{width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 1px #ffffff40}
 
-/* Sample 2: CMI-style text overlay, lighter than the CMI shade. */
-.wwt-cmi-shade{position:absolute;inset:0;background:linear-gradient(90deg,#0e121bb3 0%,#0e121b73 38%,#0e121b1f 70%,#0e121b00 100%),linear-gradient(0deg,#0e121bb3 0%,#0e121b00 32%)}
+/* Sample 2: CMI-style text overlay. */
+.wwt-cmi-shade{position:absolute;inset:0;background:linear-gradient(90deg,#0e121be6 0%,#0e121bc7 40%,#0e121b8c 72%,#0e121b66 100%),linear-gradient(0deg,#0e121bf2 0%,#0e121b00 40%),linear-gradient(180deg,#0e121b99 0%,#0e121b00 22%)}
 .wwt-cmi{position:absolute;inset:0;display:flex;flex-direction:column;padding:clamp(22px,5%,64px)}
 .wwt-badge{align-self:flex-start;display:inline-flex;align-items:center;gap:10px;padding:9px 18px;border:1px solid #ffffff33;border-radius:999px;background:#0e121b59;backdrop-filter:blur(8px);font-size:clamp(12px,1.2vw,15px);font-weight:600}
 .wwt-badge i{width:8px;height:8px;border-radius:50%;background:#aedb22}

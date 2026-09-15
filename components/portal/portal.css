@@ -160,3 +160,28 @@ body:has(.portal.dark){--field-bg:#19202e;--field-ink:#eef1f5;--field-line:#4753
 @keyframes portal-wall-icon{0%,64%{opacity:0;transform:scale(.8);filter:blur(16px)}76%,92%{opacity:1;transform:scale(1);filter:blur(0)}97%,100%{opacity:0;transform:scale(1);filter:blur(0)}}
 @media(max-width:1000px){.portal-wall-scene{min-height:260px}.portal-wall{width:94%}.portal-wall-check{width:96px;height:96px;margin:-48px 0 0 -48px}.portal-wall-icon{width:88px;height:88px;margin:-44px 0 0 -44px;border-radius:21px}}
 @media(prefers-reduced-motion:reduce){.portal-wall-wrap,.portal-wall-check,.portal-wall-check path,.portal-wall-icon{animation:none}.portal-wall-wrap-5{transform:none}.portal-wall-icon{opacity:1}}
+/* Service-flip story animation (13s loop): each service flips in with its material swatch, then the app icon and LayeredFX.com.
+   Items share one keyframe offset by --i steps of .715s (5.5% of the loop). Swatches depict materials, not UI colors. */
+.portal-flip-scene{position:relative;flex:1;min-height:320px;display:grid;place-items:center}
+.portal-flip-slot{position:relative;width:100%;height:120px;perspective:900px}
+.portal-flip-item{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:24px;font-size:clamp(32px,3.4vw,56px);font-weight:500;letter-spacing:-1.2px;color:#eef1f5;white-space:nowrap;opacity:0;transform-origin:50% 50% -40px;animation:portal-flip 13s cubic-bezier(.3,.7,.2,1) infinite both;animation-delay:calc(var(--i) * .715s)}
+.portal-material{flex-shrink:0;width:clamp(52px,4.6vw,76px);aspect-ratio:1;border-radius:50%;box-shadow:inset 0 0 0 1px #ffffff33,inset -8px -10px 18px #0e121b40,0 10px 26px #0e121b80}
+.portal-material-graphic{background:repeating-linear-gradient(45deg,#d6ff41 0 8px,#aedb22 8px 16px)}
+.portal-material-oak{background:repeating-linear-gradient(100deg,#aa7a4e 0 5px,#c8b399 5px 7px,#aa7a4e 7px 13px)}
+.portal-material-marble{background:linear-gradient(125deg,#ffffff00 42%,#8a93a6 44%,#ffffff00 47%),linear-gradient(35deg,#ffffff00 60%,#c9ced8 62%,#ffffff00 65%),#eef1f5}
+.portal-material-steel{background:repeating-linear-gradient(90deg,#c9ced8 0 2px,#eef1f5 2px 3px),linear-gradient(160deg,#eef1f5,#8a93a6)}
+.portal-material-pattern{background:radial-gradient(circle,#47536b 2px,#ffffff00 2.5px) 0 0/12px 12px,#f7f9fb}
+.portal-material-clay{background:radial-gradient(circle at 30% 30%,#d1cec2,#ffffff00 45%),radial-gradient(circle at 70% 65%,#aa7a4e66,#ffffff00 50%),#c8b399}
+.portal-material-concrete{background:radial-gradient(circle,#52554e 1px,#ffffff00 1.5px) 0 0/7px 7px,radial-gradient(circle,#eef1f5 1px,#ffffff00 1.5px) 3px 4px/9px 9px,#8a93a6}
+.portal-material-epoxy{background:radial-gradient(circle at 32% 28%,#eef1f5 0 6%,#ffffff00 22%),radial-gradient(circle at 60% 70%,#2e7cc4,#19202e 75%)}
+.portal-material-film{background:linear-gradient(135deg,#ffffff00 30%,#ffffff40 45%,#ffffff00 60%),#2a3346cc}
+.portal-material-paint-light{background:radial-gradient(circle at 35% 30%,#ffffff,#f5ffcc 60%)}
+.portal-material-paint-dark{background:radial-gradient(circle at 35% 30%,#8a93a6,#52554e 65%)}
+.portal-flip-final{position:absolute;display:grid;justify-items:center;gap:18px}
+.portal-flip-final img{width:112px;height:112px;border-radius:26px;box-shadow:0 20px 50px #0e121b99;opacity:0;animation:portal-flip-icon 13s infinite both}
+.portal-flip-final span{font-size:22px;letter-spacing:.5px;color:#eef1f5;opacity:0;animation:portal-flip-domain 13s infinite both}
+@keyframes portal-flip{0%{opacity:0;transform:translateY(55%) rotateX(-75deg)}1.3%,4.6%{opacity:1;transform:translateY(0) rotateX(0)}6%,100%{opacity:0;transform:translateY(-55%) rotateX(75deg)}}
+@keyframes portal-flip-icon{0%,62%{opacity:0;transform:scale(.75);filter:blur(14px)}71%,92%{opacity:1;transform:scale(1);filter:blur(0)}97%,100%{opacity:0;transform:scale(1);filter:blur(0)}}
+@keyframes portal-flip-domain{0%,69%{opacity:0;transform:translateY(10px)}75%,92%{opacity:1;transform:translateY(0)}97%,100%{opacity:0;transform:translateY(0)}}
+@media(max-width:1000px){.portal-flip-item{gap:16px;font-size:30px}.portal-flip-final img{width:88px;height:88px;border-radius:21px}}
+@media(prefers-reduced-motion:reduce){.portal-flip-item{animation:none;opacity:0}.portal-flip-final img,.portal-flip-final span{animation:none;opacity:1}}

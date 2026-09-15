@@ -1,13 +1,35 @@
 // Story-panel animations for the portal login, register and password screens.
-// `wall-wrap` is the active animation. `layered-plates` is the original "Layered products + designs =
-// Layered FX" animation, kept intact (markup here, styles in portal.css) so it can be switched back.
+// `service-flip` is the active animation. `wall-wrap` and `layered-plates` (the original "Layered products +
+// designs = Layered FX" animation) are kept intact (markup here, styles in portal.css) so they can be switched back.
 import type {CSSProperties} from 'react';
+import {services,type Service} from '@/lib/layeredfx/content';
 
-export type AuthAnimation='wall-wrap'|'layered-plates';
-export const AUTH_ANIMATION:AuthAnimation='wall-wrap';
+export type AuthAnimation='service-flip'|'wall-wrap'|'layered-plates';
+export const AUTH_ANIMATION:AuthAnimation='service-flip';
 
 export function AuthStoryAnimation({variant=AUTH_ANIMATION}:{variant?:AuthAnimation}){
- return variant==='layered-plates'?<LayeredPlatesAnimation/>:<WallWrapAnimation/>;
+ if(variant==='layered-plates')return <LayeredPlatesAnimation/>;
+ if(variant==='wall-wrap')return <WallWrapAnimation/>;
+ return <ServiceFlipAnimation/>;
+}
+
+// Illustrative material swatch shown beside each service name (styles in portal.css).
+const MATERIAL:Record<Service,string>={
+ 'Wall wraps':'graphic','Cabinet wraps':'oak','Countertop wraps':'marble','Appliance wraps':'steel','Wallpaper':'pattern',
+ 'Roman clay':'clay','Faux concrete overlays':'concrete','Epoxy':'epoxy','Window tint & film':'film','Interior painting':'paint-light','Exterior painting':'paint-dark',
+};
+
+/** Flips through every service with its material swatch, then settles on the app icon and LayeredFX.com. */
+export function ServiceFlipAnimation(){
+ return <div className="portal-flip-scene" aria-hidden="true" style={{'--count':services.length} as CSSProperties}>
+  <div className="portal-flip-slot">
+   {services.map((name,i)=><div key={name} className="portal-flip-item" style={{'--i':i} as CSSProperties}><span className={`portal-material portal-material-${MATERIAL[name]}`}/><span>{name}</span></div>)}
+  </div>
+  <div className="portal-flip-final">
+   <img src="/brand/layeredfx_app_icon.svg" alt="" width={112} height={112}/>
+   <span>LayeredFX.com</span>
+  </div>
+ </div>;
 }
 
 /** Original animation: product and design plates stack into the LayeredFX app icon. */

@@ -8,8 +8,9 @@ const descriptions = [
  'Create rhythm and character with wallpaper. Pattern repeats, seams, wall preparation and room lighting shape a considered installation.',
  'Bring soft movement and mineral depth to walls with Roman clay. Sample boards help you evaluate texture and tone in the light of your own room.',
  'Explore a concrete-inspired finish with a decorative overlay. We assess the base surface and desired texture before defining preparation and scope.',
+ 'Create a seamless, glossy surface with epoxy for floors, countertops and feature areas. Substrate condition, moisture, preparation and daily use determine the right system and finish.',
  'Balance daylight, privacy and design with window film. Glazing compatibility and the selected product determine the suitable application.',
  'Refresh a room through color, sheen and careful preparation. We consider the existing finish, repairs, trim and how you use the space.',
  'Give exterior surfaces a considered new finish. Substrate condition, exposure, access and preparation determine the project approach.',
 ];
-export const servicePages = services.map((name,i)=>({name,slug:serviceSlug(name),description:descriptions[i],image:i<4?'/images/kitchen.svg':i<7?'/images/architectural-room.svg':i===7?'/images/glass.svg':'/images/paint.svg'}));
+export const servicePages = services.map((name,i)=>({name,slug:serviceSlug(name),description:descriptions[i],image:i<4?'/images/kitchen.svg':i<8?'/images/architectural-room.svg':i===8?'/images/glass.svg':'/images/paint.svg'}));

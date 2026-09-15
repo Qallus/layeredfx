@@ -1,6 +1,6 @@
 export const services = [
   "Wall wraps", "Cabinet wraps", "Countertop wraps", "Appliance wraps", "Wallpaper",
-  "Roman clay", "Faux concrete overlays", "Window tint & film", "Interior painting", "Exterior painting",
+  "Roman clay", "Faux concrete overlays", "Epoxy", "Window tint & film", "Interior painting", "Exterior painting",
 ] as const;
 export type Service = (typeof services)[number];
 export type FinishId = "clay" | "oak" | "stone" | "charcoal";
@@ -12,7 +12,7 @@ export const finishes: { id: FinishId; name: string; description: string; color:
 ];
 export const serviceGroups = [
   { id: "wraps", number: "01", category: "wraps", title: "Wrap. Reimagine.", subtitle: "A different finish. A whole new perspective.", image: "/images/kitchen.svg", services: ["Wall wraps", "Cabinet wraps", "Countertop wraps", "Appliance wraps"] as Service[], detail: "Explore a fresh direction for walls, cabinets, countertops, and appliances. Surface condition and material suitability are reviewed before a recommendation or estimate." },
-  { id: "finishes", number: "02", category: "finishes", title: "Make it tactile.", subtitle: "Depth, texture, and a little unexpected character.", image: "/images/architectural-room.svg", services: ["Wallpaper", "Roman clay", "Faux concrete overlays"] as Service[], detail: "Bring texture and character to a space through wallpaper, Roman clay, and decorative concrete-look finishes. Product selection and preparation depend on the application." },
+  { id: "finishes", number: "02", category: "finishes", title: "Make it tactile.", subtitle: "Depth, texture, and a little unexpected character.", image: "/images/architectural-room.svg", services: ["Wallpaper", "Roman clay", "Faux concrete overlays", "Epoxy"] as Service[], detail: "Bring texture and character to a space through wallpaper, Roman clay, decorative concrete-look finishes, and epoxy. Product selection and preparation depend on the application." },
   { id: "film", number: "03", category: "film-paint", title: "See light differently.", subtitle: "A more intentional relationship with glass.", image: "/images/glass.svg", services: ["Window tint & film"] as Service[], detail: "Explore window tint and film for residential and commercial glass. Privacy, decorative effects, and solar-control options depend on the selected product and glazing." },
   { id: "paint", number: "04", category: "film-paint", title: "Roman Clay Texture", subtitle: "The right color changes the entire conversation.", image: "/images/paint.svg", services: ["Interior painting", "Exterior painting"] as Service[], detail: "Create a new direction with interior or exterior painting. Color, existing conditions, preparation, and project access help shape your scope." },
 ];

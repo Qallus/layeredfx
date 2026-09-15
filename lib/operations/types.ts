@@ -251,6 +251,18 @@ export interface Task {
     updated_at: string;
     completed_at: string | null;
 }
+export interface MemberProfile {
+    fullName?: string;
+    jobTitle?: string;
+    bio?: string;
+    phone?: string;
+    company?: string;
+    location?: string;
+    timezone?: string;
+    appearance?: 'light' | 'dark';
+    avatarUrl?: string;
+    updatedAt?: string;
+}
 export type ProfileGroup = 'team' | 'installer' | 'designer' | 'contractor' | 'vendor';
 export interface TeamMember {
     id: string;
@@ -278,6 +290,7 @@ export interface TeamMember {
 }
 export interface OperationState {
     team?: TeamMember[];
+    memberProfiles?: Record<string, MemberProfile>;
     contactActivities?: {id:string;contactId:string;kind:string;body:string;actorId:string;occurredAt:string}[];
     directMessages?: {id:string;senderId:string;recipientId:string;body:string;createdAt:string}[];
     quickNotes?: {id:string;ownerId:string;title:string;body:string;updatedAt:string;revision?:number}[];

@@ -62,3 +62,9 @@ export async function saveTokens(tokens: {
 }) { const jar = await cookies(); const options = { httpOnly: true, sameSite: 'lax' as const, secure: process.env.NODE_ENV === 'production', path: '/' }; jar.set(ACCESS_COOKIE, tokens.access_token, { ...options, maxAge: Math.min(tokens.expires_in || 3600, 86400) }); jar.set(REFRESH_COOKIE, tokens.refresh_token, { ...options, maxAge: 7 * 86400 }); }
 export async function clearTokens() { const jar = await cookies(); jar.delete(ACCESS_COOKIE); jar.delete(REFRESH_COOKIE); }
 export function errorResponse(error: unknown) { const status = error instanceof OperationError ? error.status : 500; const message = error instanceof OperationError ? error.message : 'The request failed. No success was confirmed; reload before retrying.'; return Response.json({ message }, { status, headers: { 'Cache-Control': 'private, no-store' } }); }
+/** The signed-in member's access token, for calls the sign-in service must make on their behalf. */
+export async function currentAccessToken() { const jar = await cookies(); const token = jar.get(ACCESS_COOKIE)?.value; if (!token)
+    throw new OperationError('Sign in required.', 401); return token; }
+/** Sets a new password for the member who owns the access token. */
+export async function updatePassword(token: string, password: string) { const c = config(); const res = await fetch(`${c.url}/auth/v1/user`, { method: 'PUT', headers: { apikey: c.anon, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ password }), cache: 'no-store', signal: AbortSignal.timeout(12000) }); if (!res.ok)
+    throw new OperationError('The sign-in service did not accept the new password. Nothing was changed.', res.status === 422 ? 400 : 502); }

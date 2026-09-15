@@ -293,3 +293,81 @@ body:has(.ops.dark) .ops-modal .ops-field>span,body:has(.ops.dark) .ops-modal .l
 .ops-profile-visibility-field .ops-muted{margin:0;font-size:12px}
 .ops-team-type{display:block;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--ops-muted)}
 .ops-team-contact span{display:inline-flex;align-items:center;gap:6px}
+/* Top bar (Channel Cast layout): account type › breadcrumbs left; search, notifications, theme, avatar and email right. */
+.ops .ops-topbar{gap:12px}
+.ops-crumbs{display:flex;align-items:center;gap:6px;min-width:0;font-size:13px;color:var(--ops-muted);white-space:nowrap}
+.ops-crumb{display:inline-flex;align-items:center;gap:6px;min-width:0}
+.ops-crumb svg{flex-shrink:0;opacity:.55}
+.ops-crumbs a{color:var(--ops-muted)}
+.ops-crumbs a:hover{color:var(--ops-ink)}
+.ops-crumbs [aria-current]{max-width:260px;overflow:hidden;text-overflow:ellipsis;color:var(--ops-ink);font-weight:600}
+.ops-topbar-right{display:flex;flex:1;align-items:center;justify-content:flex-end;gap:8px;min-width:0;margin-left:auto}
+.ops-topbar-right .ops-search-box{flex:1;max-width:420px;margin:0}
+.ops-topbar .ops-save-status{display:inline;margin:0;font-size:11px;white-space:nowrap;color:var(--ops-muted)}
+.ops-icon-button{position:relative;display:inline-grid;place-items:center;flex-shrink:0;width:38px;height:38px;border:1px solid var(--ops-line);border-radius:9px;background:var(--ops-surface);color:var(--ops-muted);cursor:pointer}
+.ops-icon-button:hover{background:var(--ops-bg);color:var(--ops-ink)}
+.ops-bell,.ops-account{position:relative}
+.ops-bell-count{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#d6ff41;color:#19202e;font-size:10px;font-weight:700;line-height:18px;text-align:center;box-shadow:0 0 0 2px var(--ops-surface)}
+.ops-popover{position:absolute;top:calc(100% + 8px);right:0;z-index:70;width:min(360px,calc(100vw - 24px));overflow:hidden;border:1px solid var(--ops-line);border-radius:12px;background:var(--ops-surface);color:var(--ops-ink);box-shadow:0 18px 40px #0e121b26}
+.ops-popover-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--ops-line);font-size:13px}
+.ops-popover-head small{font-size:11px;color:var(--ops-muted)}
+.ops-popover-list{max-height:min(60vh,420px);overflow:auto;padding:6px}
+.ops-notification{display:flex;gap:10px;padding:9px 10px;border-radius:8px;color:var(--ops-ink)}
+.ops-notification:hover{background:var(--ops-bg)}
+.ops-notification i{display:grid;place-items:center;flex-shrink:0;width:28px;height:28px;border-radius:50%;background:#f5ffcc;color:#63790d}
+.ops-notification div{display:grid;gap:1px;min-width:0}
+.ops-notification b{font-size:13px;font-weight:600}
+.ops-notification small{overflow:hidden;font-size:11px;color:var(--ops-muted);white-space:nowrap;text-overflow:ellipsis}
+.ops-notification.is-unread b::after{content:'';display:inline-block;width:7px;height:7px;margin-left:6px;border-radius:50%;background:#aedb22;vertical-align:middle}
+.ops.dark .ops-notification i{background:#2a3346;color:#d6ff41}
+.ops-account-trigger{display:flex;align-items:center;gap:8px;min-width:0;padding:2px 6px 2px 2px;border:0;border-radius:999px;background:none;color:var(--ops-muted);font:inherit;font-size:13px;cursor:pointer}
+.ops-account-trigger:hover{color:var(--ops-ink)}
+.ops-account-avatar{display:grid;place-items:center;flex-shrink:0;width:34px;height:34px;border-radius:50%;background:#d6ff41;color:#19202e;font-size:12px;font-weight:700;object-fit:cover}
+.ops-account-email{max-width:220px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.ops-account-menu{width:250px;padding:6px}
+.ops-account-head{display:grid;gap:2px;margin-bottom:4px;padding:8px 10px 10px;border-bottom:1px solid var(--ops-line)}
+.ops-account-head b{font-size:13px}
+.ops-account-head small{overflow:hidden;font-size:11px;color:var(--ops-muted);text-overflow:ellipsis}
+.ops-account-menu a,.ops-account-menu button{display:flex;align-items:center;gap:9px;width:100%;padding:9px 10px;border:0;border-radius:7px;background:none;color:var(--ops-ink);font:inherit;font-size:13px;text-align:left;cursor:pointer}
+.ops-account-menu a:hover,.ops-account-menu button:hover{background:var(--ops-bg)}
+@media(max-width:1100px){.ops-account-email{display:none}.ops-crumbs [aria-current]{max-width:160px}}
+@media(max-width:760px){.ops-crumbs,.ops-topbar .ops-save-status{display:none}.ops-topbar-right{gap:6px}.ops-topbar-right .ops-search-box{max-width:none}.ops-icon-button{width:36px;height:36px}}
+/* Sidebar collapse control, now at the bottom of the sidebar. */
+.ops-sidebar-collapse{display:flex;align-items:center;gap:10px;width:100%;margin:0 0 12px;padding:9px 0;border:0;background:none;color:#c9ced8;font:inherit;font-size:13px;cursor:pointer}
+.ops-sidebar-collapse:hover{color:#eef1f5}
+.ops-sidebar-collapsed .ops-sidebar-collapse{justify-content:center}
+@media(max-width:760px){.ops-sidebar-collapse{display:none}}
+/* My profile (Channel Cast profile panel layout). */
+.ops-profile{display:grid;gap:22px}
+.ops-profile-header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;padding:20px 22px;border:1px solid var(--ops-line);border-radius:12px;background:var(--ops-surface)}
+.ops-profile-identity{display:flex;align-items:center;gap:16px;min-width:0}
+.ops-profile-avatar{position:relative;flex-shrink:0}
+.ops-profile-avatar>img,.ops-profile-avatar>span{display:grid;place-items:center;width:64px;height:64px;border-radius:16px;background:#d6ff41;color:#19202e;font-size:22px;font-weight:700;object-fit:cover}
+.ops-profile-avatar button{position:absolute;display:grid;place-items:center;border:1px solid var(--ops-line);border-radius:50%;background:var(--ops-surface);color:var(--ops-ink);box-shadow:0 2px 6px #0e121b1f;cursor:pointer}
+.ops-profile-avatar .is-change{right:-7px;bottom:-7px;width:28px;height:28px}
+.ops-profile-avatar .is-remove{top:-7px;right:-7px;width:24px;height:24px;color:#d63b30}
+.ops-profile-identity h1{margin:0;font-size:24px;font-weight:600;letter-spacing:-.4px}
+.ops-profile-identity p{margin:2px 0 0;font-size:13px;color:var(--ops-muted)}
+.ops-profile-badges{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--ops-muted)}
+.ops-profile-badges span{display:inline-flex;align-items:center;gap:4px}
+.ops-profile-saved{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#63790d}
+.ops.dark .ops-profile-saved{color:#d6ff41}
+.ops-profile-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:22px;align-items:start}
+.ops-profile-col{display:grid;gap:22px}
+.ops-profile-card{border:1px solid var(--ops-line);border-radius:12px;background:var(--ops-surface)}
+.ops-profile-card>header{padding:18px 20px 0}
+.ops-profile-card>header h2{margin:0;font-size:16px;font-weight:600}
+.ops-profile-card>header p{margin:4px 0 0;font-size:13px;color:var(--ops-muted)}
+.ops-profile-card>div{display:grid;gap:14px;padding:16px 20px 20px}
+.ops-profile-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 20px}
+.ops-profile-fields .is-wide{grid-column:1/-1}
+.ops-profile-fields .ops-muted{margin:6px 0 0;font-size:12px}
+.ops-profile-value{display:flex;align-items:flex-start;gap:10px;min-width:0}
+.ops-profile-value>svg{flex-shrink:0;margin-top:2px;color:var(--ops-muted)}
+.ops-profile-value>div{display:grid;gap:2px;min-width:0}
+.ops-profile-value small{font-size:12px;color:var(--ops-muted)}
+.ops-profile-value b{font-size:14px;font-weight:500;overflow-wrap:anywhere}
+.ops-profile-value b.is-empty{color:var(--ops-muted);font-weight:400}
+.ops-profile-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+@media(max-width:1100px){.ops-profile-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:620px){.ops-profile-fields{grid-template-columns:1fr}.ops-profile-header{padding:16px}}

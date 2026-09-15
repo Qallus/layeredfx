@@ -12,7 +12,7 @@ export const dashboardNavigation:{label:string;items:DashboardNavItem[]}[]=[
   {label:'Pipeline',href:'/admin/pipeline',icon:TrendingUp,children:[
    {label:'Leads',href:'/admin/leads',icon:UserRound},{label:'Jobs',href:'/admin/jobs',icon:BriefcaseBusiness},
   ]},
-  {label:'Business Cards',href:'/admin/business-cards',icon:IdCard},{label:'Orders',href:'/admin/orders',icon:ShoppingBag},
+  {label:'Orders',href:'/admin/orders',icon:ShoppingBag},
   {label:'Production',href:'/admin/production',icon:Boxes},{label:'Bookings',href:'/admin/bookings',icon:CalendarCheck},
   {label:'Payments',href:'/admin/payments',icon:CircleDollarSign},
   {label:'Communication',href:'/admin/communications',icon:Phone,children:[
@@ -28,7 +28,7 @@ export const dashboardNavigation:{label:string;items:DashboardNavItem[]}[]=[
    {label:'Coupons',href:'/admin/coupons',icon:Tag},{label:'Shipping',href:'/admin/shipments',icon:Truck},
   ]},
   {label:'Wall Studio',href:'/admin/wall-studio',icon:LayoutTemplate},{label:'Artwork',href:'/admin/artwork',icon:FileText},{label:'Marketing',href:'/admin/marketing',icon:Megaphone,children:[
-   {label:'Google Business',href:'/admin/google-business',icon:MapPin},
+   {label:'Google Business',href:'/admin/google-business',icon:MapPin},{label:'Business Cards',href:'/admin/business-cards',icon:IdCard},
   ]},
   {label:'CMS',href:'/admin/content',icon:PanelsTopLeft,children:[
    {label:'LFX Team',href:'/admin/team',icon:UsersRound},{label:'Partners',href:'/admin/partners',icon:Handshake},{label:'Blog Posts',href:'/admin/blog',icon:BookOpen},

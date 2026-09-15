@@ -1,37 +1,90 @@
-/* Wall-wrap test page. Scene coordinates are percentages of the 2526×1422 room photo. */
-.wwt{min-height:100dvh;background:#0e121b;color:#eef1f5;font-family:Arial,Helvetica,sans-serif;padding:28px clamp(16px,4vw,48px) 48px;box-sizing:border-box}
+/* Wall-wrap samples page. Scene coordinates are percentages of the 2526×1422 room photo. */
+.wwt{min-height:100dvh;background:#0e121b;color:#eef1f5;font-family:Arial,Helvetica,sans-serif;padding:0 clamp(16px,4vw,48px) 64px;box-sizing:border-box}
 .wwt *{box-sizing:border-box}
-.wwt-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px;max-width:1600px;margin:0 auto 20px}
-.wwt-kicker{margin:0 0 6px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#aedb22}
-.wwt-head h1{margin:0 0 6px;font-size:30px;font-weight:500;letter-spacing:-.6px}
-.wwt-head p{margin:0;max-width:620px;font-size:14px;line-height:1.6;color:#c9ced8}
+.wwt-bar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;max-width:1600px;margin:0 auto;padding:14px 0;background:#0e121bf2;border-bottom:1px solid #2a3346}
+.wwt-kicker{margin:0 0 4px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#aedb22}
+.wwt-bar h1{margin:0;font-size:22px;font-weight:500;letter-spacing:-.4px}
+.wwt-bar nav{display:flex;flex-wrap:wrap;gap:6px}
+.wwt-bar nav a{padding:7px 13px;border:1px solid #2a3346;border-radius:999px;color:#c9ced8;text-decoration:none;font-size:13px}
+.wwt-bar nav a:hover{border-color:#aedb22;color:#eef1f5}
 .wwt-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;font-size:13px}
 .wwt-controls button{min-height:38px;padding:0 16px;border:1px solid #47536b;border-radius:8px;background:#19202e;color:#eef1f5;font:inherit;cursor:pointer}
 .wwt-controls button:hover{border-color:#aedb22}
-.wwt-controls label{display:inline-flex;align-items:center;gap:6px;color:#c9ced8;cursor:pointer}
-.wwt-scene{position:relative;max-width:1600px;margin:0 auto;aspect-ratio:2526/1422;overflow:hidden;border-radius:14px;box-shadow:0 30px 80px #0e121b;background:#19202e}
+.wwt-controls label,.wwt-inline{display:inline-flex;align-items:center;gap:6px;color:#c9ced8;font-size:13px;cursor:pointer}
+.wwt-sample{max-width:1600px;margin:44px auto 0;scroll-margin-top:96px}
+.wwt-sample-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 20px;margin-bottom:14px}
+.wwt-sample-head h2{margin:0 0 4px;font-size:22px;font-weight:500}
+.wwt-sample-head p{margin:0;font-size:14px;color:#c9ced8}
+
+/* Frames: landscape shows the whole room; panel crops it like a login story column. */
+.wwt-frame{position:relative;overflow:hidden;border-radius:14px;background:#19202e;box-shadow:0 30px 80px #000000}
+.wwt-frame.is-landscape{aspect-ratio:2526/1422}
+.wwt-frame.is-panel{aspect-ratio:1/1;max-width:1100px;margin:0 auto}
+.wwt-scene{position:absolute;inset:0}
+.is-panel .wwt-scene{inset:0 auto;left:50%;aspect-ratio:2526/1422;transform:translateX(-50%)}
 .wwt-scene img{position:absolute;display:block;max-width:none;user-select:none;pointer-events:none}
 .wwt-room,.wwt-reference{inset:0;width:100%;height:100%}
 .wwt-reference{opacity:.5}
 .wwt-wall{position:absolute;left:14.5685%;top:2.3910%;width:76.2470%;height:74.3319%;overflow:hidden;-webkit-mask:url(/images/wall-wrap/wall-mask.png) 0 0/100% 100% no-repeat;mask:url(/images/wall-wrap/wall-mask.png) 0 0/100% 100% no-repeat;isolation:isolate}
 .wwt-sectional{left:20.0713%;top:54.7820%;width:59.7783%;height:39.5921%}
 .wwt-plant{left:78.0285%;top:44.5148%;width:14.8852%;height:39.6624%}
-.wwt-wrap{position:absolute;inset:0;background:var(--wrap);transform:translateX(-101%);animation:10s infinite both}
-.wwt-wrap::after{content:'';position:absolute;top:0;bottom:0;left:100%;width:2.5%;background:linear-gradient(90deg,#ffffffb3,#ffffff00);filter:blur(3px)}
-.wwt-wrap-1{animation-name:wwt-wrap-1}
-.wwt-wrap-2{animation-name:wwt-wrap-2}
-.wwt-wrap-3{animation-name:wwt-wrap-3}
-.wwt-wrap-4{animation-name:wwt-wrap-4}
-.wwt-wrap-5{animation-name:wwt-wrap-5}
+
+/* Wraps: keyframes are generated per finish in wall-wrap-test.tsx on a shared 16s clock. */
+.wwt-wrap,.wwt-now em,.wwt-card-swatch i,.wwt-card-names>div,.wwt-card-progress i{animation-duration:16s;animation-iteration-count:infinite;animation-fill-mode:both}
+.wwt-wrap{position:absolute;inset:0}
+.wwt-swipe .wwt-wrap{transform:translateX(-101%)}
+.wwt-swipe .wwt-wrap::after{content:'';position:absolute;top:0;bottom:0;left:100%;width:2.5%;background:linear-gradient(90deg,#ffffffb3,#ffffff00);filter:blur(3px)}
+.wwt-roll .wwt-wrap{transform:translateY(-101%);box-shadow:0 10px 30px #0e121b66}
+.wwt-roll .wwt-wrap::after{content:'';position:absolute;left:0;right:0;top:100%;height:4%;background:linear-gradient(180deg,#ffffffa6,#ffffff00);filter:blur(3px)}
 /* The room's own wall (downlight glows, soft falloff) cropped to the mask box and blended over the wrap. */
 .wwt-light{position:absolute;inset:0;pointer-events:none;background:url(/images/wall-wrap/living-room.webp) 61.3333% 9.3151%/131.1526% 134.5317% no-repeat;mix-blend-mode:soft-light;opacity:.9}
-.is-paused *,.is-paused *::after{animation-play-state:paused!important}
-@keyframes wwt-wrap-1{0%,8%{transform:translateX(-101%);opacity:1;animation-timing-function:cubic-bezier(.75,0,.25,1)}14%,90%{transform:translateX(0);opacity:1}96%,100%{transform:translateX(0);opacity:0}}
-@keyframes wwt-wrap-2{0%,16%{transform:translateX(-101%);opacity:1;animation-timing-function:cubic-bezier(.75,0,.25,1)}22%,90%{transform:translateX(0);opacity:1}96%,100%{transform:translateX(0);opacity:0}}
-@keyframes wwt-wrap-3{0%,24%{transform:translateX(-101%);opacity:1;animation-timing-function:cubic-bezier(.75,0,.25,1)}30%,90%{transform:translateX(0);opacity:1}96%,100%{transform:translateX(0);opacity:0}}
-@keyframes wwt-wrap-4{0%,32%{transform:translateX(-101%);opacity:1;animation-timing-function:cubic-bezier(.75,0,.25,1)}38%,90%{transform:translateX(0);opacity:1}96%,100%{transform:translateX(0);opacity:0}}
-@keyframes wwt-wrap-5{0%,41%{transform:translateX(-101%);opacity:1;animation-timing-function:cubic-bezier(.6,0,.2,1)}52%,90%{transform:translateX(0);opacity:1}96%,100%{transform:translateX(0);opacity:0}}
-.wwt-finishes{display:flex;flex-wrap:wrap;gap:8px 18px;max-width:1600px;margin:16px auto 0;padding:0;list-style:none;font-size:13px;color:#c9ced8}
+.wwt.is-paused *,.wwt.is-paused *::after{animation-play-state:paused!important}
+.wwt-finishes{display:flex;flex-wrap:wrap;gap:8px 18px;margin:16px 0 0;padding:0;list-style:none;font-size:13px;color:#c9ced8}
 .wwt-finishes li{display:inline-flex;align-items:center;gap:8px}
-.wwt-finishes i{width:14px;height:14px;border-radius:50%;box-shadow:inset 0 0 0 1px #ffffff40}
-@media(prefers-reduced-motion:reduce){.wwt-wrap{animation:none}.wwt-wrap-5{transform:none}}
+.wwt-finishes i{width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 1px #ffffff40}
+
+/* Sample 2: CMI-style text overlay, lighter than the CMI shade. */
+.wwt-cmi-shade{position:absolute;inset:0;background:linear-gradient(90deg,#0e121bb3 0%,#0e121b73 38%,#0e121b1f 70%,#0e121b00 100%),linear-gradient(0deg,#0e121bb3 0%,#0e121b00 32%)}
+.wwt-cmi{position:absolute;inset:0;display:flex;flex-direction:column;padding:clamp(22px,5%,64px)}
+.wwt-badge{align-self:flex-start;display:inline-flex;align-items:center;gap:10px;padding:9px 18px;border:1px solid #ffffff33;border-radius:999px;background:#0e121b59;backdrop-filter:blur(8px);font-size:clamp(12px,1.2vw,15px);font-weight:600}
+.wwt-badge i{width:8px;height:8px;border-radius:50%;background:#aedb22}
+.wwt-cmi-copy{margin:auto 0;max-width:min(620px,64%)}
+.wwt-cmi-copy blockquote{margin:0 0 22px;font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:clamp(26px,4.2vw,54px);line-height:1.12;letter-spacing:-.5px;color:#ffffff;text-shadow:0 2px 24px #0e121b80}
+.wwt-cmi-copy>b{display:block;font-size:clamp(13px,1.4vw,17px)}
+.wwt-cmi-copy>span{display:block;margin-top:4px;font-size:clamp(13px,1.3vw,16px);color:#c9ced8}
+.wwt-now{position:relative;height:1.6em;margin:16px 0 0;font-size:clamp(12px,1.2vw,14px);color:#e7ff8c}
+.wwt-now em{position:absolute;left:0;top:0;font-style:normal;white-space:nowrap;opacity:0}
+.wwt-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;padding-top:clamp(16px,2.6%,28px);border-top:1px solid #ffffff2e}
+.wwt-stats b{display:block;font-family:Georgia,'Times New Roman',serif;font-size:clamp(17px,2vw,28px);font-weight:700;color:#ffffff}
+.wwt-stats span{display:block;margin-top:4px;font-size:clamp(11px,1.1vw,14px);color:#c9ced8}
+
+/* Sample 3: finish showcase card with progress. */
+.wwt-showcase-shade{position:absolute;inset:0;background:linear-gradient(0deg,#0e121b8c 0%,#0e121b00 38%)}
+.wwt-card{position:absolute;left:3%;bottom:5%;width:min(420px,44%);display:grid;grid-template-columns:auto 1fr;gap:14px 16px;align-items:center;padding:16px 18px;border-radius:14px;background:#f7f9fbe6;backdrop-filter:blur(12px);color:#19202e;box-shadow:0 18px 50px #0e121b59}
+.wwt-card-swatch{position:relative;width:64px;height:64px}
+.wwt-card-swatch i{position:absolute;inset:0;border-radius:10px;box-shadow:inset 0 0 0 1px #0e121b26;opacity:0}
+.wwt-card-names{position:relative;height:58px}
+.wwt-card-names>div{position:absolute;inset:0;display:grid;align-content:center;opacity:0}
+.wwt-card-names small{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:#63790d;font-weight:600}
+.wwt-card-names b{font-size:18px;font-weight:600;margin-top:2px}
+.wwt-card-names span{font-size:13px;color:#47536b}
+.wwt-card-progress{grid-column:1/-1;display:grid;gap:4px}
+.wwt-card-progress span{height:4px;border-radius:2px;background:#c9ced8;overflow:hidden}
+.wwt-card-progress i{display:block;height:100%;background:#63790d;transform:scaleX(0);transform-origin:left}
+.wwt-cta{position:absolute;right:3%;bottom:5%;padding:12px 18px;border-radius:10px;background:#d6ff41;color:#19202e;font-weight:600;font-size:14px;text-decoration:none;box-shadow:0 12px 30px #0e121b59}
+.wwt-cta:hover{background:#aedb22}
+
+@media(max-width:760px){
+  .wwt-bar{position:static}
+  .wwt-sample{scroll-margin-top:16px}
+  .wwt-frame.is-panel{aspect-ratio:4/5}
+  .wwt-cmi-copy{max-width:100%}
+  .wwt-stats{grid-template-columns:1fr;gap:10px}
+  .wwt-card{left:3%;right:3%;width:auto;padding:12px 14px}
+  .wwt-card-swatch{width:48px;height:48px}
+  .wwt-cta{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .wwt-wrap,.wwt-now em,.wwt-card-swatch i,.wwt-card-names>div,.wwt-card-progress i{animation:none}
+  .wwt-wrap-final{transform:none}
+}

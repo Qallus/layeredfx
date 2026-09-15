@@ -29,7 +29,7 @@ try {
   await page.screenshot({path:'docs/reviews/screenshots/brand-mobile.png'});
   const manifest=await (await page.request.get('http://127.0.0.1:3000/manifest.webmanifest')).json();
   assert.equal(manifest.icons[0].src,'/brand/layeredfx_app_icon.svg');
-  for(const name of ['LayeredFX_favicon_dark.png','LayeredFX_favicon_light.png','layeredfx_app_icon.svg','LayeredFX_logo_light_outline_email.png','LayeredFX_logo_dark_outline_email.png','layeredfx_logo_dark_outline.svg']) {
+  for(const name of ['LayeredFX_favicon_dark.png','LayeredFX_favicon_light.png','layeredfx_app_icon.svg','lfx_logo_outline_light_mode.png','lfx_logo_light_mode.png','lfx_logo_outline_light_mode.svg','lfx_logo_light_mode.svg','LayeredFX_logo_dark_outline_email.png','layeredfx_logo_dark_outline.svg']) {
     assert.equal((await page.request.get('http://127.0.0.1:3000/brand/'+name)).status(),200);
   }
   assert.deepEqual(errors,[]);

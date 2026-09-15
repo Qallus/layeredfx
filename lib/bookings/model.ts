@@ -172,8 +172,8 @@ export function emailHtml({bodyHtml, preheader, origin}: {bodyHtml: string; preh
     + `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">${escapeHtml(preheader)}</div>`
     + `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f7f9fb"><tr><td align="center" style="padding:32px 14px">`
     + `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px">`
-    + `<tr><td style="background:#19202e;border-radius:16px 16px 0 0;padding:24px 32px"><a href="${origin}" style="text-decoration:none"><img src="${origin}/brand/LayeredFX_logo_dark_outline_email.png" alt="LayeredFX" width="168" style="display:block;border:0;height:auto;color:#ffffff;font-size:22px;font-weight:700"/></a></td></tr>`
-    + `<tr><td style="background:#ffffff;padding:34px 32px 24px;border-radius:0 0 16px 16px">${html}</td></tr>`
+    + `<tr><td style="background:#ffffff;border-radius:16px 16px 0 0;padding:24px 32px;border-bottom:1px solid #eef1f5"><a href="${origin}" style="text-decoration:none"><img src="${origin}/brand/lfx_logo_outline_light_mode.png" alt="LayeredFX" width="180" height="32" style="display:block;border:0;width:180px;height:auto;color:#19202e;font-size:22px;font-weight:700"/></a></td></tr>`
+    + `<tr><td style="background:#ffffff;padding:30px 32px 24px;border-radius:0 0 16px 16px">${html}</td></tr>`
     + `<tr><td style="padding:22px 24px;text-align:center;font-size:12px;line-height:1.7;color:#47536b">LayeredFX · Scottsdale, Arizona<br/><a href="mailto:hello@layeredfx.com" style="color:#47536b">hello@layeredfx.com</a> · <a href="${origin}" style="color:#47536b">layeredfx.com</a><br/>You are receiving this email because an appointment was booked with this address.</td></tr>`
     + `</table></td></tr></table></body></html>`;
 }

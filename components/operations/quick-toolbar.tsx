@@ -62,7 +62,7 @@ function ToolBody({tool,deal,caps,readOnly,onDone}:{tool:ToolId;deal?:Deal;caps:
   case 'schedule':return <ScheduleTool deal={deal} readOnly={readOnly} onDone={onDone}/>;
   case 'note':return deal?<LogToDeal deal={deal} kind="note" label="Note" readOnly={readOnly} primary onDone={onDone}/>:<QuickNotes/>;
   case 'voice':return <><VoiceRecorder/>{deal&&<LogToDeal deal={deal} kind="voice" label="Summarize the voice note on the timeline" readOnly={readOnly}/>}</>;
-  case 'agent':return <div className="ops-quick-tool"><p>Set up Eve, Paperclip teams and the voice agent, and queue work for them.</p><p className="ops-muted">Agents don't run from the dashboard yet; the Hermes, Paperclip and xAI connections still need to be built.</p><div className="ops-actions"><Button asChild><Link href="/admin/agent">Open AI Agents</Link></Button></div></div>;
+  case 'agent':return <div className="ops-quick-tool"><p>Set up Eve, Paperclip teams and the voice agent, and queue work for them.</p><p className="ops-muted">Agents don’t run from the dashboard yet; the Hermes, Paperclip and xAI connections still need to be built.</p><div className="ops-actions"><Button asChild><Link href="/admin/agent">Open AI Agents</Link></Button></div></div>;
   case 'plan':return <PlanTool deal={deal} readOnly={readOnly}/>;
   case 'contact':return <ContactTool contact={contact} readOnly={readOnly} onDone={onDone}/>;
   case 'quote':case 'sow':case 'invoice':return <DraftTool kind={tool} deal={deal} readOnly={readOnly}/>;

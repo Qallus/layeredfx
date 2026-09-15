@@ -5,10 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
 import { ArrowRight, CalendarCheck, Handshake, Headphones, Images, Layers3, LayoutTemplate, Mail, MessageSquare, Phone, Sparkles, X } from "lucide-react";
+import { business } from "@/lib/business/profile";
 import "./support-fab.css";
 
-const PHONE = { label: "(602) 777-3303", href: "tel:+16027773303" };
-const EMAIL = "hello@layeredfx.com";
+const PHONE = { label: business.phone.display, href: business.phone.href };
+const EMAIL = business.email;
 const OPTIONS = [
   { label: "Book a consultation", note: "Talk through your space with our team", icon: CalendarCheck, href: "/book" },
   { label: "Try Wall Studio", note: "Preview finishes on your own wall", icon: LayoutTemplate, href: "/studio" },
@@ -43,7 +44,7 @@ export function SupportFab() {
   return <>
     <div ref={root} data-lfx-overlay="" className="lfx lfx-fab">
       {open && <div id={panelId} className="lfx-fab-panel" role="region" aria-label="LayeredFX support">
-        <div className="lfx-fab-head"><p className="lfx-fab-title">Layered FX Support</p><p className="lfx-fab-hours">We are open Monday – Friday 9:00 am to 5:00 pm.</p></div>
+        <div className="lfx-fab-head"><p className="lfx-fab-title">Layered FX Support</p><p className="lfx-fab-hours">We are open Monday – Friday 9:00 am to 5:00 pm. {business.hours.saturday}.</p></div>
         <a className="lfx-fab-row" href={PHONE.href}><Phone size={17} aria-hidden="true" /><span>{PHONE.label}</span></a>
         <a className="lfx-fab-row" href={`mailto:${EMAIL}`}><Mail size={17} aria-hidden="true" /><span>{EMAIL}</span></a>
         {/* No LayeredFX AI assistant is connected yet; shown as upcoming rather than a working action. */}

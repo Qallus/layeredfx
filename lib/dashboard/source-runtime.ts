@@ -21,8 +21,10 @@ export async function sourceFetch(input:RequestInfo|URL,init?:RequestInit):Promi
  const method=(init?.method||(input instanceof Request?input.method:'GET')).toUpperCase();
  if(url.origin!==window.location.origin)return Response.json({error:'External requests require a configured LayeredFX provider.',message:'External requests require a configured LayeredFX provider.'},{status:503});
  if(url.pathname.startsWith('/api/')&&!url.pathname.startsWith('/api/ctrlp/'))url.pathname=url.pathname.replace('/api/','/api/ctrlp/');
- if(mode==='demo'&&method!=='GET')throw new Error('This action requires the LayeredFX database integration. No changes were saved or sent.');
- if(mode==='demo'&&method==='GET'){
+ // Bookings have a real LayeredFX route that also serves local demo data, so it is never short-circuited here.
+ const integrated=url.pathname==='/api/ctrlp/admin/bookings';
+ if(mode==='demo'&&method!=='GET'&&!integrated)throw new Error('This action requires the LayeredFX database integration. No changes were saved or sent.');
+ if(mode==='demo'&&method==='GET'&&!integrated){
   const data=sourceDashboardData();
   if(url.pathname==='/api/ctrlp/cmi/contacts')return Response.json(getSourceRuntime().state.contacts.map(c=>({id:c.id,first_name:c.name,last_name:'',company:c.company,phone:c.phone,type:'Client'})));
   if(url.pathname==='/api/ctrlp/cmi/staff-options')return Response.json({staff:getSourceRuntime().state.people.filter(p=>p.role!=='viewer').map(p=>({id:p.id,label:p.name,role:p.role}))});

@@ -6,6 +6,7 @@ import {OperationError} from '@/lib/operations/engine.mjs';
 import {isUuid} from '@/lib/operations/security.mjs';
 import {mutateBlog,published,type BlogState} from './model';
 import {launchContent} from './launch';
+import {withBookingTemplates} from '@/lib/bookings/templates';
 const initial=():BlogState=>({revision:0,items:launchContent()});
 const file=()=>path.join(process.cwd(),'.local-data','blog.json');
 async function database(query:string,init:RequestInit={}){
@@ -15,8 +16,9 @@ async function database(query:string,init:RequestInit={}){
  if(!response.ok)throw new OperationError('Blog storage is unavailable. Verify the reviewed blog schema and server configuration.',503);return response;
 }
 export async function readBlog():Promise<BlogState>{
- if(mode()==='demo'){try{return JSON.parse(await readFile(file(),'utf8'));}catch(e){if((e as NodeJS.ErrnoException).code==='ENOENT')return initial();throw e;}}
- const rows=await (await database('&select=revision,items')).json();return rows[0]||initial();
+ // Booking email templates are added when missing so they are always editable in the dashboard.
+ if(mode()==='demo'){try{return withBookingTemplates(JSON.parse(await readFile(file(),'utf8')));}catch(e){if((e as NodeJS.ErrnoException).code==='ENOENT')return withBookingTemplates(initial());throw e;}}
+ const rows=await (await database('&select=revision,items')).json();return withBookingTemplates(rows[0]||initial());
 }
 export async function publicPosts(){if(mode()!=='demo'&&!configured())return published(launchContent());return published((await readBlog()).items);}
 export async function saveBlog(method:string,body:Record<string,unknown>){

@@ -2,20 +2,56 @@ import {cookies} from 'next/headers';
 import {checkOrigin,errorResponse} from '@/lib/operations/server';
 import {readBody} from '@/lib/operations/security.mjs';
 import {OperationError} from '@/lib/operations/engine.mjs';
-import {portalClient,portalCookies,portalConfig,verifiedPortal} from '@/lib/portal/server';
+import {currentPortal,portalClient,portalCookies,portalConfig,verifiedPortal} from '@/lib/portal/server';
 import {accountTypes,initialPortal,isPartner,portalText} from '@/lib/portal/model';
 function passwordText(value:unknown){if(typeof value!=='string'||value.length>1024)throw new OperationError('Enter a valid password.',400);return value;}
+function newPassword(value:unknown){const password=passwordText(value);if(password.length<12)throw new OperationError('Use a password of at least 12 characters.',400);return password;}
 const attempts=new Map<string,{count:number;at:number}>();
+function throttle(key:string,limit=8){const now=Date.now(),rate=attempts.get(key),recent=rate&&now-rate.at<60000;if(recent&&rate.count>=limit)throw new OperationError('Please wait a minute before trying again.',429);if(attempts.size>10000)attempts.clear();attempts.set(key,recent?{count:rate.count+1,at:rate.at}:{count:1,at:now});}
+const siteUrl=()=>process.env.NEXT_PUBLIC_SITE_URL||'https://layeredfx.com';
+/** Sets a new password for the user that owns the access token (a recovery link token or a fresh sign-in). */
+async function updatePassword(accessToken:string,password:string){
+ const c=portalConfig();
+ const res=await fetch(`${c.url}/auth/v1/user`,{method:'PUT',headers:{apikey:c.anon,Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body:JSON.stringify({password}),cache:'no-store',signal:AbortSignal.timeout(12000)});
+ if(res.ok)return;
+ const data=await res.json().catch(()=>({}));const detail=String(data.msg||data.error_description||data.message||'');
+ if(/different from the old|same password/i.test(detail))throw new OperationError('Choose a password you have not used on this account before.',400);
+ if(/weak|pwned|leaked|compromised/i.test(detail))throw new OperationError('That password is too easy to guess. Choose a stronger one.',400);
+ if(res.status===401||res.status===403)throw new OperationError('This link has expired. Request a new password reset email.',401);
+ throw new OperationError('Your password could not be updated. Please try again.',400);
+}
 export async function POST(request:Request,{params}:{params:Promise<{action:string}>}){try{
  checkOrigin(request);const{action}=await params;const body=JSON.parse(await readBody(request,12000));
  if(action==='logout'){const jar=await cookies();const token=jar.get('lfx_portal_access')?.value;if(token)await portalClient(true).auth.admin.signOut(token,'local');jar.delete('lfx_portal_access');jar.delete('lfx_portal_refresh');return Response.json({ok:true});}
  const client=portalClient();
  if(action==='refresh'){const refresh_token=(await cookies()).get('lfx_portal_refresh')?.value;if(!refresh_token)throw new OperationError('Sign in required.',401);const{data,error}=await client.auth.refreshSession({refresh_token});if(error||!data.session)throw new OperationError('Sign in again.',401);const account=await verifiedPortal(data.session.access_token);await portalCookies(data.session);return Response.json({destination:isPartner(account.kind)?'/partner':'/portal'});}
+ if(action==='reset'){
+  throttle(`reset:${request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||'local'}`);
+  const token=typeof body.accessToken==='string'&&body.accessToken.length<4096?body.accessToken:'';if(!token)throw new OperationError('This reset link is invalid. Request a new one.',400);
+  const password=newPassword(body.password);
+  const{data,error}=await client.auth.getUser(token);if(error||!data.user)throw new OperationError('This link has expired. Request a new password reset email.',401);
+  await updatePassword(token,password);
+  return Response.json({message:'Your password has been updated. Sign in with your new password.'});
+ }
+ if(action==='password'){
+  const account=await currentPortal();throttle(`password:${account.user_id}`,5);
+  const current=passwordText(body.currentPassword),next=newPassword(body.newPassword);
+  if(current===next)throw new OperationError('Choose a new password that is different from your current one.',400);
+  const{data,error}=await client.auth.signInWithPassword({email:account.email,password:current});if(error||!data.session)throw new OperationError('Your current password is incorrect.',400);
+  await updatePassword(data.session.access_token,next);
+  const{data:fresh}=await client.auth.signInWithPassword({email:account.email,password:next});if(fresh.session)await portalCookies(fresh.session);
+  return Response.json({message:'Your password has been changed.'});
+ }
  const email=portalText(body.email,254).toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new OperationError('Enter a valid email.',400);
- const rate=attempts.get(email);if(rate&&Date.now()-rate.at<60000&&rate.count>=8)throw new OperationError('Please wait a minute before trying again.',429);if(attempts.size>10000)attempts.clear();attempts.set(email,{count:rate&&Date.now()-rate.at<60000?rate.count+1:1,at:rate&&Date.now()-rate.at<60000?rate.at:Date.now()});
+ throttle(email);
+ if(action==='forgot'){
+  // Always the same answer, so the form does not reveal which emails have accounts.
+  await client.auth.resetPasswordForEmail(email,{redirectTo:new URL('/reset-password',siteUrl()).href}).catch(()=>undefined);
+  return Response.json({message:`If an account exists for ${email}, we sent a link to reset your password. Check your inbox and spam folder.`});
+ }
  if(action==='register'){
   const name=portalText(body.name,150),password=passwordText(body.password),kind=body.kind;if(!name||password.length<12||!accountTypes.includes(kind))throw new OperationError('Complete your details and use a password of at least 12 characters.',400);
-  const{data,error}=await client.auth.signUp({email,password,options:{emailRedirectTo:new URL('/login',process.env.NEXT_PUBLIC_SITE_URL||'https://layeredfx.com').href}});
+  const{data,error}=await client.auth.signUp({email,password,options:{emailRedirectTo:new URL('/login',siteUrl()).href}});
   if(error)throw new OperationError('Registration could not be completed. Please try again.',400);
   if(data.user&&data.user.identities?.length){const{error:dbError}=await portalClient(true).from('lfx_portal_accounts').upsert({user_id:data.user.id,org_id:portalConfig().org,email,kind,status:isPartner(kind)?'pending':'active',revision:0,state:initialPortal(name)},{onConflict:'org_id,user_id',ignoreDuplicates:true});if(dbError)throw new OperationError('Account created but portal setup is incomplete. Contact LayeredFX before retrying.',503);}
   return Response.json({message:'Check your email to verify your account, then sign in. Partner access requires team approval.'});

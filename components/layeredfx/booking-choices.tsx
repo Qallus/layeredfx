@@ -3,15 +3,8 @@ import {useState} from 'react';
 import {Check,ChevronDown,ChevronLeft,ChevronRight,Clock,MapPin} from 'lucide-react';
 import {Button} from './ui/button';
 import './studio.css';
-export const appointments=[
- {name:'Surface consultation',minutes:30,color:'#a7ea31',description:'Explore your walls, cabinets, countertops and surface transformation options.',location:'Phone call'},
- {name:'Design consultation',minutes:45,color:'#38bdf8',description:'Materials, colors, custom graphics, wallpaper and finish selections.',location:'Video or phone'},
- {name:'Architectural wrap consultation',minutes:60,color:'#e9a42a',description:'Cabinets, doors, counters and commercial surfaces, measurements and preparation.',location:'Project consultation'},
- {name:'Window tint / film consultation',minutes:60,color:'#39bd72',description:'Privacy, solar control and decorative film for residential and commercial glass.',location:'Project consultation'},
- {name:'Installation consultation',minutes:90,color:'#f17f22',description:'Site access, preparation, measurements, scope and installation planning.',location:'Site details confirmed by team'},
- {name:'Roman clay / decorative finish',minutes:45,color:'#bb977c',description:'Texture, colors, substrate condition and decorative finish options.',location:'Project consultation'},
- {name:'Artwork / proof review',minutes:30,color:'#b18cf4',description:'Review graphics, artwork dimensions, proofs and production requirements.',location:'Video or phone'},
-];
+import {appointments} from '@/lib/bookings/catalog';
+export {appointments};
 export function BookingChoices({step,service,setService,date,setDate,time,setTime,next,back}:{step:number;service:string;setService:(s:string)=>void;date:string;setDate:(s:string)=>void;time:string;setTime:(s:string)=>void;next:()=>void;back:()=>void}){
  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Phoenix'}).format(new Date());
  const[month,setMonth]=useState((date||today).slice(0,7));

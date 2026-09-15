@@ -51,6 +51,7 @@ type Appointment = {
     location_type: string;
     customer_notes: string | null;
     internal_notes: string | null;
+    revision: number;
 };
 type AvailabilityRule = {
     id: string;
@@ -146,7 +147,7 @@ async function adminFetch(path: string, init?: RequestInit) {
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok)
-        throw new Error(payload.error || "Booking request failed.");
+        throw new Error(payload.error || payload.message || "Booking request failed.");
     return payload;
 }
 async function handleSignOut() {
@@ -220,12 +221,18 @@ export function AdminBookings() {
     async function updateAppointment(updates: Record<string, unknown>) {
         if (!selected)
             return;
-        const payload = await adminFetch("/api/ctrlp/admin/bookings", {
-            method: "PATCH",
-            body: JSON.stringify({ resource: "appointment", id: selected.id, ...updates }),
-        });
-        setSelected(payload.appointment);
-        await refreshWithMessage("Appointment updated.");
+        try {
+            // LayeredFX: the revision makes a stale save fail with 409 instead of overwriting newer changes.
+            const payload = await adminFetch("/api/ctrlp/admin/bookings", {
+                method: "PATCH",
+                body: JSON.stringify({ resource: "appointment", id: selected.id, revision: selected.revision, ...updates }),
+            });
+            setSelected(payload.appointment);
+            await refreshWithMessage("Appointment updated.");
+        }
+        catch (error) {
+            setMessage(error instanceof Error ? error.message : "Could not update appointment.");
+        }
     }
     async function updateAppointmentType(id: string, updates: Record<string, unknown>) {
         try {

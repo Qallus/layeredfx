@@ -209,7 +209,7 @@ async function apiCall(method: string, body: Record<string, unknown>) {
     });
     const json = await res.json().catch(() => ({})) as Record<string, unknown>;
     if (!res.ok)
-        throw new Error(String(json.error || "Request failed"));
+        throw new Error(String(json.error || json.message || "Request failed"));
     templateRevision=Number(json.revision);
     return json;
 }
@@ -640,6 +640,20 @@ export function AdminEmail() {
             setTab("templates");
         }
     }
+    // LayeredFX: copies a template as a new draft (for example, a booking template for another use case).
+    async function duplicateTemplate(tmpl: ContentItem) {
+        try {
+            await apiCall("POST", {
+                content_type: "email_template", title: `${tmpl.title} (copy)`.slice(0, 180), subject: tmpl.subject ?? "",
+                preheader: tmpl.preheader ?? "", status: "draft", categories: tmpl.categories ?? [], content: tmpl.content,
+                tags: [], hashtags: [], gallery: [],
+            });
+            setTemplates(await fetchTemplates());
+        }
+        catch (err) {
+            alert(err instanceof Error ? err.message : "Duplicate failed");
+        }
+    }
     async function sendEmail() {
         if (!sendTo.trim() || !sendSubject.trim()) {
             alert("To and Subject are required.");
@@ -832,6 +846,7 @@ export function AdminEmail() {
                       <td className="px-4 py-2.5">
                         <div className="flex items-center gap-1">
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openTemplate(tmpl)}><Edit2 className="h-3.5 w-3.5"/></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Duplicate ${tmpl.title}`} title="Duplicate" onClick={() => duplicateTemplate(tmpl)}><Copy className="h-3.5 w-3.5"/></Button>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-red-500" onClick={() => deleteTemplate(tmpl.id)}><Trash2 className="h-3.5 w-3.5"/></Button>
                         </div>
                       </td>

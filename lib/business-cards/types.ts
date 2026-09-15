@@ -23,6 +23,10 @@ export type MediaSettings = {
   profile_outline?: boolean;
   profile_outline_color?: string;
   profile_link_url?: string;
+  /** When true, the photo uses profile_margin_top/bottom instead of the default spacing. */
+  profile_spacing?: boolean;
+  profile_margin_top?: number;
+  profile_margin_bottom?: number;
   content_align?: "center" | "left";
   use_background_image?: boolean;
   logo_height?: number;

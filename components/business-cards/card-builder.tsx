@@ -8,7 +8,7 @@ import {
 import {Button} from '@/components/operations/shared';
 import {useUnsavedChanges} from '@/components/operations/use-unsaved-changes';
 import {cn} from '@/lib/layeredfx/utils';
-import {COLOR_PRESETS, LINK_TYPES, makeNewCard, publicCardUrl, uid} from '@/lib/business-cards/model';
+import {BRAND_PALETTE, COLOR_PRESETS, LINK_TYPES, makeNewCard, publicCardUrl, uid, withBrandColors} from '@/lib/business-cards/model';
 import type {Automation, AutomationAction, BusinessCard, BusinessCardLink, BusinessCardSection, MediaSettings, NfcStatus, OwnerOption, SectionType, SlideshowSlide, StepItem, ThemeMode} from '@/lib/business-cards/types';
 import {CardPreview} from './card-preview';
 import {CopyField, NfcWriter, useWebNfc} from './nfc-writer';
@@ -34,11 +34,15 @@ const Toggle = ({on, onChange, label}: {on: boolean; onChange: () => void; label
   <Button type="button" variant="outline" size="sm" aria-pressed={on} onClick={onChange}>{on ? <Eye aria-hidden size={15}/> : <EyeOff aria-hidden size={15}/>}{on ? label[0] : label[1]}</Button>
 );
 
+/** Brand palette swatches only (docs/BRAND_COLORS.md); other colors are replaced when the card is saved. */
 function ColorField({label, value, onChange}: {label: string; value: string; onChange: (v: string) => void}) {
-  return <F label={label}><div className="flex items-center gap-2">
-    <input type="color" aria-label={`${label} picker`} value={/^#[0-9a-f]{6}$/i.test(value) ? value : '#000000'} onChange={e => onChange(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border p-0.5"/>
-    <input value={value} maxLength={7} onChange={e => onChange(e.target.value)} className={inputCls}/>
-  </div></F>;
+  const current = BRAND_PALETTE.find(c => c.hex === value.toLowerCase());
+  return <div className="ops-field"><span>{label} — {current ? current.name : 'Not a brand color'}</span>
+    <div role="radiogroup" aria-label={label} className="bc-swatches">
+      {BRAND_PALETTE.map(c => <button type="button" role="radio" key={c.hex} aria-checked={current?.hex === c.hex} aria-label={c.name} title={`${c.name} ${c.hex}`}
+        className="bc-swatch" style={{background: c.hex}} onClick={() => onChange(c.hex)}/>)}
+    </div>
+  </div>;
 }
 
 async function uploadImage(file: File): Promise<string> {
@@ -84,7 +88,8 @@ export function CardBuilder({card, actor, ownerOptions, siteUrl, automations, on
   onClose: () => void;
   onSaved: (card: BusinessCard) => void;
 }) {
-  const initial = useMemo(() => card ?? makeNewCard({id: actor.id, name: actor.name, email: actor.email ?? undefined}), [card, actor]);
+  // Pre-palette cards open with brand colors so the editor, preview and saved card agree.
+  const initial = useMemo(() => card ? withBrandColors(card) : makeNewCard({id: actor.id, name: actor.name, email: actor.email ?? undefined}), [card, actor]);
   const [draft, setDraft] = useState<BusinessCard>(initial);
   const [saved, setSaved] = useState(() => JSON.stringify(initial));
   const [panel, setPanel] = useState<PanelKey>('content');
@@ -341,6 +346,11 @@ function PanelBody({panel, draft, set, setDraft, setSections, actor, ownerOption
           <label className="ops-inline mb-3"><input type="checkbox" checked={Boolean(m.profile_outline)} onChange={e => put({profile_outline: e.target.checked})}/> Outline around photo</label>
           {m.profile_outline && <ColorField label="Outline color" value={m.profile_outline_color || draft.accent_color} onChange={v => put({profile_outline_color: v})}/>}
           <F label="Photo links to (optional)"><input type="url" maxLength={2000} value={m.profile_link_url ?? ''} onChange={e => put({profile_link_url: e.target.value})} placeholder="https://…"/></F>
+          <label className="ops-switch mb-3"><input type="checkbox" role="switch" checked={Boolean(m.profile_spacing)} onChange={e => put({profile_spacing: e.target.checked})}/><span aria-hidden/>Margin options</label>
+          {m.profile_spacing && <div className="ops-form-grid">
+            <F label={`Margin top — ${m.profile_margin_top ?? 0}px`}><input type="range" min={0} max={96} step={2} value={m.profile_margin_top ?? 0} onChange={e => put({profile_margin_top: Number(e.target.value)})}/></F>
+            <F label={`Margin bottom — ${m.profile_margin_bottom ?? 12}px`}><input type="range" min={0} max={96} step={2} value={m.profile_margin_bottom ?? 12} onChange={e => put({profile_margin_bottom: Number(e.target.value)})}/></F>
+          </div>}
         </Group>
         <Group title="Layout">
           <F label="Profile alignment"><select value={m.content_align || 'center'} onChange={e => put({content_align: e.target.value as MediaSettings['content_align']})}><option value="center">Centered</option><option value="left">Left aligned</option></select></F>

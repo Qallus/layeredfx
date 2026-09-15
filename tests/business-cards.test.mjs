@@ -211,3 +211,31 @@ test('public events accept interactions on published cards only', async () => {
   assert.equal((await post(eventsApi, {cardId: 'card1', eventType: 'link_click', linkId: 'l1'})).status, 200);
   assert.deepEqual(fx.events.map(e => e.link_id), [null, 'l1']);
 });
+
+test('profile photo margins are opt-in and clamped', () => {
+  const plain = model.normalizeCard({}, null, {actor: ADMIN, owners: OWNERS, now: NOW}).media_settings;
+  assert.equal(plain.profile_spacing, false);
+  const custom = model.normalizeCard({media_settings: {profile_spacing: true, profile_margin_top: 500, profile_margin_bottom: -4}}, null, {actor: ADMIN, owners: OWNERS, now: NOW}).media_settings;
+  assert.equal(custom.profile_spacing, true);
+  assert.equal(custom.profile_margin_top, 96);
+  assert.equal(custom.profile_margin_bottom, 0);
+  assert.equal(model.normalizeCard({media_settings: {profile_spacing: 'yes'}}, null, {actor: ADMIN, owners: OWNERS, now: NOW}).media_settings.profile_spacing, false);
+});
+
+test('card color presets only use brand palette colors', () => {
+  const palette = readFileSync(new URL('../docs/BRAND_COLORS.md', import.meta.url), 'utf8').toLowerCase();
+  for (const p of model.COLOR_PRESETS) for (const hex of [p.bg, p.accent, p.text]) assert.ok(palette.includes(hex.toLowerCase()), `${p.name} uses ${hex}`);
+});
+
+test('cards saved with off-palette colors publish with LayeredFX brand colors', () => {
+  const legacy = {...model.makeNewCard(), background_color: '#1c2622', accent_color: '#b3c7a0', text_color: '#eef1f5', qr_settings: {foreground: '#223344'}, media_settings: {profile_outline_color: '#aedb22'}};
+  const pub = model.publicCard(legacy);
+  assert.equal(pub.background_color, '#19202e');
+  assert.equal(pub.accent_color, '#d6ff41');
+  assert.equal(pub.text_color, '#eef1f5');
+  assert.equal(pub.qr_settings.foreground, '#19202e');
+  assert.equal(pub.media_settings.profile_outline_color, '#aedb22');
+  const saved = model.normalizeCard({background_color: '#123456', accent_color: '#FF6B2C'}, null, {actor: ADMIN, owners: OWNERS, now: NOW});
+  assert.equal(saved.background_color, '#19202e');
+  assert.equal(saved.accent_color, '#ff6b2c');
+});

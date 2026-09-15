@@ -3,7 +3,7 @@
 // Adapted from Channel Cast OS components/business-cards/card-preview.tsx.
 import {ExternalLink, Mail, MessageSquare, Nfc, Phone} from 'lucide-react';
 import {cn} from '@/lib/layeredfx/utils';
-import type {PublicBusinessCard} from '@/lib/business-cards/model';
+import {brandColor, type PublicBusinessCard} from '@/lib/business-cards/model';
 import type {BusinessCardLink, BusinessCardSection, SlideshowSlide, StepItem} from '@/lib/business-cards/types';
 
 export type CardAction = 'call' | 'sms' | 'email' | 'map' | 'lead' | 'website' | 'video';
@@ -21,14 +21,17 @@ export function CardPreview({card, links, sections, onLink, onAction}: {
   onLink?: (link: BusinessCardLink) => void;
   onAction?: (action: CardAction) => void;
 }) {
-  const bg = card.background_color || '#19202e';
-  const accent = card.accent_color || '#d6ff41';
-  const text = card.text_color || '#eef1f5';
+  // Builder drafts can still hold pre-palette colors until saved; preview them as they will publish.
+  const bg = brandColor(card.background_color, '#19202e');
+  const accent = brandColor(card.accent_color, '#d6ff41');
+  const text = brandColor(card.text_color, '#eef1f5');
   const surface = hexAlpha(text, 0.06);
   const border = hexAlpha(text, 0.14);
   const media = card.media_settings || {};
   const shapeClass = media.profile_shape === 'square' ? 'rounded-md' : media.profile_shape === 'rounded' ? 'rounded-2xl' : 'rounded-full';
   const outlineColor = media.profile_outline ? (media.profile_outline_color || accent) : border;
+  // Custom margins replace the default gap between the logo, photo and name.
+  const photoSpacing = media.profile_spacing ? {marginTop: media.profile_margin_top ?? 0, marginBottom: media.profile_margin_bottom ?? 12} : undefined;
   const alignClass = media.content_align === 'left' ? 'items-start text-left' : 'items-center text-center';
   const useBgImage = Boolean(media.use_background_image && card.background_image_url);
   const name = card.display_name || [card.first_name, card.last_name].filter(Boolean).join(' ') || 'Your name';
@@ -60,8 +63,8 @@ export function CardPreview({card, links, sections, onLink, onAction}: {
         return wrap(<div className={cn('flex flex-col', alignClass)}>
           {logo ? <div className="mb-3">{media.logo_link_url ? <a href={media.logo_link_url} target="_blank" rel="noopener noreferrer" className="inline-block">{logo}</a> : logo}</div>
             : <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.2em]" style={{color: hexAlpha(text, 0.55)}}>{card.company_name || 'Digital card'}</div>}
-          {media.profile_link_url ? <a href={media.profile_link_url} target="_blank" rel="noopener noreferrer" className="inline-block">{photo}</a> : photo}
-          <h1 className="mt-3 text-lg font-semibold" style={{color: text}}>{name}</h1>
+          <div style={photoSpacing}>{media.profile_link_url ? <a href={media.profile_link_url} target="_blank" rel="noopener noreferrer" className="inline-block">{photo}</a> : photo}</div>
+          <h1 className={cn('text-lg font-semibold', !photoSpacing && 'mt-3')} style={{color: text}}>{name}</h1>
           {subtitle && <div className="mt-0.5 text-xs font-medium" style={{color: hexAlpha(text, 0.72)}}>{subtitle}</div>}
           {card.bio && <p className="mt-2 whitespace-pre-line text-xs leading-5" style={{color: hexAlpha(text, 0.72)}}>{card.bio}</p>}
         </div>);

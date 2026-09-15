@@ -76,7 +76,7 @@ export function NfcWriter({url, onWritten}: {url: string; onWritten?: () => Prom
         ? <Button variant="outline" className="w-full" onClick={() => abort.current?.abort()}>Cancel — waiting for an item…</Button>
         : <Button className="w-full" onClick={write}><Smartphone aria-hidden className="h-4 w-4"/> {count ? 'Write another item' : 'Write to NFC item'}</Button>}
       {msg && <p role={state === 'error' ? 'alert' : 'status'} className={state === 'error' ? 'ops-error' : 'text-xs text-muted-foreground'}>{msg}</p>}
-      {count > 0 && <p className="flex items-center gap-1 text-xs font-medium"><Check aria-hidden className="h-3.5 w-3.5 text-[#57704c]"/> {count} {count === 1 ? 'item' : 'items'} written this session</p>}
+      {count > 0 && <p className="flex items-center gap-1 text-xs font-medium"><Check aria-hidden className="h-3.5 w-3.5 text-[#1f9d64]"/> {count} {count === 1 ? 'item' : 'items'} written this session</p>}
     </div>
   );
 }

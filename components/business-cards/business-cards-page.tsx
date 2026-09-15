@@ -57,36 +57,48 @@ function CardActions({card, h}: {card: BusinessCard; h: CardHandlers}) {
 
 const counters = (card: BusinessCard) => `${card.view_count} views · ${card.click_count} clicks · ${card.save_count} saves · NFC ${card.nfc_status.replace('_', ' ')}`;
 
+/** Profile photo, or the first initial when the card has no photo. */
+function CardAvatar({card, size}: {card: BusinessCard; size: 'lg' | 'sm'}) {
+  const name = cardName(card);
+  return card.profile_photo_url
+    // eslint-disable-next-line @next/next/no-img-element
+    ? <img src={card.profile_photo_url} alt="" className={`bc-avatar bc-avatar-${size}`}/>
+    : <span aria-hidden className={`bc-avatar bc-avatar-${size}`}>{name.slice(0, 1).toUpperCase()}</span>;
+}
+
+function CardQr({card, size}: {card: BusinessCard; size: 'lg' | 'sm'}) {
+  return <div className={`bc-qr bc-qr-${size}`}>
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img src={qrSrc(card, size === 'lg' ? 400 : 160)} alt={size === 'lg' ? `QR code for ${cardName(card)}` : ''}/>
+  </div>;
+}
+
 function CardGrid({cards, h, showOwner}: {cards: BusinessCard[]; h: CardHandlers; showOwner: boolean}) {
-  return <div className="grid gap-4 xl:grid-cols-2">{cards.map(card => {
+  return <div className="bc-cards">{cards.map(card => {
     const url = publicCardUrl(h.siteUrl, card.slug);
-    return <article key={card.id} className="ops-panel mb-0"><div className="ops-panel-body">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
+    return <article key={card.id} className="ops-panel bc-card">
+      <CardAvatar card={card} size="lg"/>
+      <div className="bc-card-body">
+        <div className="bc-card-heading">
           {/* Inline size: the site's global heading styles otherwise enlarge this title. */}
-          <h2 className="m-0 truncate font-semibold" style={{fontSize: 17, lineHeight: 1.35, letterSpacing: 0}} title={cardName(card)}>{cardName(card)}</h2>
-          <div className="mt-1.5"><span className={statusClass(card.status)}>{STATUS_LABEL[card.status]}</span></div>
-          <p className="ops-muted m-0 mt-1.5 truncate">{url.replace(/^https?:\/\//, '')}</p>
-          {showOwner && <p className="ops-muted m-0">Owner: {card.owner_name || 'Unassigned'}</p>}
-          <p className="ops-muted m-0">{counters(card)}</p>
+          <h2 className="m-0 truncate font-semibold" style={{fontSize: 18, lineHeight: 1.35, letterSpacing: 0}} title={cardName(card)}>{cardName(card)}</h2>
+          <span className={statusClass(card.status)}>{STATUS_LABEL[card.status]}</span>
         </div>
-        <div className="shrink-0 rounded-lg border bg-white p-1.5">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={qrSrc(card, 160)} alt={`QR code for ${cardName(card)}`} className="h-16 w-16"/>
-        </div>
+        {(card.job_title || card.company_name) && <p className="m-0 truncate text-sm">{[card.job_title, card.company_name].filter(Boolean).join(' · ')}</p>}
+        <p className="ops-muted m-0 truncate">{url.replace(/^https?:\/\//, '')}</p>
+        {showOwner && <p className="ops-muted m-0">Owner: {card.owner_name || 'Unassigned'}</p>}
+        <p className="ops-muted m-0">{counters(card)}</p>
+        <div className="mt-3"><CardActions card={card} h={h}/></div>
       </div>
-      <div className="mt-4"><CardActions card={card} h={h}/></div>
-    </div></article>;
+      <CardQr card={card} size="lg"/>
+    </article>;
   })}</div>;
 }
 
 function CardList({cards, h, showOwner}: {cards: BusinessCard[]; h: CardHandlers; showOwner: boolean}) {
   return <ul className="ops-panel m-0 list-none p-0">{cards.map((card, i) => (
     <li key={card.id} className={`flex flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 ${i ? 'border-t' : ''}`}>
-      <div className="shrink-0 rounded border bg-white p-1">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={qrSrc(card, 96)} alt="" className="h-10 w-10"/>
-      </div>
+      <CardAvatar card={card} size="sm"/>
       <div className="min-w-[200px] flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className="truncate text-sm font-semibold">{cardName(card)}</span>
@@ -96,20 +108,22 @@ function CardList({cards, h, showOwner}: {cards: BusinessCard[]; h: CardHandlers
         <p className="ops-muted m-0">{counters(card)}</p>
       </div>
       <CardActions card={card} h={h}/>
+      <CardQr card={card} size="sm"/>
     </li>
   ))}</ul>;
 }
 
 function CardTable({cards, h, showOwner}: {cards: BusinessCard[]; h: CardHandlers; showOwner: boolean}) {
   return <div className="ops-table-wrap"><table className="ops-table">
-    <thead><tr><th>Card</th><th>Status</th>{showOwner && <th>Owner</th>}<th>Activity</th><th>NFC</th><th>Updated</th><th>Actions</th></tr></thead>
+    <thead><tr><th>Card</th><th>Status</th>{showOwner && <th>Owner</th>}<th>Activity</th><th>NFC</th><th>Updated</th><th>QR</th><th>Actions</th></tr></thead>
     <tbody>{cards.map(card => <tr key={card.id}>
-      <td><b>{cardName(card)}</b><small>/card/{card.slug}</small></td>
+      <td><div className="flex items-center gap-3"><CardAvatar card={card} size="sm"/><div className="min-w-0"><b>{cardName(card)}</b><small>/card/{card.slug}</small></div></div></td>
       <td><span className={statusClass(card.status)}>{STATUS_LABEL[card.status]}</span></td>
       {showOwner && <td>{card.owner_name || 'Unassigned'}</td>}
       <td className="whitespace-nowrap">{card.view_count} views<small>{card.click_count} clicks · {card.save_count} saves</small></td>
       <td className="whitespace-nowrap capitalize">{card.nfc_status.replace('_', ' ')}</td>
       <td className="whitespace-nowrap">{dateLabel(card.updated_at)}</td>
+      <td><CardQr card={card} size="sm"/></td>
       <td><CardActions card={card} h={h}/></td>
     </tr>)}</tbody>
   </table></div>;

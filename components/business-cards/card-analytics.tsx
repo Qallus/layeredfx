@@ -44,13 +44,13 @@ export function CardAnalyticsView({card, siteUrl, onClose}: {card: BusinessCard;
             <div className="flex h-44 items-end gap-1" role="img" aria-label={`Daily views and clicks for the last ${data.daily.length} days`}>
               {data.daily.map(d => <div key={d.date} className="flex flex-1 flex-col items-center justify-end gap-1" title={`${d.date}: ${d.views} views, ${d.clicks} clicks`}>
                 <div className="flex w-full flex-col justify-end" style={{height: 150}}>
-                  <div className="w-full rounded-t-sm bg-[#d9a441]" style={{height: `${(d.clicks / max) * 100}%`}}/>
-                  <div className="w-full bg-[#57704c]" style={{height: `${(d.views / max) * 100}%`}}/>
+                  <div className="w-full rounded-t-sm bg-[#aedb22]" style={{height: `${(d.clicks / max) * 100}%`}}/>
+                  <div className="w-full bg-[#47536b]" style={{height: `${(d.views / max) * 100}%`}}/>
                 </div>
-                <span className="text-[8px] text-[#718079]">{d.date}</span>
+                <span className="text-[8px] text-[#8a93a6]">{d.date}</span>
               </div>)}
             </div>
-            <p className="ops-muted mt-3 flex gap-4"><span><span aria-hidden className="mr-1 inline-block h-2 w-2 bg-[#57704c]"/>Views</span><span><span aria-hidden className="mr-1 inline-block h-2 w-2 bg-[#d9a441]"/>Clicks</span> Days use Arizona time.</p>
+            <p className="ops-muted mt-3 flex gap-4"><span><span aria-hidden className="mr-1 inline-block h-2 w-2 bg-[#47536b]"/>Views</span><span><span aria-hidden className="mr-1 inline-block h-2 w-2 bg-[#aedb22]"/>Clicks</span> Days use Arizona time.</p>
             <table className="sr-only"><caption>Daily activity</caption><thead><tr><th>Date</th><th>Views</th><th>Clicks</th></tr></thead><tbody>{data.daily.map(d => <tr key={d.date}><td>{d.date}</td><td>{d.views}</td><td>{d.clicks}</td></tr>)}</tbody></table>
           </>}
         </Panel>

@@ -15,7 +15,7 @@ export function PublicCard({card, publicUrl}: {card: PublicBusinessCard; publicU
   const [leadOpen, setLeadOpen] = useState(false);
   const [liked, setLiked] = useState(false);
   const [status, setStatus] = useState('');
-  const view = light ? {...card, background_color: '#f4f5f0', text_color: '#222c29'} : card;
+  const view = light ? {...card, background_color: '#f7f9fb', text_color: '#19202e', accent_color: '#63790d'} : card;
 
   const track = useCallback((eventType: EventType, linkId?: string) => {
     const body = JSON.stringify({cardId: card.id, eventType, linkId});
@@ -49,11 +49,11 @@ export function PublicCard({card, publicUrl}: {card: PublicBusinessCard; publicU
   }
 
   return (
-    <main className="min-h-screen w-full px-4 py-8" style={{background: view.background_color}}>
+    <main className="min-h-screen w-full px-4 py-8" style={{background: `radial-gradient(120% 60% at 50% 0%, ${hexAlpha(view.accent_color, 0.1)}, transparent 70%), ${view.background_color}`}}>
       {showSplash && opener && <Splash content={opener.content} card={view} onDone={() => setShowSplash(false)}/>}
       <div className="mx-auto max-w-sm">
         {card.theme_mode === 'both' && <div className="mb-3 flex justify-end">
-          <button type="button" onClick={() => setLight(v => !v)} className="grid h-9 w-9 place-items-center rounded-full" style={{background: 'rgba(127,127,127,0.16)', color: view.text_color}} aria-label={light ? 'Use dark colors' : 'Use light colors'}>
+          <button type="button" onClick={() => setLight(v => !v)} className="grid h-9 w-9 place-items-center rounded-full" style={{background: hexAlpha(view.text_color, 0.08), border: `1px solid ${hexAlpha(view.text_color, 0.14)}`, color: view.text_color}} aria-label={light ? 'Use dark colors' : 'Use light colors'}>
             {light ? <Moon aria-hidden className="h-4 w-4"/> : <Sun aria-hidden className="h-4 w-4"/>}
           </button>
         </div>}
@@ -72,7 +72,7 @@ export function PublicCard({card, publicUrl}: {card: PublicBusinessCard; publicU
 }
 
 function ActionButton({icon, label, onClick, card, pressed}: {icon: React.ReactNode; label: string; onClick: () => void; card: PublicBusinessCard; pressed?: boolean}) {
-  return <button type="button" aria-pressed={pressed} onClick={onClick} className="flex min-w-16 flex-col items-center gap-1 rounded-xl px-3 py-2 text-[11px] font-medium" style={{background: 'rgba(127,127,127,0.16)', color: card.accent_color}}>{icon}{label}</button>;
+  return <button type="button" aria-pressed={pressed} onClick={onClick} className="flex min-w-16 flex-col items-center gap-1 rounded-xl px-3 py-2 text-[11px] font-medium" style={{background: pressed ? card.accent_color : hexAlpha(card.text_color, 0.06), border: `1px solid ${pressed ? card.accent_color : hexAlpha(card.text_color, 0.14)}`, color: pressed ? card.background_color : card.accent_color}}>{icon}{label}</button>;
 }
 
 const youtubeId = (url: string) => /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/.exec(url)?.[1] ?? null;
@@ -140,8 +140,8 @@ function Splash({content, card, onDone}: {content: Record<string, unknown>; card
     : transition === 'slide-down' ? {transform: active ? 'translateY(0)' : leaving ? 'translateY(100%)' : 'translateY(-100%)'} : {};
   const primary = String(content.primary_label || 'View card');
   const secondary = String(content.secondary_label || (card.primary_phone ? 'Call me' : ''));
-  const buttonStyle = {background: 'rgba(127,127,127,0.18)', color: accent};
-  const primaryButton = <button type="button" autoFocus onClick={close} className="rounded-full px-6 py-2.5 text-sm font-semibold" style={buttonStyle}>{primary}</button>;
+  const buttonStyle = {background: 'transparent', border: `1px solid ${hexAlpha(card.text_color, 0.3)}`, color: card.text_color};
+  const primaryButton = <button type="button" autoFocus onClick={close} className="rounded-full px-6 py-2.5 text-sm font-semibold" style={{background: accent, color: card.background_color}}>{primary}</button>;
   return (
     <div role="dialog" aria-modal="true" aria-label="Welcome" className="fixed inset-0 z-40 flex flex-col items-center justify-center px-6 text-center transition-all duration-[450ms] ease-out motion-reduce:transition-none" style={{background: card.background_color, color: card.text_color, ...style}}>
       {mode === 'video' ? <><SplashVideo content={content}/><div className="mt-6">{primaryButton}</div></>
@@ -168,7 +168,7 @@ function LeadDialog({card, open, onOpenChange}: {card: PublicBusinessCard; open:
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
-  const inputStyle = {background: 'rgba(127,127,127,0.12)', color: card.text_color, border: '1px solid rgba(127,127,127,0.3)'};
+  const inputStyle = {background: hexAlpha(card.text_color, 0.06), color: card.text_color, border: `1px solid ${hexAlpha(card.text_color, 0.2)}`};
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -187,7 +187,7 @@ function LeadDialog({card, open, onOpenChange}: {card: PublicBusinessCard; open:
     <Dialog.Root open={open} onOpenChange={o => { onOpenChange(o); if (!o) { setDone(false); setError(''); } }}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60"/>
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl p-5" style={{background: card.background_color, color: card.text_color, border: '1px solid rgba(127,127,127,0.3)'}}>
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl p-5" style={{background: card.background_color, color: card.text_color, border: `1px solid ${hexAlpha(card.text_color, 0.2)}`}}>
           <Dialog.Close className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full opacity-70 hover:opacity-100" aria-label="Close"><X aria-hidden className="h-4 w-4"/></Dialog.Close>
           {done ? <div className="py-8 text-center">
             <Dialog.Title className="text-lg font-semibold">Thank you</Dialog.Title>
@@ -205,7 +205,7 @@ function LeadDialog({card, open, onOpenChange}: {card: PublicBusinessCard; open:
               </label>)}
               <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden className="hidden" value={values.website || ''} onChange={e => setValues(v => ({...v, website: e.target.value}))}/>
             </div>
-            {error && <p role="alert" className="mt-3 rounded-lg bg-red-500/15 px-3 py-2 text-xs">{error}</p>}
+            {error && <p role="alert" className="mt-3 rounded-lg px-3 py-2 text-xs" style={{background: hexAlpha('#d63b30', 0.18)}}>{error}</p>}
             <button type="submit" disabled={submitting} className="mt-4 w-full rounded-full py-2.5 text-sm font-semibold disabled:opacity-50" style={{background: card.accent_color, color: card.background_color}}>
               {submitting ? 'Sending…' : settings.submit_label || 'Send info'}
             </button>

@@ -15,3 +15,33 @@
   .ops .bc-actions .lfx-button-icon,.ops .ops-table .bc-actions .lfx-button-icon{width:32px;padding:0}
   .ops .bc-actions .bc-label{display:none}
 }
+
+/* Cards layout: one full-width card per row, photo left and a large QR code right. */
+.ops .bc-cards{display:grid;gap:16px}
+.ops .bc-card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:20px;margin:0;padding:20px}
+.ops .bc-card-body{min-width:0;display:grid;gap:3px}
+.ops .bc-card-heading{display:flex;align-items:center;gap:10px;min-width:0}
+.ops .bc-avatar{display:grid;place-items:center;flex-shrink:0;border-radius:999px;object-fit:cover;background:#19202e;color:#d6ff41;font-weight:700;border:2px solid #d6ff41}
+.ops .bc-avatar-lg{width:88px;height:88px;font-size:32px}
+.ops .bc-avatar-sm{width:40px;height:40px;font-size:15px;border-width:1.5px}
+.ops .bc-qr{flex-shrink:0;border:1px solid #c9ced8;border-radius:14px;background:#ffffff;line-height:0}
+.ops .bc-qr img{display:block;width:100%;height:100%}
+.ops .bc-qr-lg{width:168px;height:168px;padding:10px}
+.ops .bc-qr-sm{width:56px;height:56px;padding:4px;border-radius:8px}
+@media (max-width:760px){
+  .ops .bc-card{grid-template-columns:auto minmax(0,1fr);gap:14px;padding:16px}
+  .ops .bc-avatar-lg{width:64px;height:64px;font-size:24px}
+  .ops .bc-card .bc-qr-lg{grid-column:1 / -1;justify-self:center;width:200px;height:200px}
+}
+@media (max-width:760px){
+  .ops .bc-card{grid-template-columns:minmax(0,1fr)}
+  .ops .bc-card .bc-avatar-lg{justify-self:start}
+  .ops .bc-card .bc-qr-lg{grid-column:auto}
+  /* !important: the component's flex-nowrap utility would otherwise keep the row on one line. */
+  .ops .bc-card .bc-actions{flex-wrap:wrap!important;overflow:visible!important}
+}
+/* Card builder: brand palette swatches instead of a free color picker. */
+.ops .bc-swatches{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.ops .bc-swatch{width:26px;height:26px;padding:0;border-radius:999px;border:1px solid #c9ced8;cursor:pointer}
+.ops .bc-swatch[aria-checked="true"]{outline:2px solid #19202e;outline-offset:2px}
+.ops .bc-swatch:focus-visible{outline:2px solid #d6ff41;outline-offset:2px;box-shadow:0 0 0 5px #19202e}

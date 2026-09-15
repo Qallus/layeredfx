@@ -13,6 +13,7 @@ import type { AdminDashboardData } from "@/ctrlp/lib/admin/types";
 import { getSupabaseBrowserClient } from "@/ctrlp/lib/supabase/browser";
 import { sourceFetch } from '@/lib/dashboard/source-runtime';
 import { BookingLeadActions } from '@/components/admin/booking-lead-actions';
+import { ManualBooking } from '@/components/admin/manual-booking';
 import { CalendarCheck,CalendarDays,CheckCircle2,Clock,Link2,Link2Off,Loader2,Pencil,Plus,ShieldCheck,Trash2 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -319,6 +320,7 @@ export function AdminBookings() {
                 </div>
                 <div className="flex gap-2">
                   <Button asChild className="ops-public-booking-link"><a href="/book" target="_blank" rel="noreferrer"><CalendarCheck className="mr-2 h-4 w-4"/>Public booking page</a></Button>
+                  <ManualBooking onCreated={(text) => void refreshWithMessage(text)}/>
                   <Button variant="outline" onClick={() => setView("availability")}><Plus className="mr-2 h-4 w-4"/>Block time</Button>
                 </div>
               </div>

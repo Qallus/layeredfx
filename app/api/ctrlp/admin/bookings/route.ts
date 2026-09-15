@@ -4,8 +4,8 @@ import {checkOrigin, currentActor, errorResponse, mode, people} from '@/lib/oper
 import {OperationError} from '@/lib/operations/engine.mjs';
 import {readBody} from '@/lib/operations/security.mjs';
 import {appointments} from '@/lib/bookings/catalog';
-import {MAX_DAYS_AHEAD, staffUpdate, type Booking} from '@/lib/bookings/model';
-import {getBooking, listBookings, listNotifications, saveBooking} from '@/lib/bookings/server';
+import {MAX_DAYS_AHEAD, newStaffBooking, staffUpdate, type Booking} from '@/lib/bookings/model';
+import {createBooking, getBooking, listBookings, listNotifications, saveBooking} from '@/lib/bookings/server';
 
 export const dynamic = 'force-dynamic';
 const headers = {'Cache-Control': 'private, no-store'};
@@ -75,5 +75,17 @@ async function unsupported(request: Request) {
     return notIntegrated();
   } catch (e) { return errorResponse(e); }
 }
-export const POST = unsupported;
+// Manual booking from Dashboard › Bookings. Appointment types, availability and blocked time stay unconnected.
+export async function POST(request: Request) {
+  try {
+    checkOrigin(request);
+    const actor = await staff();
+    if (actor.role === 'viewer') throw new OperationError('This account is read-only.', 403);
+    const body = await jsonBody(request);
+    if (body.resource !== 'appointment') return notIntegrated();
+    const booking = newStaffBooking(body, mode() === 'demo' ? [] : await people(), actor.name);
+    const saved = await createBooking(booking);
+    return Response.json({appointment: adminAppointment(saved)}, {status: 201, headers});
+  } catch (e) { return errorResponse(e); }
+}
 export const DELETE = unsupported;

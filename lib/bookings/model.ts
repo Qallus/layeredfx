@@ -68,6 +68,46 @@ export function newPublicBooking(body: Record<string, unknown>, now = Date.now()
   };
 }
 
+// ── Manual booking from the dashboard ───────────────────────────────────────────
+// Staff are not limited to the public 9:00–4:00 slots: they can log an appointment at any time in
+// five-minute steps, including one already held (up to a year back) so the record matches reality.
+export const PAST_DAYS_ALLOWED = 365;
+export function staffBookingWindow(date: unknown, time: unknown, minutes: number, now = Date.now()) {
+  if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new OperationError('Choose a valid date.', 400);
+  if (typeof time !== 'string' || !/^\d{2}:\d{2}$/.test(time)) throw new OperationError('Choose a valid time.', 400);
+  const [hours, mins] = time.split(':').map(Number);
+  if (hours > 23 || mins > 59 || mins % 5 !== 0) throw new OperationError('Choose a time in five-minute steps.', 400);
+  const start = new Date(`${date}T${time}:00-07:00`); // Arizona does not observe daylight saving time.
+  if (Number.isNaN(start.getTime()) || new Intl.DateTimeFormat('en-CA', {timeZone: BOOKING_TIMEZONE}).format(start) !== date) throw new OperationError('Choose a valid date.', 400);
+  if (start.getTime() < now - PAST_DAYS_ALLOWED * 86400000) throw new OperationError('Choose a date within the last year.', 400);
+  if (start.getTime() > now + MAX_DAYS_AHEAD * 86400000) throw new OperationError(`Appointments can be booked up to ${MAX_DAYS_AHEAD} days ahead.`, 400);
+  return {start_time: start.toISOString(), end_time: new Date(start.getTime() + minutes * 60000).toISOString()};
+}
+
+/** A booking created by staff in the dashboard. No email is sent; the customer is not notified from here. */
+export function newStaffBooking(body: Record<string, unknown>, members: {id: string; role: string}[], actorName: string, now = Date.now()): Booking {
+  const type = appointment(body.appointment);
+  const first = text(body.firstName, 75, 'First name'), last = text(body.lastName, 75, 'Last name');
+  if (!first) throw new OperationError('Enter the customer first name.', 400);
+  const email = text(body.email, 254, 'Email').toLowerCase();
+  if (!EMAIL.test(email)) throw new OperationError('Enter a valid email address.', 400);
+  const phone = text(body.phone, 40, 'Phone');
+  if (phone && !/^\+?[\d ().-]{7,40}$/.test(phone)) throw new OperationError('Enter a valid phone number.', 400);
+  const status = body.status === undefined || body.status === '' ? 'confirmed' : String(body.status);
+  if (!(BOOKING_STATUSES as readonly string[]).includes(status)) throw new OperationError('Invalid appointment status.', 400);
+  const assigned = body.assigned_staff_id === null || body.assigned_staff_id === undefined || body.assigned_staff_id === '' ? null : String(body.assigned_staff_id);
+  if (assigned && !members.some(member => member.id === assigned && member.role !== 'viewer')) throw new OperationError('Assign an active staff member.', 400);
+  const at = new Date(now).toISOString();
+  return {
+    id: crypto.randomUUID(), appointment_type: type.slug, title: type.name, location_type: type.locationType,
+    ...staffBookingWindow(body.date, body.time, type.minutes, now), timezone: BOOKING_TIMEZONE, status: status as BookingStatus,
+    customer_first_name: first, customer_last_name: last, customer_email: email, customer_phone: phone,
+    company_name: text(body.company, 200, 'Company'), customer_notes: text(body.message, 3000, 'Message'),
+    internal_notes: text(body.internal_notes, 5000, 'Internal notes'), assigned_staff_id: assigned, source: 'dashboard',
+    history: [{at, actor: 'staff', action: 'booked', detail: `${actorName}: booked manually`}], revision: 0, created_at: at, updated_at: at,
+  };
+}
+
 export const customerCanChange = (booking: Booking, now = Date.now()) => !CLOSED.includes(booking.status) && Date.parse(booking.start_time) > now;
 
 /** Customer changes take effect immediately: cancel, or move to a new type/date/time. */

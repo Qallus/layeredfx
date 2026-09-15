@@ -44,3 +44,44 @@ test('public booking is rate limited per client',async()=>{let last;for(let i=0;
 test('portal lists and changes only the signed-in customer’s appointments',async()=>{const mine=model.newPublicBooking(input()),theirs=model.newPublicBooking(input({email:'other@example.com'}));fixture.bookings.set(mine.id,mine);fixture.bookings.set(theirs.id,theirs);const listed=await (await portalApi.GET()).json();assert.ok(listed.bookings.length>0&&listed.bookings.every(b=>b.customer_email==='ana@example.com'));assert.equal((await portalApi.PATCH(request('/api/portal/bookings',{id:theirs.id,revision:0,action:'cancel'},{method:'PATCH'}))).status,404);assert.equal((await portalApi.PATCH(request('/api/portal/bookings',{id:mine.id,revision:0,action:'cancel'},{method:'PATCH',origin:'https://evil.test'}))).status,403);const response=await portalApi.PATCH(request('/api/portal/bookings',{id:mine.id,revision:0,action:'cancel'},{method:'PATCH'}));assert.equal(response.status,200);assert.equal((await response.json()).booking.status,'canceled');assert.equal(fixture.saves.at(-1).expected,0);assert.equal(fixture.notifies.at(-1),'canceled');fixture.portalEmail='';assert.equal((await portalApi.GET()).status,401);fixture.portalEmail='ana@example.com';});
 test('dashboard bookings reject viewers, keep unconnected resources honest and use revisions',async()=>{const b=model.newPublicBooking(input({email:'staff-test@example.com'}));fixture.bookings.set(b.id,b);fixture.role='viewer';assert.equal((await adminApi.PATCH(request('/api/ctrlp/admin/bookings',{resource:'appointment',id:b.id,revision:0,status:'confirmed'},{method:'PATCH'}))).status,403);fixture.role='staff';const typeResponse=await adminApi.POST(request('/api/ctrlp/admin/bookings',{resource:'appointment_type',name:'X'}));assert.equal(typeResponse.status,503);assert.equal((await typeResponse.json()).configurationRequired,true);const updated=await adminApi.PATCH(request('/api/ctrlp/admin/bookings',{resource:'appointment',id:b.id,revision:0,status:'confirmed',assigned_staff_id:'m1',internal_notes:'Call first'},{method:'PATCH'}));assert.equal(updated.status,200);assert.equal((await updated.json()).appointment.status,'confirmed');assert.equal((await adminApi.PATCH(request('/api/ctrlp/admin/bookings',{resource:'appointment',id:b.id,revision:0,status:'completed'},{method:'PATCH'}))).status,409);const listed=await (await adminApi.GET(new Request('https://layeredfx.com/api/ctrlp/admin/bookings'))).json();const summary=await (await adminApi.GET(new Request('https://layeredfx.com/api/ctrlp/admin/bookings?summary=1'))).json();assert.ok(Number.isInteger(summary.upcoming)&&summary.upcoming>=1);assert.equal('appointments' in summary,false);assert.ok(Array.isArray(summary.next)&&summary.next.length<=5&&summary.next.some(n=>n.id===b.id&&n.start_time===b.start_time));assert.ok(summary.next.every(n=>!('customer_email' in n)&&!('internal_notes' in n)));assert.ok(listed.appointments.some(a=>a.id===b.id&&a.appointment_type_id==='surface-consultation'));});
 test('adding a booking to Leads and Pipeline keeps appointment details and never duplicates records',async()=>{const {applyCommand,emptyState}=await import(engine);const actor={id:'m1',name:'Jo',role:'staff'};let state={...emptyState(),people:[actor]};const booking=model.operationsBooking(model.newPublicBooking(input({email:'convert@example.com',message:'Wrap the island'})));for(let i=0;i<2;i++)state=applyCommand(state,{type:'booking.import',booking},actor).state;assert.equal(state.leads.length,1);assert.equal(state.leads[0].source,'Booking');assert.equal(state.leads[0].email,'convert@example.com');assert.equal(state.leads[0].bookings.length,1);for(let i=0;i<2;i++)state=applyCommand(state,{type:'booking.pipeline',booking},actor).state;assert.equal(state.leads.length,1);assert.equal(state.deals.length,1);assert.equal(state.leads[0].opportunityId,state.deals[0].id);assert.match(state.deals[0].notes,new RegExp(`Booking ${booking.id}: Surface consultation`));assert.match(state.deals[0].notes,/Wrap the island/);assert.equal(state.deals[0].notes.split(`Booking ${booking.id}`).length,2);assert.throws(()=>applyCommand(state,{type:'booking.import',booking:{id:'x'}},actor),/Invalid booking/);assert.throws(()=>applyCommand(state,{type:'booking.import',booking},{...actor,role:'viewer'}),/read-only/);});
+
+const staffInput=(over={})=>({resource:'appointment',appointment:'installation-consultation',date:phoenixDay(3),time:'07:45',firstName:'Dana',lastName:'Kim',email:'Dana@Example.com',phone:'(602) 555-0144',company:'Kim Interiors',message:'Garage cabinets',internal_notes:'Bring samples',status:'confirmed',...over});
+
+test('manual booking allows staff hours and past records but still validates details',()=>{
+ const members=[{id:'m1',role:'staff'},{id:'v1',role:'viewer'}];
+ const booking=model.newStaffBooking(staffInput({assigned_staff_id:'m1'}),members,'Jo');
+ assert.equal(booking.source,'dashboard');
+ assert.equal(booking.status,'confirmed');
+ assert.equal(booking.customer_email,'dana@example.com');
+ assert.equal(booking.assigned_staff_id,'m1');
+ assert.equal(booking.title,'Installation consultation');
+ assert.equal(Date.parse(booking.end_time)-Date.parse(booking.start_time),90*60000);
+ assert.equal(booking.history[0].actor,'staff');
+ assert.match(booking.history[0].detail,/^Jo: booked manually$/);
+ // A past appointment can be recorded, unlike the public form.
+ assert.equal(model.newStaffBooking(staffInput({date:phoenixDay(-30)}),members,'Jo').status,'confirmed');
+ for(const over of [{appointment:'free-install'},{time:'07:47'},{time:'25:00'},{date:'2026-02-30'},{date:phoenixDay(-400)},{date:phoenixDay(200)},{firstName:' '},{email:'nope'},{phone:'call me'},{status:'bogus'},{assigned_staff_id:'v1'},{assigned_staff_id:'nobody'}])
+  assert.equal(statusOf(()=>model.newStaffBooking(staffInput(over),members,'Jo')),400,JSON.stringify(over));
+});
+
+test('dashboard creates manual bookings and still refuses unconnected resources',async()=>{
+ fixture.role='viewer';
+ assert.equal((await adminApi.POST(request('/api/ctrlp/admin/bookings',staffInput()))).status,403);
+ fixture.role='staff';
+ assert.equal((await adminApi.POST(request('/api/ctrlp/admin/bookings',staffInput(),{origin:'https://evil.test'}))).status,403);
+ const blocked=await adminApi.POST(request('/api/ctrlp/admin/bookings',{resource:'blocked_time',title:'Out'}));
+ assert.equal(blocked.status,503);
+ assert.equal((await blocked.json()).configurationRequired,true);
+ const before=fixture.saves.length;
+ const created=await adminApi.POST(request('/api/ctrlp/admin/bookings',staffInput({assigned_staff_id:'m1'})));
+ assert.equal(created.status,201);
+ const {appointment}=await created.json();
+ assert.equal(appointment.source,'dashboard');
+ assert.equal(appointment.appointment_type_id,'installation-consultation');
+ assert.equal(fixture.saves.length,before+1);
+ // Manual bookings never email the customer.
+ const notifies=fixture.notifies.length;
+ await adminApi.POST(request('/api/ctrlp/admin/bookings',staffInput()));
+ assert.equal(fixture.notifies.length,notifies);
+ assert.equal((await adminApi.POST(request('/api/ctrlp/admin/bookings',staffInput({email:'bad'})))).status,400);
+});

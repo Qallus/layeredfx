@@ -29,12 +29,15 @@ function notIntegrated() {
 export async function GET(request: Request) {
   try {
     await staff();
-    // ?summary=1 feeds the sidebar badge without sending every booking.
+    // ?summary=1 feeds the sidebar badge and the overview's next appointments without sending every booking.
     if (new URL(request.url).searchParams.get('summary') === '1') {
       const now = Date.now(), bookings = await listBookings();
+      const upcoming = bookings.filter(item => !['canceled', 'completed', 'no_show'].includes(item.status) && Date.parse(item.start_time) >= now)
+        .sort((a, b) => Date.parse(a.start_time) - Date.parse(b.start_time));
       return Response.json({
-        upcoming: bookings.filter(item => !['canceled', 'completed', 'no_show'].includes(item.status) && Date.parse(item.start_time) >= now).length,
+        upcoming: upcoming.length,
         pending: bookings.filter(item => item.status === 'pending').length,
+        next: upcoming.slice(0, 5).map(item => ({id: item.id, title: item.title, customer: `${item.customer_first_name} ${item.customer_last_name}`.trim(), start_time: item.start_time, status: item.status})),
       }, {headers});
     }
     const [bookings, notifications, members] = await Promise.all([listBookings(), listNotifications(), mode() === 'demo' ? Promise.resolve([]) : people()]);

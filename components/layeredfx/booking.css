@@ -1,9 +1,9 @@
 /* /book final step and confirmation. */
 .lfx-hp{position:absolute!important;left:-10000px!important;width:1px;height:1px;overflow:hidden}
-.lfx-request-error{padding:12px 14px;border:1px solid #d9a295;border-radius:10px;background:#fbefe9;color:#8a352d!important;font-size:13px}
+.lfx-request-error{padding:12px 14px;border:1px solid #d63b30;border-radius:10px;background:#eef1f5;color:#d63b30!important;font-size:13px}
 .lfx-booking-selection{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px}
 .lfx-booking-confirmed{display:grid;gap:14px}
-.lfx-booking-confirmed-icon{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:#e4efd2;color:#3f6b1e}
+.lfx-booking-confirmed-icon{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:#eef1f5;color:#63790d}
 .lfx .lfx-booking-confirmed h2{font-size:36px;letter-spacing:-1px;margin:4px 0 0}
 .lfx-booking-confirmed>p{margin:0}
 .lfx-booking-summary{display:grid;margin:8px 0 4px;border:1px solid var(--lfx-line);border-radius:14px;overflow:hidden}
@@ -11,11 +11,11 @@
 .lfx-booking-summary>div:first-child{border-top:0}
 .lfx-booking-summary dt{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--lfx-muted)}
 .lfx-booking-summary dd{margin:0;font-size:14px;font-weight:500}
-.lfx-booking-next{margin-top:8px;padding:20px;border-radius:14px;background:#eef2e6}
+.lfx-booking-next{margin-top:8px;padding:20px;border-radius:14px;background:#eef1f5}
 .lfx .lfx-booking-next h3{font-size:17px;margin:0 0 6px}
 .lfx-booking-next p{margin:0}
 .lfx-booking-next .lfx-request-actions{margin-top:16px}
 html[data-frontend-theme=dark] .lfx .lfx-booking-next{background:var(--lfx-card)}
-html[data-frontend-theme=dark] .lfx .lfx-booking-confirmed-icon{background:var(--lfx-line);color:#b5d08f}
-html[data-frontend-theme=dark] .lfx .lfx-request-error{background:#3a1f1a;border-color:#7a3a30;color:#f1c1b6!important}
+html[data-frontend-theme=dark] .lfx .lfx-booking-confirmed-icon{background:var(--lfx-line);color:#aedb22}
+html[data-frontend-theme=dark] .lfx .lfx-request-error{background:#19202e;border-color:#d63b30;color:#c9ced8!important}
 @media(max-width:600px){.lfx-booking-summary>div{grid-template-columns:1fr;gap:4px}.lfx .lfx-booking-confirmed h2{font-size:30px}}

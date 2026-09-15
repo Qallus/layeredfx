@@ -71,7 +71,7 @@ function ImageField({label, value, onChange}: {label: string; value: string; onC
       <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => input.current?.click()}><Upload aria-hidden size={14}/>{busy ? 'Uploading…' : 'Upload'}</Button>
       {value && <Button type="button" size="sm" variant="ghost" onClick={() => onChange('')}>Remove</Button>}
     </div>
-    {error && <small role="alert" className="text-[#985b40]">{error}</small>}
+    {error && <small role="alert" className="text-[#d63b30]">{error}</small>}
   </div>;
 }
 
@@ -135,7 +135,7 @@ export function CardBuilder({card, actor, ownerOptions, siteUrl, automations, on
         <nav aria-label="Card builder panels" className="flex gap-1 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
           {PANELS.map(({key, label, icon: Icon}) => (
             <button key={key} type="button" aria-current={panel === key ? 'true' : undefined} onClick={() => setPanel(key)}
-              className={cn('flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md border-0 px-3 py-2 text-left text-xs font-medium', panel === key ? 'bg-[#e3ebd9] text-[#4b693b]' : 'bg-transparent text-[#6b776c] hover:bg-[#edf0e9]')}>
+              className={cn('flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md border-0 px-3 py-2 text-left text-xs font-medium', panel === key ? 'bg-[#f5ffcc] text-[#63790d]' : 'bg-transparent text-[#47536b] hover:bg-[#eef1f5]')}>
               <Icon aria-hidden size={15}/>{label}
             </button>
           ))}
@@ -145,7 +145,7 @@ export function CardBuilder({card, actor, ownerOptions, siteUrl, automations, on
             <PanelBody panel={panel} draft={draft} set={set} setDraft={setDraft} setSections={setSections} actor={actor} ownerOptions={ownerOptions} siteUrl={siteUrl} automations={automations}/>
           </fieldset>
         </div></div>
-        <div className="rounded-[9px] border bg-[#edf0e9] p-4">
+        <div className="rounded-[9px] border bg-[#eef1f5] p-4">
           <div className="ops-panel-head mb-3 border-0 p-0"><h2>Live preview</h2>
             <div className="ops-views" aria-label="Preview width">{(['mobile', 'tablet', 'desktop'] as const).map(d => <button type="button" key={d} aria-pressed={device === d} className={device === d ? 'active' : ''} onClick={() => setDevice(d)}>{d}</button>)}</div>
           </div>
@@ -219,7 +219,7 @@ function PanelBody({panel, draft, set, setDraft, setSections, actor, ownerOption
             <Button type="button" size="icon" variant="ghost" aria-label={`Remove ${l.label}`} onClick={() => set('links', draft.links.filter(x => x.id !== l.id))}><Trash2 aria-hidden size={15}/></Button>
           </div>
           <input aria-label="Link URL" className={cn(inputCls, 'mb-2')} maxLength={2000} value={l.url} onChange={e => update(l.id, {url: e.target.value})} placeholder="https://…"/>
-          {!l.url.trim() && <p className="mb-2 text-[11px] text-[#985b40]">No valid URL — this link is hidden on the public card. Unsupported links are removed when you save.</p>}
+          {!l.url.trim() && <p className="mb-2 text-[11px] text-[#d63b30]">No valid URL — this link is hidden on the public card. Unsupported links are removed when you save.</p>}
           <div className="flex flex-wrap items-center gap-3">
             <select aria-label="Link type" value={l.link_type} onChange={e => update(l.id, {link_type: e.target.value as BusinessCardLink['link_type']})}>{LINK_TYPES.map(t => <option key={t} value={t}>{t}</option>)}</select>
             <label className="ops-inline"><input type="checkbox" checked={l.open_in_new_tab} onChange={e => update(l.id, {open_in_new_tab: e.target.checked})}/> New tab</label>
@@ -277,7 +277,7 @@ function PanelBody({panel, draft, set, setDraft, setSections, actor, ownerOption
     }
 
     case 'qr': {
-      const fg = draft.qr_settings.foreground || '#202b28';
+      const fg = draft.qr_settings.foreground || '#19202e';
       return <Group title="QR code">
         {draft.id && draft.slug ? <>
           <div className="mb-3 flex justify-center rounded-lg border bg-white p-4">
@@ -358,7 +358,7 @@ function PanelBody({panel, draft, set, setDraft, setSections, actor, ownerOption
           <Button type="button" size="sm" variant="outline" disabled={steps.length >= 20} onClick={() => { put([...steps, {id: uid(), title: 'New step', description: ''}]); toggleSection('steps', true); }}><Plus aria-hidden size={14}/> Add step</Button></div>
         {steps.map((st, i) => <div key={st.id} className="mb-2 rounded-lg border p-2.5">
           <div className="mb-1.5 flex items-center gap-2">
-            <span aria-hidden className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#e3ebd9] text-[11px] font-bold">{i + 1}</span>
+            <span aria-hidden className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#f5ffcc] text-[11px] font-bold">{i + 1}</span>
             <input aria-label={`Step ${i + 1} title`} className={inputCls} maxLength={120} value={st.title} onChange={e => put(steps.map((x, j) => j === i ? {...x, title: e.target.value} : x))}/>
             <Button type="button" size="icon" variant="ghost" aria-label={`Remove step ${i + 1}`} onClick={() => put(steps.filter((_, j) => j !== i))}><Trash2 aria-hidden size={15}/></Button>
           </div>
@@ -372,7 +372,7 @@ function PanelBody({panel, draft, set, setDraft, setSections, actor, ownerOption
     case 'settings': return <Group title="Card settings">
       <F label="Card name (internal)"><input maxLength={120} value={draft.card_name} onChange={e => set('card_name', e.target.value)}/></F>
       <F label="Public URL" hint={draft.id ? 'Changing this breaks printed QR codes and written NFC tags that use the old URL.' : 'Leave blank to generate one from the display name.'}>
-        <div className="flex items-center gap-1 text-sm"><span className="shrink-0 text-[#718079]">/card/</span>
+        <div className="flex items-center gap-1 text-sm"><span className="shrink-0 text-[#47536b]">/card/</span>
           <input className={inputCls} maxLength={60} value={draft.slug} onChange={e => set('slug', e.target.value.toLowerCase())} placeholder="auto" pattern="[a-z0-9-]*"/></div>
       </F>
       <F label="Status"><select value={draft.status} onChange={e => set('status', e.target.value as BusinessCard['status'])}>
@@ -397,7 +397,7 @@ function PanelBody({panel, draft, set, setDraft, setSections, actor, ownerOption
       ];
       return <Group title="Setup checklist">
         <ol className="m-0 list-none p-0">{steps.map((s, i) => <li key={s.label} className="mb-2 flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
-          <span aria-hidden className={cn('grid h-5 w-5 shrink-0 place-items-center rounded-full text-[10px]', s.done ? 'bg-[#57704c] text-white' : 'border')}>{s.done ? '✓' : i + 1}</span>
+          <span aria-hidden className={cn('grid h-5 w-5 shrink-0 place-items-center rounded-full text-[10px]', s.done ? 'bg-[#d6ff41] text-[#19202e]' : 'border')}>{s.done ? '✓' : i + 1}</span>
           <span className={cn('flex-1', s.done && 'line-through opacity-60')}>{s.label}<span className="sr-only">{s.done ? ' (done)' : ' (to do)'}</span></span>
         </li>)}</ol>
         <p className="ops-muted">{steps.filter(s => s.done).length} of {steps.length} complete.</p>
@@ -487,8 +487,8 @@ function AutomationsPanel({draft, set, support}: {draft: BusinessCard; set: Sett
       return <div key={a.action} className="mb-2 rounded-lg border p-3">
         <label className="flex items-start gap-2">
           <input type="checkbox" className="mt-1" disabled={!available} checked={Boolean(rule?.enabled) && available} onChange={e => setRule(a.action, {enabled: e.target.checked})}/>
-          <span><span className="block text-sm font-medium">{a.label}</span><span className="block text-[11px] text-[#718079]">{a.desc}</span>
-            {!available && <span className="mt-1 block text-[11px] text-[#985b40]">{a.channel === 'email' ? 'Unavailable: LayeredFX has no email delivery provider. Nothing is sent.' : 'Unavailable: LayeredFX Twilio SMS is not configured in this environment. Nothing is sent.'}</span>}</span>
+          <span><span className="block text-sm font-medium">{a.label}</span><span className="block text-[11px] text-[#47536b]">{a.desc}</span>
+            {!available && <span className="mt-1 block text-[11px] text-[#d63b30]">{a.channel === 'email' ? 'Unavailable: LayeredFX has no email delivery provider. Nothing is sent.' : 'Unavailable: LayeredFX Twilio SMS is not configured in this environment. Nothing is sent.'}</span>}</span>
         </label>
         {a.hasMessage && available && rule?.enabled && <textarea aria-label="Auto-reply message" className="mt-2" maxLength={1000} placeholder="Thanks for reaching out! I'll be in touch shortly." value={rule.message || ''} onChange={e => setRule(a.action, {message: e.target.value})}/>}
       </div>;

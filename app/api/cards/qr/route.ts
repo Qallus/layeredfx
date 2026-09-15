@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   else return new Response('A valid card is required.', {status: 400});
   const size = Math.min(Math.max(Number(params.get('size')) || 512, 64), 1024);
   try {
-    const png = await QRCode.toBuffer(target, {type: 'png', width: size, margin: 1, errorCorrectionLevel: 'M', color: {dark: hex(params.get('fg'), '#202b28'), light: hex(params.get('bg'), '#ffffff')}});
+    const png = await QRCode.toBuffer(target, {type: 'png', width: size, margin: 1, errorCorrectionLevel: 'M', color: {dark: hex(params.get('fg'), '#19202e'), light: hex(params.get('bg'), '#ffffff')}});
     const headers: Record<string, string> = {'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=3600', 'X-Content-Type-Options': 'nosniff'};
     if (params.get('download') === '1') headers['Content-Disposition'] = `attachment; filename="${slug || 'card'}-qr.png"`;
     return new Response(new Uint8Array(png), {headers});

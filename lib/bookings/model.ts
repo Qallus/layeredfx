@@ -154,27 +154,27 @@ const BUTTON_PARAGRAPH = /<p>\s*<a href="([^"]+)">([\s\S]*?)<\/a>\s*<\/p>/g;
 export function emailHtml({bodyHtml, preheader, origin}: {bodyHtml: string; preheader: string; origin: string}) {
   const buttons: string[] = [];
   let html = bodyHtml.replace(BUTTON_PARAGRAPH, (_match, href: string, label: string) => {
-    buttons.push(`<table role="presentation" cellpadding="0" cellspacing="0" style="margin:28px 0 22px"><tr><td style="border-radius:10px;background:#3f6b1e"><a href="${href}" style="display:inline-block;padding:14px 26px;border-radius:10px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none">${label}</a></td></tr></table>`);
+    buttons.push(`<table role="presentation" cellpadding="0" cellspacing="0" style="margin:28px 0 22px"><tr><td style="border-radius:10px;background:#d6ff41"><a href="${href}" style="display:inline-block;padding:14px 26px;border-radius:10px;color:#19202e;font-size:15px;font-weight:600;text-decoration:none">${label}</a></td></tr></table>`);
     return `%%LFX_BUTTON_${buttons.length - 1}%%`;
   });
   html = html
-    .replace(/<h1>/g, '<h1 style="margin:0 0 14px;font-size:28px;line-height:1.2;font-weight:500;letter-spacing:-0.4px;color:#1f2a22">')
-    .replace(/<h2>/g, '<h2 style="margin:26px 0 10px;font-size:18px;line-height:1.3;font-weight:600;color:#1f2a22">')
-    .replace(/<p>/g, '<p style="margin:0 0 14px;font-size:15px;line-height:1.65;color:#4a5446">')
-    .replace(/<ul>/g, '<ul style="margin:6px 0 18px;padding:4px 18px;list-style:none;background:#f6f7f2;border:1px solid #e3e6dc;border-radius:12px">')
-    .replace(/<li>/g, '<li style="padding:9px 0;font-size:14px;line-height:1.5;color:#2d372b;border-bottom:1px solid #e9ebe3">')
-    .replace(/<strong>/g, '<strong style="color:#1f2a22;font-weight:600">')
-    .replace(/<hr\s*\/?>/g, '<hr style="border:0;border-top:1px solid #e3e6dc;margin:24px 0"/>')
-    .replace(/<a href="/g, '<a style="color:#3f6b1e;text-decoration:underline" href="')
+    .replace(/<h1>/g, '<h1 style="margin:0 0 14px;font-size:28px;line-height:1.2;font-weight:500;letter-spacing:-0.4px;color:#19202e">')
+    .replace(/<h2>/g, '<h2 style="margin:26px 0 10px;font-size:18px;line-height:1.3;font-weight:600;color:#19202e">')
+    .replace(/<p>/g, '<p style="margin:0 0 14px;font-size:15px;line-height:1.65;color:#47536b">')
+    .replace(/<ul>/g, '<ul style="margin:6px 0 18px;padding:4px 18px;list-style:none;background:#f7f9fb;border:1px solid #c9ced8;border-radius:12px">')
+    .replace(/<li>/g, '<li style="padding:9px 0;font-size:14px;line-height:1.5;color:#19202e;border-bottom:1px solid #eef1f5">')
+    .replace(/<strong>/g, '<strong style="color:#19202e;font-weight:600">')
+    .replace(/<hr\s*\/?>/g, '<hr style="border:0;border-top:1px solid #c9ced8;margin:24px 0"/>')
+    .replace(/<a href="/g, '<a style="color:#63790d;text-decoration:underline" href="')
     .replace(/%%LFX_BUTTON_(\d+)%%/g, (_match, index: string) => buttons[Number(index)]);
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><title>LayeredFX</title></head>`
-    + `<body style="margin:0;padding:0;background:#f1f2ec;font-family:Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased">`
+    + `<body style="margin:0;padding:0;background:#f7f9fb;font-family:Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased">`
     + `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">${escapeHtml(preheader)}</div>`
-    + `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1f2ec"><tr><td align="center" style="padding:32px 14px">`
+    + `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f7f9fb"><tr><td align="center" style="padding:32px 14px">`
     + `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px">`
-    + `<tr><td style="background:#1f2a24;border-radius:16px 16px 0 0;padding:24px 32px"><a href="${origin}" style="text-decoration:none"><img src="${origin}/brand/LayeredFX_logo_dark_outline_email.png" alt="LayeredFX" width="168" style="display:block;border:0;height:auto;color:#ffffff;font-size:22px;font-weight:700"/></a></td></tr>`
+    + `<tr><td style="background:#19202e;border-radius:16px 16px 0 0;padding:24px 32px"><a href="${origin}" style="text-decoration:none"><img src="${origin}/brand/LayeredFX_logo_dark_outline_email.png" alt="LayeredFX" width="168" style="display:block;border:0;height:auto;color:#ffffff;font-size:22px;font-weight:700"/></a></td></tr>`
     + `<tr><td style="background:#ffffff;padding:34px 32px 24px;border-radius:0 0 16px 16px">${html}</td></tr>`
-    + `<tr><td style="padding:22px 24px;text-align:center;font-size:12px;line-height:1.7;color:#7a8374">LayeredFX · Scottsdale, Arizona<br/><a href="mailto:hello@layeredfx.com" style="color:#7a8374">hello@layeredfx.com</a> · <a href="${origin}" style="color:#7a8374">layeredfx.com</a><br/>You are receiving this email because an appointment was booked with this address.</td></tr>`
+    + `<tr><td style="padding:22px 24px;text-align:center;font-size:12px;line-height:1.7;color:#47536b">LayeredFX · Scottsdale, Arizona<br/><a href="mailto:hello@layeredfx.com" style="color:#47536b">hello@layeredfx.com</a> · <a href="${origin}" style="color:#47536b">layeredfx.com</a><br/>You are receiving this email because an appointment was booked with this address.</td></tr>`
     + `</table></td></tr></table></body></html>`;
 }
 /** Plain-text alternative for email clients that do not render HTML. */

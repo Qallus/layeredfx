@@ -77,12 +77,12 @@ const BLOG_BLOCK_DEFS: {
     icon: React.ElementType;
     defaults: BlogBlockProps;
 }[] = [
-    { type: "heading", label: "Heading", icon: Type, defaults: { level: "h2", content: "Section Heading", color: "#0f1f1a", fontSize: 28, align: "left" } },
-    { type: "paragraph", label: "Paragraph", icon: AlignLeft, defaults: { content: "Your paragraph text here.", color: "#333333", fontSize: 16, align: "left" } },
+    { type: "heading", label: "Heading", icon: Type, defaults: { level: "h2", content: "Section Heading", color: "#19202e", fontSize: 28, align: "left" } },
+    { type: "paragraph", label: "Paragraph", icon: AlignLeft, defaults: { content: "Your paragraph text here.", color: "#47536b", fontSize: 16, align: "left" } },
     { type: "image", label: "Image", icon: Image, defaults: { src: "", alt: "", caption: "", imgWidth: "100%", align: "center" } },
     { type: "video", label: "Video", icon: Video, defaults: { videoUrl: "" } },
     { type: "quote", label: "Quote", icon: AlignRight, defaults: { content: "An inspiring quote or callout.", author: "", align: "left" } },
-    { type: "button", label: "Button", icon: Send, defaults: { buttonText: "Click Here", buttonUrl: "#", buttonBgColor: "#2f6848", buttonColor: "#ffffff", align: "center" } },
+    { type: "button", label: "Button", icon: Send, defaults: { buttonText: "Click Here", buttonUrl: "#", buttonBgColor: "#d6ff41", buttonColor: "#19202e", align: "center" } },
     { type: "columns", label: "2 Columns", icon: Layers, defaults: { col1: "Left column content.", col2: "Right column content.", colGap: 24 } },
     { type: "columns3", label: "3 Columns", icon: Layers, defaults: { col1: "Column 1.", col2: "Column 2.", col3: "Column 3.", colGap: 20 } },
     { type: "columns4", label: "4 Columns", icon: Layers, defaults: { col1: "Col 1.", col2: "Col 2.", col3: "Col 3.", col4: "Col 4.", colGap: 16 } },
@@ -117,13 +117,13 @@ function blogBlockToHtml(block: BlogBlock): string {
             inner = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;"><iframe src="${props.videoUrl ?? ""}" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:8px;" frameborder="0" allowfullscreen></iframe></div>`;
             break;
         case "quote":
-            inner = `<blockquote style="border-left:4px solid #2f6848;padding:1em 1.5em;background:#f0f7f3;border-radius:0 8px 8px 0;margin:0;"><p style="margin:0;font-style:italic;${textStyle}">${props.content ?? ""}</p>${props.author ? `<cite style="display:block;margin-top:0.5em;font-size:13px;color:#666;">— ${props.author}</cite>` : ""}</blockquote>`;
+            inner = `<blockquote style="border-left:4px solid #63790d;padding:1em 1.5em;background:#f5ffcc;border-radius:0 8px 8px 0;margin:0;"><p style="margin:0;font-style:italic;${textStyle}">${props.content ?? ""}</p>${props.author ? `<cite style="display:block;margin-top:0.5em;font-size:13px;color:#666;">— ${props.author}</cite>` : ""}</blockquote>`;
             break;
         case "code":
-            inner = `<pre style="background:#1a1a2e;color:#e0e0e0;padding:1.5em;border-radius:8px;overflow-x:auto;font-size:14px;margin:0;"><code class="language-${props.language ?? "javascript"}">${(props.content ?? "").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>`;
+            inner = `<pre style="background:#19202e;color:#eef1f5;padding:1.5em;border-radius:8px;overflow-x:auto;font-size:14px;margin:0;"><code class="language-${props.language ?? "javascript"}">${(props.content ?? "").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>`;
             break;
         case "button":
-            inner = `<div style="text-align:${props.align ?? "center"};"><a href="${props.buttonUrl ?? "#"}" style="display:inline-block;padding:14px 28px;background:${props.buttonBgColor ?? "#2f6848"};color:${props.buttonColor ?? "#fff"};text-decoration:none;border-radius:6px;font-weight:600;font-size:16px;">${props.buttonText ?? "Click Here"}</a></div>`;
+            inner = `<div style="text-align:${props.align ?? "center"};"><a href="${props.buttonUrl ?? "#"}" style="display:inline-block;padding:14px 28px;background:${props.buttonBgColor ?? "#d6ff41"};color:${props.buttonColor ?? "#19202e"};text-decoration:none;border-radius:6px;font-weight:600;font-size:16px;">${props.buttonText ?? "Click Here"}</a></div>`;
             break;
         case "columns":
             inner = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:${props.colGap ?? 24}px;"><div>${props.col1 ?? ""}</div><div>${props.col2 ?? ""}</div></div>`;
@@ -135,7 +135,7 @@ function blogBlockToHtml(block: BlogBlock): string {
             inner = `<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:${props.colGap ?? 16}px;"><div>${props.col1 ?? ""}</div><div>${props.col2 ?? ""}</div><div>${props.col3 ?? ""}</div><div>${props.col4 ?? ""}</div></div>`;
             break;
         case "divider":
-            inner = `<hr style="border:none;border-top:1px solid #e5e7eb;margin:0;" />`;
+            inner = `<hr style="border:none;border-top:1px solid #c9ced8;margin:0;" />`;
             break;
         default: return "";
     }
@@ -166,7 +166,7 @@ function BlogBlockPreview({ block }: {
     const { type, props } = block;
     const ta = props.align as React.CSSProperties["textAlign"];
     const ts: React.CSSProperties = { textAlign: ta, color: props.color, fontSize: props.fontSize };
-    const colStyle = (bg?: string): React.CSSProperties => ({ background: bg ?? "#f0f7f3", borderRadius: 6, padding: 8, fontSize: 13, minHeight: 40 });
+    const colStyle = (bg?: string): React.CSSProperties => ({ background: bg ?? "#f5ffcc", borderRadius: 6, padding: 8, fontSize: 13, minHeight: 40 });
     switch (type) {
         case "heading":
             return props.level === "h1" ? <h1 style={{ ...ts, margin: 0 }}>{props.content || "Heading"}</h1>
@@ -181,11 +181,11 @@ function BlogBlockPreview({ block }: {
         case "video":
             return <div className="flex h-14 items-center justify-center rounded border-2 border-dashed text-sm text-muted-foreground"><Video className="mr-2 h-4 w-4"/>{props.videoUrl || "Set video URL in settings"}</div>;
         case "quote":
-            return <blockquote style={{ borderLeft: "4px solid #2f6848", padding: "0.75em 1em", margin: 0, background: "#f0f7f3", borderRadius: "0 8px 8px 0" }}><p style={{ margin: 0, fontStyle: "italic", color: props.color }}>{props.content || "Quote text…"}</p>{props.author && <cite style={{ display: "block", marginTop: 4, fontSize: 13, color: "#666" }}>— {props.author}</cite>}</blockquote>;
+            return <blockquote style={{ borderLeft: "4px solid #63790d", padding: "0.75em 1em", margin: 0, background: "#f5ffcc", borderRadius: "0 8px 8px 0" }}><p style={{ margin: 0, fontStyle: "italic", color: props.color }}>{props.content || "Quote text…"}</p>{props.author && <cite style={{ display: "block", marginTop: 4, fontSize: 13, color: "#666" }}>— {props.author}</cite>}</blockquote>;
         case "code":
-            return <pre style={{ background: "#1a1a2e", color: "#e0e0e0", padding: "0.75em 1em", borderRadius: 8, margin: 0, fontSize: 13, overflowX: "auto" }}><code>{props.content || "// code here"}</code></pre>;
+            return <pre style={{ background: "#19202e", color: "#eef1f5", padding: "0.75em 1em", borderRadius: 8, margin: 0, fontSize: 13, overflowX: "auto" }}><code>{props.content || "// code here"}</code></pre>;
         case "button":
-            return <div style={{ textAlign: ta ?? "center" }}><span style={{ display: "inline-block", padding: "10px 24px", background: props.buttonBgColor ?? "#2f6848", color: props.buttonColor ?? "#fff", borderRadius: 6, fontWeight: 600, fontSize: 15 }}>{props.buttonText || "Click Here"}</span></div>;
+            return <div style={{ textAlign: ta ?? "center" }}><span style={{ display: "inline-block", padding: "10px 24px", background: props.buttonBgColor ?? "#d6ff41", color: props.buttonColor ?? "#19202e", borderRadius: 6, fontWeight: 600, fontSize: 15 }}>{props.buttonText || "Click Here"}</span></div>;
         case "columns":
             return <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: props.colGap ?? 12 }}><div style={colStyle()}>{props.col1 || "Column 1"}</div><div style={colStyle()}>{props.col2 || "Column 2"}</div></div>;
         case "columns3":
@@ -193,9 +193,9 @@ function BlogBlockPreview({ block }: {
         case "columns4":
             return <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: props.colGap ?? 8 }}>{[props.col1 || "Col 1", props.col2 || "Col 2", props.col3 || "Col 3", props.col4 || "Col 4"].map((c, i) => <div key={i} style={colStyle()} className="text-[11px]">{c}</div>)}</div>;
         case "divider":
-            return <hr style={{ border: "none", borderTop: "1px solid #e5e7eb", margin: `${props.padTop ?? 4}px 0 ${props.padBottom ?? 4}px` }}/>;
+            return <hr style={{ border: "none", borderTop: "1px solid #c9ced8", margin: `${props.padTop ?? 4}px 0 ${props.padBottom ?? 4}px` }}/>;
         case "spacer":
-            return <div style={{ height: props.height ?? 40, background: "repeating-linear-gradient(45deg,transparent,transparent 4px,#f0f0f0 4px,#f0f0f0 8px)", borderRadius: 4 }}/>;
+            return <div style={{ height: props.height ?? 40, background: "repeating-linear-gradient(45deg,transparent,transparent 4px,#eef1f5 4px,#eef1f5 8px)", borderRadius: 4 }}/>;
         default: return null;
     }
 }
@@ -232,13 +232,13 @@ function BlogBlockSettings({ block, onChange }: {
         <div>{lbl("Level")}<Select value={p.level ?? "h2"} onValueChange={(v) => onChange({ level: v as "h1" | "h2" | "h3" })}><SelectTrigger className={ic}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="h1">H1 — Page title</SelectItem><SelectItem value="h2">H2 — Section</SelectItem><SelectItem value="h3">H3 — Sub-section</SelectItem></SelectContent></Select></div>
         <div>{lbl("Text")}<Textarea className="min-h-[60px] resize-none text-xs" value={p.content ?? ""} onChange={(e) => onChange({ content: e.target.value })}/></div>
         <div>{lbl("Font size (px)")}<Input className={ic} type="number" value={p.fontSize ?? 28} onChange={(e) => onChange({ fontSize: parseInt(e.target.value) })}/></div>
-        {colorPicker("Color", "color", "#0f1f1a")}
+        {colorPicker("Color", "color", "#19202e")}
         <div>{lbl("Align")}{alignButtons(p.align)}</div>
       </>}
       {block.type === "paragraph" && <>
         <div>{lbl("Text")}<Textarea className="min-h-[100px] resize-none text-xs" value={p.content ?? ""} onChange={(e) => onChange({ content: e.target.value })}/></div>
         <div>{lbl("Font size (px)")}<Input className={ic} type="number" value={p.fontSize ?? 16} onChange={(e) => onChange({ fontSize: parseInt(e.target.value) })}/></div>
-        {colorPicker("Color", "color", "#333333")}
+        {colorPicker("Color", "color", "#47536b")}
         <div>{lbl("Align")}{alignButtons(p.align)}</div>
       </>}
       {block.type === "image" && <>
@@ -264,8 +264,8 @@ function BlogBlockSettings({ block, onChange }: {
       {block.type === "button" && <>
         <div>{lbl("Button text")}<Input className={ic} value={p.buttonText ?? ""} onChange={(e) => onChange({ buttonText: e.target.value })}/></div>
         <div>{lbl("URL")}<Input className={ic} value={p.buttonUrl ?? ""} onChange={(e) => onChange({ buttonUrl: e.target.value })} placeholder="https://…"/></div>
-        {colorPicker("Button color", "buttonBgColor", "#2f6848")}
-        {colorPicker("Text color", "buttonColor", "#ffffff")}
+        {colorPicker("Button color", "buttonBgColor", "#d6ff41")}
+        {colorPicker("Text color", "buttonColor", "#19202e")}
         <div>{lbl("Align")}{alignButtons(p.align)}</div>
       </>}
       {(block.type === "columns" || block.type === "columns3" || block.type === "columns4") && <>

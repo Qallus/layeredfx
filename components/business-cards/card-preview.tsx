@@ -21,9 +21,9 @@ export function CardPreview({card, links, sections, onLink, onAction}: {
   onLink?: (link: BusinessCardLink) => void;
   onAction?: (action: CardAction) => void;
 }) {
-  const bg = card.background_color || '#202b28';
-  const accent = card.accent_color || '#b2c79f';
-  const text = card.text_color || '#eff7e9';
+  const bg = card.background_color || '#19202e';
+  const accent = card.accent_color || '#d6ff41';
+  const text = card.text_color || '#eef1f5';
   const surface = hexAlpha(text, 0.06);
   const border = hexAlpha(text, 0.14);
   const media = card.media_settings || {};
@@ -90,7 +90,7 @@ export function CardPreview({card, links, sections, onLink, onAction}: {
         return wrap(<div className="flex justify-center"><div className="rounded-xl bg-white p-3">
           {card.slug
             // eslint-disable-next-line @next/next/no-img-element
-            ? <img src={`/api/cards/qr?slug=${encodeURIComponent(card.slug)}&source=qr&size=320&fg=${encodeURIComponent(card.qr_settings?.foreground || '#202b28')}`} alt="QR code for this card" className="h-36 w-36"/>
+            ? <img src={`/api/cards/qr?slug=${encodeURIComponent(card.slug)}&source=qr&size=320&fg=${encodeURIComponent(card.qr_settings?.foreground || '#19202e')}`} alt="QR code for this card" className="h-36 w-36"/>
             : <div className="grid h-36 w-36 place-items-center text-center text-[11px] text-neutral-500">QR code appears after the card is saved</div>}
         </div></div>);
       case 'slideshow': {

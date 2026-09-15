@@ -186,15 +186,15 @@ const BLOCK_LIBRARY: {
     { type: "footer", label: "Footer", desc: "Company info footer", icon: FileText },
 ];
 const BLOCK_DEFAULTS: Record<EmailBlockType, EmailBlockProps> = {
-    header: { logoUrl: "/logos/logo-light-lime.svg", logoAlt: "Logo", logoWidth: 200, bgColor: "#111111", padTop: 28, padBottom: 28, padSide: 40 },
-    heading: { content: "Your Heading", level: "h1", fontSize: 28, color: "#0f1f1a", align: "left", padTop: 20, padBottom: 8, padSide: 40, bgColor: "#ffffff" },
-    text: { content: "Write your message here. Keep it clear and concise.", fontSize: 16, color: "#444444", align: "left", padTop: 8, padBottom: 16, padSide: 40, bgColor: "#ffffff" },
-    button: { buttonText: "Click Here →", buttonUrl: "#", buttonBgColor: "#2f6848", buttonColor: "#ffffff", align: "center", padTop: 20, padBottom: 20, padSide: 40, bgColor: "#ffffff" },
+    header: { logoUrl: "/logos/logo-light-lime.svg", logoAlt: "Logo", logoWidth: 200, bgColor: "#19202e", padTop: 28, padBottom: 28, padSide: 40 },
+    heading: { content: "Your Heading", level: "h1", fontSize: 28, color: "#19202e", align: "left", padTop: 20, padBottom: 8, padSide: 40, bgColor: "#ffffff" },
+    text: { content: "Write your message here. Keep it clear and concise.", fontSize: 16, color: "#47536b", align: "left", padTop: 8, padBottom: 16, padSide: 40, bgColor: "#ffffff" },
+    button: { buttonText: "Click Here →", buttonUrl: "#", buttonBgColor: "#d6ff41", buttonColor: "#19202e", align: "center", padTop: 20, padBottom: 20, padSide: 40, bgColor: "#ffffff" },
     image: { src: "", alt: "Image", linkUrl: "", imgWidth: "100%", align: "center", padTop: 0, padBottom: 0, bgColor: "#ffffff" },
     columns: { col1: "<p>Column 1 content</p>", col2: "<p>Column 2 content</p>", bgColor: "#ffffff", padTop: 20, padBottom: 20, padSide: 40 },
-    divider: { color: "#dddddd", padTop: 12, padBottom: 12, bgColor: "#ffffff" },
+    divider: { color: "#c9ced8", padTop: 12, padBottom: 12, bgColor: "#ffffff" },
     spacer: { height: 40, bgColor: "#ffffff" },
-    footer: { companyName: "Ctrl+P", address: "123 Print Ave, Austin, TX 78701", preferencesUrl: "{{preferences_url}}", unsubscribeUrl: "{{unsubscribe_url}}", bgColor: "#f5f5f5", color: "#888888", padTop: 24, padBottom: 24, padSide: 40 },
+    footer: { companyName: "Ctrl+P", address: "123 Print Ave, Austin, TX 78701", preferencesUrl: "{{preferences_url}}", unsubscribeUrl: "{{unsubscribe_url}}", bgColor: "#eef1f5", color: "#47536b", padTop: 24, padBottom: 24, padSide: 40 },
 };
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function uid() { return Math.random().toString(36).slice(2); }
@@ -252,7 +252,7 @@ function blockToHtml(block: EmailBlock): string {
         case "button":
             return `<table width="100%" cellpadding="0" cellspacing="0" style="${bgStyle}"><tr><td style="${padStyle}text-align:${p.align};"><a href="${p.buttonUrl}" style="display:inline-block;padding:12px 24px;background:${p.buttonBgColor};color:${p.buttonColor};text-decoration:none;border-radius:4px;font-weight:600;">${p.buttonText}</a></td></tr></table>`;
         case "image":
-            const imgEl = p.src ? `<img src="${p.src}" alt="${p.alt}" style="display:block;max-width:100%;width:${p.imgWidth};" />` : `<div style="height:120px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:14px;">Image placeholder</div>`;
+            const imgEl = p.src ? `<img src="${p.src}" alt="${p.alt}" style="display:block;max-width:100%;width:${p.imgWidth};" />` : `<div style="height:120px;background:#eef1f5;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:14px;">Image placeholder</div>`;
             const linked = p.linkUrl ? `<a href="${p.linkUrl}">${imgEl}</a>` : imgEl;
             return `<table width="100%" cellpadding="0" cellspacing="0" style="${bgStyle}"><tr><td style="text-align:${p.align ?? "center"};">${linked}</td></tr></table>`;
         case "columns":
@@ -268,7 +268,7 @@ function blockToHtml(block: EmailBlock): string {
     }
 }
 function blocksToFullHtml(blocks: EmailBlock[]): string {
-    return `<!DOCTYPE html>\n<html>\n<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>\n<body style="margin:0;padding:20px 0;background:#e9e9e9;font-family:Arial,sans-serif;">\n<table width="640" align="center" cellpadding="0" cellspacing="0" style="max-width:640px;margin:0 auto;background:#ffffff;">\n<tr><td>\n${blocks.map(blockToHtml).join("\n")}\n</td></tr>\n</table>\n</body>\n</html>`;
+    return `<!DOCTYPE html>\n<html>\n<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>\n<body style="margin:0;padding:20px 0;background:#eef1f5;font-family:Arial,sans-serif;">\n<table width="640" align="center" cellpadding="0" cellspacing="0" style="max-width:640px;margin:0 auto;background:#ffffff;">\n<tr><td>\n${blocks.map(blockToHtml).join("\n")}\n</td></tr>\n</table>\n</body>\n</html>`;
 }
 // ─── Block preview renderer ────────────────────────────────────────────────────
 function BlockPreview({ block, selected, onClick }: {
@@ -305,7 +305,7 @@ function BlockPreview({ block, selected, onClick }: {
             break;
         case "image":
             inner = (<div style={{ background: bg, textAlign: p.align as "left" | "center" | "right" ?? "center" }}>
-          {p.src ? <img src={p.src} alt={p.alt} style={{ maxWidth: "100%", display: "block", margin: "0 auto" }}/> : <div style={{ height: 80, background: "#f0f0f0", display: "flex", alignItems: "center", justifyContent: "center", color: "#aaa", fontSize: 13 }}>Image placeholder</div>}
+          {p.src ? <img src={p.src} alt={p.alt} style={{ maxWidth: "100%", display: "block", margin: "0 auto" }}/> : <div style={{ height: 80, background: "#eef1f5", display: "flex", alignItems: "center", justifyContent: "center", color: "#aaa", fontSize: 13 }}>Image placeholder</div>}
         </div>);
             break;
         case "columns":
@@ -330,9 +330,9 @@ function BlockPreview({ block, selected, onClick }: {
         default:
             inner = null;
     }
-    return (<div onClick={onClick} style={{ position: "relative", outline: selected ? "2px solid #2f6848" : "2px solid transparent", cursor: "pointer" }}>
+    return (<div onClick={onClick} style={{ position: "relative", outline: selected ? "2px solid #63790d" : "2px solid transparent", cursor: "pointer" }}>
       {inner}
-      {selected && (<div style={{ position: "absolute", top: 2, right: 2, background: "#2f6848", color: "#fff", fontSize: 10, padding: "1px 6px", borderRadius: 3 }}>
+      {selected && (<div style={{ position: "absolute", top: 2, right: 2, background: "#d6ff41", color: "#19202e", fontSize: 10, padding: "1px 6px", borderRadius: 3 }}>
           {block.type}
         </div>)}
     </div>);
@@ -920,7 +920,7 @@ export function AdminEmail() {
               </div>
 
               {/* Center: preview */}
-              <div className="flex-1 overflow-y-auto bg-[#e9e9e9] p-6">
+              <div className="flex-1 overflow-y-auto bg-[#eef1f5] p-6">
                 {editorBlocks.length === 0 ? (<div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
                     <Mail className="h-10 w-10 text-muted-foreground/30"/>
                     <div className="text-sm text-muted-foreground">Click a block on the left to start building your email.</div>

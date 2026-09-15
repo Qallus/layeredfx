@@ -43,7 +43,7 @@ function CardActions({card, h}: {card: BusinessCard; h: CardHandlers}) {
       {icon('Analytics', <BarChart3 aria-hidden size={15}/>, {onClick: () => h.onAnalytics(card)})}
       {icon('Copy link', <Copy aria-hidden size={15}/>, {onClick: () => h.onCopy(card)})}
       {published && icon('Open public page', <Eye aria-hidden size={15}/>, {asChild: true, children: <a href={publicCardUrl(h.siteUrl, card.slug)} target="_blank" rel="noopener noreferrer"><Eye aria-hidden size={15}/></a>})}
-      {icon('Download QR PNG', <QrCode aria-hidden size={15}/>, {asChild: true, children: <a href={`/api/cards/qr?slug=${encodeURIComponent(card.slug)}&source=qr&size=1024&download=1&fg=${encodeURIComponent(card.qr_settings.foreground || '#202b28')}`}><QrCode aria-hidden size={15}/></a>})}
+      {icon('Download QR PNG', <QrCode aria-hidden size={15}/>, {asChild: true, children: <a href={`/api/cards/qr?slug=${encodeURIComponent(card.slug)}&source=qr&size=1024&download=1&fg=${encodeURIComponent(card.qr_settings.foreground || '#19202e')}`}><QrCode aria-hidden size={15}/></a>})}
       {icon('Write NFC', <Smartphone aria-hidden size={15}/>, {onClick: () => h.onNfc(card), disabled})}
       {card.status !== 'archived' && icon(published ? 'Unpublish' : 'Publish', published ? <EyeOff aria-hidden size={15}/> : <Globe aria-hidden size={15}/>,
         {disabled, onClick: () => h.onPatch(card, {status: published ? 'unpublished' : 'published'}, 'PATCH', published ? 'Card unpublished.' : 'Card published.')})}

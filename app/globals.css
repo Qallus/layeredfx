@@ -2,15 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 :root {
-  /* Primary actions share the sidebar palette across every application shell. */
-  --brand-primary: 163.636364 14.666667% 14.705882%;
-  --brand-primary-foreground: 136.363636 9.90991% 78.235294%;
-  --brand-primary-hover: #314037;
-  --brand-primary-hover-foreground: #eff7e9;
+  /* LayeredFX brand palette (docs/BRAND_COLORS.md). Use these tokens; do not introduce other hex values. */
+  --lfx-ink-950: #0E121B;
+  --lfx-ink-900: #19202E;
+  --lfx-ink-800: #232C3D;
+  --lfx-ink-700: #2A3346;
+  --lfx-ink-600: #47536B;
+  --lfx-ink-400: #8A93A6;
+  --lfx-ink-200: #C9CED8;
+  --lfx-ink-100: #EEF1F5;
+  --lfx-ink-50: #F7F9FB;
+  --lfx-paper: #FFFFFF;
+  --lfx-volt-800: #63790D;
+  --lfx-volt-700: #7C9A12;
+  --lfx-volt-600: #AEDB22;
+  --lfx-volt-500: #D6FF41;
+  --lfx-volt-300: #E7FF8C;
+  --lfx-volt-100: #F5FFCC;
+  --lfx-ember: #FF6B2C;
+  --lfx-success: #1F9D64;
+  --lfx-warning: #E0A415;
+  --lfx-danger: #D63B30;
+  --lfx-info: #2E7CC4;
+
+  /* Primary actions: volt-500 fill with ink-900 text, volt-600 on hover (§8). HSL components for hsl(var(...)). */
+  --brand-primary: 72.95 100% 62.75%;
+  --brand-primary-foreground: 220 29.58% 13.92%;
+  --brand-primary-hover: #AEDB22;
+  --brand-primary-hover-foreground: #19202E;
   --primary: var(--brand-primary);
   --primary-foreground: var(--brand-primary-foreground);
 }
 html { scroll-behavior: smooth; }
-body { margin: 0; background: #f6f5f0; }
+body { margin: 0; background: #F7F9FB; }
 * { box-sizing: border-box; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

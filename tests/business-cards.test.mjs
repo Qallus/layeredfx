@@ -44,7 +44,7 @@ test('normalizeCard strips unsafe links, ignores client counters and keeps one o
   assert.equal(card.sections.length, 10);
   assert.equal(card.sections.filter(s => s.section_type === 'links').length, 1);
   assert.equal(card.sections.find(s => s.section_type === 'links').is_visible, true);
-  assert.equal(card.background_color, '#202b28');
+  assert.equal(card.background_color, '#19202e');
   assert.equal(card.owner_id, 'staff1');
 });
 

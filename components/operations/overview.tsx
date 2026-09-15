@@ -5,6 +5,7 @@ import {useEffect,useState} from 'react';
 import Link from 'next/link';
 import {AlertTriangle,ArrowRight,BriefcaseBusiness,CalendarRange,CheckSquare,ClipboardList,Clock,FileText,FolderKanban,Newspaper,Plus,Target,TrendingUp,UserPlus,Users} from 'lucide-react';
 import {useOperations} from './provider';
+import {QuickToolsLayout} from './quick-toolbar';
 import {DownloadButton,PageTitle,dateLabel,money} from './shared';
 import {DEFAULT_STAGES,OPEN,needsNextStep,stats,today} from '@/lib/operations/engine.mjs';
 
@@ -66,6 +67,7 @@ export function OperationsOverview(){
 
  return <div className="ops-overview">
   <PageTitle eyebrow="DASHBOARD" title="Overview" description="A snapshot of your business across every section."><DownloadButton name="layeredfx-operations-export.json" data={{exportedAt:new Date().toISOString(),mode,state}} label="Export visible data"/></PageTitle>
+  <QuickToolsLayout>
 
   <div className="ops-focus-grid">
    <section className="ops-focus-card" aria-labelledby="overview-pipeline">
@@ -89,6 +91,10 @@ export function OperationsOverview(){
     </div>
     <ul className="ops-task-list">{nextTasks.map(t=><li key={t.id}><Link href={`/admin/plans/${t.plan_id}`}><div><b>{t.title}</b><small>{planName(t.plan_id)} · {TASK_LABELS[t.status]||t.status}</small></div><span className={t.due_date&&t.due_date<day?'is-overdue':''}>{t.due_date?dateLabel(t.due_date):'No due date'}</span></Link></li>)}</ul>
     {!nextTasks.length&&<p className="ops-overview-empty">No open tasks. Create a plan to schedule installation work.</p>}
+    <div className="ops-tasks-quick">
+     <h3 id="overview-quick">Quick actions</h3>
+     <div className="ops-quick-grid" role="group" aria-labelledby="overview-quick">{QUICK_ACTIONS.map(action=><Link key={action.label} href={action.href}><Plus size={13} aria-hidden/>{action.label}</Link>)}</div>
+    </div>
    </section>
   </div>
 
@@ -100,15 +106,12 @@ export function OperationsOverview(){
     {activity.length?<ul className="ops-activity-list">{activity.map(item=><li key={item.key}><Link href={item.href}><div><span className={`ops-activity-badge is-${item.type.toLowerCase()}`}>{item.type}</span><b>{item.label}</b>{item.sub&&<small>{item.sub}</small>}</div><time dateTime={item.at}>{relative(item.at)}</time></Link></li>)}</ul>:<p className="ops-overview-empty">No recent activity yet.</p>}
    </section>
    <div className="ops-overview-side">
-    <section className="ops-overview-panel" aria-labelledby="overview-quick">
-     <header><h2 id="overview-quick">Quick actions</h2></header>
-     <div className="ops-quick-grid">{QUICK_ACTIONS.map(action=><Link key={action.label} href={action.href}><Plus size={13} aria-hidden/>{action.label}</Link>)}</div>
-    </section>
     <section className="ops-overview-panel" aria-labelledby="overview-upcoming">
      <header><h2 id="overview-upcoming">Upcoming</h2><Link href="/admin/bookings">View all <ArrowRight size={13}/></Link></header>
      {failed?<p className="ops-overview-empty" role="alert">Bookings could not be loaded.</p>:!summary?<p className="ops-overview-empty">Loading appointments…</p>:summary.next.length?<ul className="ops-upcoming-list">{summary.next.map(appt=><li key={appt.id}><i aria-hidden><CalendarRange size={13}/></i><div><b>{appt.title}</b><small>{appt.customer}</small><small>{appointmentTime(appt.start_time)}{appt.status==='pending'?' · Pending':''}</small></div></li>)}</ul>:<p className="ops-overview-empty">No upcoming appointments.</p>}
     </section>
    </div>
   </div>
+  </QuickToolsLayout>
  </div>;
 }

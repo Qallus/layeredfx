@@ -194,3 +194,30 @@ body:has(.ops.dark) .ops-modal .ops-field>span,body:has(.ops.dark) .ops-modal .l
 @media(max-width:620px){.ops-focus-metrics,.ops-focus-metrics.is-four{grid-template-columns:repeat(2,minmax(0,1fr))}.ops-stage-bars a{grid-template-columns:minmax(0,1fr) 56px 22px}.ops-stage-bars small{display:none}.ops-stat-card b{font-size:23px}.ops-quick-grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.ops-stat-card{transition:none}.ops-stat-card:hover{transform:none}}
 .ops.dark .lfx-button-outline{color:var(--ops-ink);border-color:var(--ops-line)}
+/* Quick Tools: a wrapping row on desktop, a swipeable row on phones, and a sticky vertical column beside the collapsed sidebar. */
+.ops-qt-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+.ops-qt-content{min-width:0}
+.ops-overview .ops-qt-content{display:grid;gap:22px}
+.ops-quicktools{min-width:0}
+.ops-quicktools-track{display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scrollbar-width:thin;-webkit-overflow-scrolling:touch;padding:2px 2px 8px}
+.ops-quicktools-track button{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 13px;border:1px solid var(--ops-line);border-radius:8px;background:var(--ops-surface);color:var(--ops-ink);font:inherit;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;scroll-snap-align:start;transition:border-color .15s ease,background .15s ease}
+.ops-quicktools-track button:hover{border-color:#aedb22;background:#f5ffcc;color:#19202e}
+.ops-quicktools-track button svg{flex-shrink:0;color:var(--ops-muted)}
+.ops.dark .ops-quicktools-track button:hover{background:#2a3346;color:#eef1f5}
+@media(min-width:761px){
+ .ops-quicktools-track{flex-wrap:wrap;overflow:visible;padding-bottom:2px}
+ .ops-sidebar-collapsed .ops-qt-layout{grid-template-columns:178px minmax(0,1fr)}
+ .ops-sidebar-collapsed .ops-quicktools{position:sticky;top:18px;padding:8px;border:1px solid var(--ops-line);border-radius:10px;background:var(--ops-surface)}
+ .ops-sidebar-collapsed .ops-quicktools-track{flex-direction:column;gap:2px;overflow:visible;padding:0}
+ .ops-sidebar-collapsed .ops-quicktools-track button{width:100%;justify-content:flex-start;min-height:38px;border-color:transparent;background:none;font-size:13px}
+ .ops-sidebar-collapsed .ops-quicktools-track button:hover{border-color:transparent}
+}
+.ops-quick-tool{display:grid;gap:14px}
+.ops-quick-tool .ops-muted{margin:0}
+.ops-quick-tool .ops-actions{display:flex;flex-wrap:wrap;gap:8px}
+.ops-quick-log{display:grid;gap:10px;padding-top:14px;border-top:1px solid var(--ops-line)}
+/* Quick actions nested in the Tasks card on the overview. */
+.ops-tasks-quick{display:grid;gap:10px;margin-top:auto;padding-top:14px;border-top:1px solid var(--ops-line)}
+.ops-tasks-quick h3{margin:0;font-size:13px;font-weight:600}
+.ops-tasks-quick .ops-quick-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:620px){.ops-tasks-quick .ops-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

@@ -12,6 +12,7 @@ import { getCurrentAdminProfile,loadAdminDashboardData } from "@/ctrlp/lib/admin
 import type { AdminDashboardData } from "@/ctrlp/lib/admin/types";
 import { getSupabaseBrowserClient } from "@/ctrlp/lib/supabase/browser";
 import { sourceFetch } from '@/lib/dashboard/source-runtime';
+import { BookingLeadActions } from '@/components/admin/booking-lead-actions';
 import { CalendarCheck,CalendarDays,CheckCircle2,Clock,Link2,Link2Off,Loader2,Pencil,Plus,ShieldCheck,Trash2 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -342,10 +343,7 @@ export function AdminBookings() {
 
               {view === "overview" && <Overview appointments={appointments} types={types} notifications={bookingData?.notifications ?? []} onSelect={setSelected} onEditType={setEditingType} onDeleteType={deleteAppointmentType}/>}
               {view === "list" && <AppointmentList appointments={filteredAppointments} types={types} onSelect={setSelected}/>}
-              {view === "calendar" && <CalendarView appointments={filteredAppointments.filter((appointment) => {
-                    const date = new Date(appointment.start_time);
-                    return date >= today && date < weekEnd;
-                })} types={types} onSelect={setSelected}/>}
+              {view === "calendar" && <CalendarView appointments={filteredAppointments} types={types} onSelect={setSelected}/>}
               {view === "availability" && (<AvailabilityView types={types} rules={bookingData?.availabilityRules ?? []} blockedTimes={bookingData?.blockedTimes ?? []} typeForm={typeForm} setTypeForm={setTypeForm} ruleForm={ruleForm} setRuleForm={setRuleForm} blockForm={blockForm} setBlockForm={setBlockForm} onCreateType={createAppointmentType} onCreateRule={createAvailabilityRule} onCreateBlock={createBlockedTime}/>)}
 
               <AppointmentSheet appointment={selected} type={types.find((type) => type.id === selected?.appointment_type_id) ?? null} users={bookingData?.users ?? []} orders={bookingData?.orders ?? []} jobs={bookingData?.productionJobs ?? []} onOpenChange={(open) => !open && setSelected(null)} onSave={updateAppointment}/>
@@ -445,31 +443,128 @@ function AppointmentList({ appointments, types, onSelect, compact = false }: {
       </Table>
     </div>);
 }
+// ─── Calendar (LayeredFX: day, week, month and year views in Arizona time) ─────
+type CalendarMode = "day" | "week" | "month" | "year";
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+// Calendar arithmetic runs on noon-UTC dates keyed by the Phoenix calendar day (Arizona has no daylight saving time).
+function keyDate(key: string) {
+    return new Date(`${key}T12:00:00Z`);
+}
+function addDays(key: string, days: number) {
+    const date = keyDate(key);
+    date.setUTCDate(date.getUTCDate() + days);
+    return date.toISOString().slice(0, 10);
+}
+function addMonths(key: string, months: number) {
+    const date = keyDate(`${key.slice(0, 7)}-01`);
+    date.setUTCMonth(date.getUTCMonth() + months);
+    return date.toISOString().slice(0, 10);
+}
+function keyLabel(key: string, options: Intl.DateTimeFormatOptions) {
+    return new Intl.DateTimeFormat("en-US", { timeZone: "UTC", ...options }).format(keyDate(key));
+}
+function monthCells(monthKey: string) {
+    const first = `${monthKey.slice(0, 7)}-01`;
+    const lead = keyDate(first).getUTCDay();
+    const length = new Date(Date.UTC(Number(first.slice(0, 4)), Number(first.slice(5, 7)), 0)).getUTCDate();
+    return Array.from({ length: Math.ceil((lead + length) / 7) * 7 }, (_, index) => addDays(first, index - lead));
+}
+function customerName(appointment: Appointment) {
+    return [appointment.customer_first_name, appointment.customer_last_name].filter(Boolean).join(" ") || "Guest";
+}
 function CalendarView({ appointments, types, onSelect }: {
     appointments: Appointment[];
     types: AppointmentType[];
     onSelect: (appointment: Appointment) => void;
 }) {
-    const today = startOfToday();
-    const days = Array.from({ length: 7 }).map((_, index) => {
-        const date = new Date(today.getTime() + index * 24 * 60 * 60 * 1000);
-        return { date, key: dateKey(date.toISOString()) };
-    });
+    const todayKey = dateKey(new Date().toISOString());
+    const [mode, setMode] = useState<CalendarMode>("week");
+    const [anchor, setAnchor] = useState(todayKey);
+    const byDay = useMemo(() => {
+        const map = new Map<string, Appointment[]>();
+        for (const appointment of [...appointments].sort((a, b) => a.start_time.localeCompare(b.start_time)))
+            map.set(dateKey(appointment.start_time), [...(map.get(dateKey(appointment.start_time)) ?? []), appointment]);
+        return map;
+    }, [appointments]);
+    const weekStart = addDays(anchor, -keyDate(anchor).getUTCDay());
+    const typeName = (appointment: Appointment) => types.find((item) => item.id === appointment.appointment_type_id)?.name || appointment.title;
+    const closed = (appointment: Appointment) => ["canceled", "no_show"].includes(appointment.status);
+    function move(direction: number) {
+        setAnchor(mode === "day" ? addDays(anchor, direction) : mode === "week" ? addDays(anchor, 7 * direction) : addMonths(anchor, (mode === "month" ? 1 : 12) * direction));
+    }
+    function openDay(key: string) {
+        setAnchor(key);
+        setMode("day");
+    }
+    const title = mode === "day"
+        ? keyLabel(anchor, { weekday: "long", month: "long", day: "numeric", year: "numeric" })
+        : mode === "week"
+            ? `${keyLabel(weekStart, { month: "short", day: "numeric" })} – ${keyLabel(addDays(weekStart, 6), { month: "short", day: "numeric", year: "numeric" })}`
+            : mode === "month" ? keyLabel(anchor, { month: "long", year: "numeric" }) : anchor.slice(0, 4);
+    const chip = (appointment: Appointment, compact = false) => (<button key={appointment.id} type="button" onClick={() => onSelect(appointment)} title={`${fmtTime(appointment.start_time)} · ${customerName(appointment)} · ${typeName(appointment)} · ${human(appointment.status)}`} className={`w-full truncate rounded-md border bg-card px-2 py-1.5 text-left text-xs hover:border-primary ${closed(appointment) ? "opacity-60 line-through" : ""}`}>
+        <span className="font-medium">{fmtTime(appointment.start_time)}</span> {compact ? (appointment.customer_first_name || "Guest") : customerName(appointment)}
+        {!compact && <span className="block truncate text-muted-foreground">{typeName(appointment)}</span>}
+      </button>);
     return (<Card>
-      <CardHeader><CardTitle>Calendar</CardTitle><CardDescription>Phase 1 week view. Drag/drop and external calendar sync are staged for Phase 2.</CardDescription></CardHeader>
-      <CardContent className="grid gap-3 md:grid-cols-7">
-        {days.map((day) => (<div key={day.key} className="min-h-[240px] rounded-lg border bg-background/35 p-3">
-            <div className="mb-3 text-sm font-semibold">{new Intl.DateTimeFormat("en-US", { weekday: "short", month: "short", day: "numeric" }).format(day.date)}</div>
-            <div className="space-y-2">
-              {appointments.filter((appointment) => dateKey(appointment.start_time) === day.key).map((appointment) => {
-                const type = types.find((item) => item.id === appointment.appointment_type_id);
-                return (<button key={appointment.id} onClick={() => onSelect(appointment)} className="w-full rounded-md border bg-card p-2 text-left text-xs hover:border-primary">
-                    <div className="font-medium">{fmtTime(appointment.start_time)} {appointment.customer_first_name || "Guest"}</div>
-                    <div className="text-muted-foreground">{type?.name || appointment.title}</div>
-                  </button>);
+      <CardHeader className="gap-3 md:flex-row md:items-center md:justify-between md:space-y-0">
+        <div><CardTitle>Calendar</CardTitle><CardDescription>{title} · Arizona time</CardDescription></div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex rounded-lg border p-0.5" role="group" aria-label="Calendar range">
+            {(["day", "week", "month", "year"] as const).map((item) => (<Button key={item} size="sm" variant={mode === item ? "default" : "ghost"} className="h-8 px-3" aria-pressed={mode === item} onClick={() => setMode(item)}>{human(item)}</Button>))}
+          </div>
+          <Button size="sm" variant="outline" className="h-8 w-8 p-0" aria-label={`Previous ${mode}`} onClick={() => move(-1)}><span aria-hidden="true">‹</span></Button>
+          <Button size="sm" variant="outline" className="h-8" onClick={() => setAnchor(todayKey)}>Today</Button>
+          <Button size="sm" variant="outline" className="h-8 w-8 p-0" aria-label={`Next ${mode}`} onClick={() => move(1)}><span aria-hidden="true">›</span></Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {mode === "day" && (<div className="space-y-2" aria-label={title}>
+            {(byDay.get(anchor) ?? []).map((appointment) => (<button key={appointment.id} type="button" onClick={() => onSelect(appointment)} className={`flex w-full flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border bg-card p-3 text-left text-sm hover:border-primary ${closed(appointment) ? "opacity-60" : ""}`}>
+                <span className="w-40 font-medium">{fmtTime(appointment.start_time)} – {fmtTime(appointment.end_time)}</span>
+                <span className="min-w-0 flex-1"><span className="block font-medium">{customerName(appointment)}</span><span className="block text-xs text-muted-foreground">{typeName(appointment)} · {human(appointment.location_type)}</span></span>
+                <Badge className={badgeClass(appointment.status)}>{human(appointment.status)}</Badge>
+              </button>))}
+            {!(byDay.get(anchor) ?? []).length && <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">No appointments on this day.</div>}
+          </div>)}
+        {mode === "week" && (<div className="grid gap-3 md:grid-cols-7">
+            {Array.from({ length: 7 }, (_, index) => addDays(weekStart, index)).map((key) => (<div key={key} className={`min-h-[220px] rounded-lg border bg-background/35 p-2.5 ${key === todayKey ? "border-primary" : ""}`}>
+                <button type="button" onClick={() => openDay(key)} className="mb-2 text-sm font-semibold hover:underline">{keyLabel(key, { weekday: "short", month: "short", day: "numeric" })}</button>
+                <div className="space-y-1.5">{(byDay.get(key) ?? []).map((appointment) => chip(appointment))}</div>
+              </div>))}
+          </div>)}
+        {mode === "month" && (<div className="overflow-x-auto">
+            <div className="grid min-w-[640px] grid-cols-7 gap-1.5">
+              {WEEKDAYS.map((day) => <div key={day} className="px-1 pb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{day}</div>)}
+              {monthCells(anchor).map((key) => {
+                const items = byDay.get(key) ?? [];
+                const outside = key.slice(0, 7) !== anchor.slice(0, 7);
+                return (<div key={key} className={`min-h-[104px] rounded-lg border p-1.5 ${outside ? "bg-muted/25 opacity-60" : "bg-background/35"} ${key === todayKey ? "border-primary" : ""}`}>
+                    <button type="button" onClick={() => openDay(key)} className="mb-1 text-xs font-semibold hover:underline" aria-label={`Open ${keyLabel(key, { month: "long", day: "numeric" })}`}>{Number(key.slice(8))}</button>
+                    <div className="space-y-1">{items.slice(0, 3).map((appointment) => chip(appointment, true))}</div>
+                    {items.length > 3 && <button type="button" onClick={() => openDay(key)} className="mt-1 text-[11px] text-muted-foreground hover:underline">+{items.length - 3} more</button>}
+                  </div>);
             })}
             </div>
-          </div>))}
+          </div>)}
+        {mode === "year" && (<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 12 }, (_, month) => `${anchor.slice(0, 4)}-${String(month + 1).padStart(2, "0")}-01`).map((monthKey) => {
+                const count = [...byDay.entries()].filter(([key]) => key.startsWith(monthKey.slice(0, 7))).reduce((total, [, items]) => total + items.length, 0);
+                return (<div key={monthKey} className="rounded-lg border bg-background/35 p-3">
+                    <div className="mb-2 flex items-center justify-between">
+                      <button type="button" onClick={() => { setAnchor(monthKey); setMode("month"); }} className="text-sm font-semibold hover:underline">{keyLabel(monthKey, { month: "long" })}</button>
+                      <span className="text-xs text-muted-foreground">{count} {count === 1 ? "appointment" : "appointments"}</span>
+                    </div>
+                    <div className="grid grid-cols-7 gap-0.5 text-center text-[11px]">
+                      {WEEKDAYS.map((day) => <span key={day} className="text-muted-foreground">{day[0]}</span>)}
+                      {monthCells(monthKey).map((key) => {
+                        const outside = key.slice(0, 7) !== monthKey.slice(0, 7);
+                        const busy = !outside && (byDay.get(key) ?? []).length > 0;
+                        return outside ? <span key={key}/> : (<button key={key} type="button" onClick={() => openDay(key)} aria-label={`${keyLabel(key, { month: "long", day: "numeric" })}${busy ? `, ${(byDay.get(key) ?? []).length} appointments` : ""}`} className={`rounded py-0.5 hover:bg-accent ${busy ? "bg-primary/25 font-semibold" : ""} ${key === todayKey ? "ring-1 ring-primary" : ""}`}>{Number(key.slice(8))}</button>);
+                    })}
+                    </div>
+                  </div>);
+            })}
+          </div>)}
       </CardContent>
     </Card>);
 }
@@ -720,6 +815,8 @@ function AppointmentSheet(props: {
               </div>
 
               {props.appointment.customer_notes && <div className="rounded-lg border bg-background/35 p-3 text-sm"><div className="mb-1 text-xs font-medium text-muted-foreground">Customer message</div>{props.appointment.customer_notes}</div>}
+
+              <BookingLeadActions appointment={props.appointment}/>
 
               <Button className="w-full" onClick={() => props.onSave({
                 status,

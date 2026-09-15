@@ -51,6 +51,7 @@ export interface Lead {
     contactSubmissions?: import("@/lib/contact/model").Intake[];
     studioProjects?: {id:string;details:Record<string,unknown>;[key:string]:unknown}[];
     cardLeads?: {id:string;cardId:string;cardName:string;name:string;email:string;phone:string;company:string;message:string;createdAt:string}[];
+    bookings?: import("@/lib/bookings/model").OperationsBooking[];
     contactId?: string;
     id: string;
     name: string;

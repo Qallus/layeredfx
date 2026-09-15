@@ -11,6 +11,9 @@ const containsPath=(item:DashboardNavItem,path:string)=>isActive(item.href,path)
 
 export function DashboardNav({path,collapsed,pipelineCount,onNavigate}:{path:string;collapsed:boolean;pipelineCount:number;onNavigate:()=>void}){
  const [open,setOpen]=useState<string[]>([]);
+ const [bookingsCount,setBookingsCount]=useState<number|null>(null);
+ // Upcoming appointments badge; refreshed on navigation so it reflects changes made in /admin/bookings.
+ useEffect(()=>{let current=true;fetch('/api/ctrlp/admin/bookings?summary=1',{cache:'no-store'}).then(res=>res.ok?res.json():null).then(data=>{if(current&&data&&Number.isFinite(data.upcoming))setBookingsCount(data.upcoming);}).catch(()=>{});return()=>{current=false;};},[path]);
  useEffect(()=>{try{const saved:unknown=JSON.parse(localStorage.getItem(OPEN_GROUPS_KEY)||'[]');if(Array.isArray(saved))setOpen(prev=>[...new Set([...prev,...saved.filter((x):x is string=>typeof x==='string')])]);}catch{}},[]);
  // Keep the group holding the current page expanded.
  useEffect(()=>{const current=dashboardNavigation.flatMap(group=>group.items).filter(item=>item.children&&containsPath(item,path)).map(item=>item.href);if(current.length)setOpen(prev=>current.every(href=>prev.includes(href))?prev:[...new Set([...prev,...current])]);},[path]);
@@ -19,7 +22,7 @@ export function DashboardNav({path,collapsed,pipelineCount,onNavigate}:{path:str
   const Icon=n.icon;
   if(n.soon)return <div key={n.href} className="ops-nav-soon" aria-disabled="true" title={collapsed?`${n.label} (coming soon)`:undefined}><Icon size={18}/><span className="ops-nav-text">{n.label}</span><span className="ops-nav-count">Soon</span></div>;
   const active=isActive(n.href,path);
-  return <Link key={n.href} href={n.href} className={active?'active':''} aria-label={n.label} title={collapsed?n.label:undefined} aria-current={active?'page':undefined} onClick={onNavigate}><Icon size={18}/><span className="ops-nav-text">{n.label}</span>{n.label==='Pipeline'&&<span className="ops-nav-count">{pipelineCount}</span>}</Link>;
+  return <Link key={n.href} href={n.href} className={active?'active':''} aria-label={n.label} title={collapsed?n.label:undefined} aria-current={active?'page':undefined} onClick={onNavigate}><Icon size={18}/><span className="ops-nav-text">{n.label}</span>{n.label==='Pipeline'&&<span className="ops-nav-count">{pipelineCount}</span>}{n.label==='Bookings'&&bookingsCount!==null&&<span className="ops-nav-count" title="Upcoming appointments">{bookingsCount}</span>}</Link>;
  }
  return <nav aria-label="Dashboard navigation">{dashboardNavigation.map(group=><section key={group.label}><p className="ops-sidebar-label">{group.label}</p>{group.items.map(n=>{
   if(!n.children)return item(n);

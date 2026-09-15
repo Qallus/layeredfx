@@ -88,3 +88,46 @@ body:has(.portal.dark){--field-bg:#19261d;--field-ink:#e1ebdb;--field-line:#3c4d
 .portal .portal-inline-check{display:flex;align-items:center;gap:8px;font-weight:400}
 .portal .portal-inline-check input{width:auto;min-height:0}
 @media(max-width:760px){.portal-booking{flex-direction:column;gap:14px}.portal-booking-date{grid-auto-flow:column;align-items:baseline;gap:8px;width:auto;padding:8px 12px}.portal-heading>.portal-primary{align-self:flex-start}}
+
+/* Two-step registration (the portal form grid rule would otherwise override the hidden attribute) */
+.portal-auth form[hidden],.portal form[hidden]{display:none}
+.portal-steps{list-style:none;display:flex;gap:10px;margin:20px 0 4px;padding:0;font-size:12px;color:#8a9383}
+.portal-steps li{display:flex;align-items:center;gap:8px;flex:1;padding-bottom:10px;border-bottom:2px solid #e5e9e0}
+.portal-steps li span{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#eef1ea;font-size:11px;font-weight:600}
+.portal-steps li[aria-current=step]{color:#26352c;border-color:#5f7f3a;font-weight:600}
+.portal-steps li[aria-current=step] span{background:#26352c;color:#f4f7ee}
+.portal-steps li[data-done=true]{color:#3f6b1e;border-color:#9fb884}
+.portal-steps li[data-done=true] span{background:#e4efd2;color:#3f6b1e}
+.portal-selected-type{display:flex;align-items:center;gap:10px;margin:0;padding:12px 14px;border-radius:10px;background:#f4f7ee;font-size:13px;color:#4f5a4a}
+.portal-selected-type .portal-text-button{margin-left:auto;display:inline-flex;align-items:center;gap:4px}
+.portal-field-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.portal-optional{font-weight:400;color:#8a9383}
+.portal-socials{border:0;margin:0;padding:0;display:grid;gap:8px;min-width:0}
+.portal-socials legend{font-size:13px;font-weight:500;margin-bottom:6px;padding:0}
+.portal-social-row{display:flex;gap:6px;align-items:center}
+.portal-social-row input{flex:1}
+.portal-add-link{display:inline-flex;align-items:center;gap:6px}
+@media(max-width:420px){.portal-field-pair{grid-template-columns:1fr}}
+
+/* Registration story panel: layered products + designs = Layered FX */
+.portal-auth-story h2{font-size:clamp(36px,3.8vw,64px)}
+.portal-auth-story h2 em{font-style:normal;color:#d6ff41}
+.portal-layers{position:relative;width:100%;max-width:360px;height:300px;margin:auto;perspective:1000px}
+.portal-plate{--z:0px;position:absolute;left:50%;top:50%;width:210px;height:210px;margin:-105px 0 0 -105px;border-radius:28px;display:grid;place-items:center;transform:rotateX(58deg) rotateZ(-42deg) translateZ(var(--z));animation:9s cubic-bezier(.45,0,.2,1) infinite both}
+.portal-plate-product{--z:-52px;background:linear-gradient(140deg,#34463b,#1d2823);border:1px solid #56695a;box-shadow:0 30px 60px #0008;animation-name:portal-plate-product}
+.portal-plate-design{--z:0px;background:repeating-linear-gradient(45deg,#d6ff41 0 12px,#a9c92b 12px 24px);box-shadow:0 18px 40px #0006;animation-name:portal-plate-design}
+.portal-plate-result{--z:52px;background:#19212dde;border:1px solid #d6ff4166;box-shadow:0 0 0 1px #d6ff4122,0 0 60px #d6ff4133;animation-name:portal-plate-result}
+.portal-plate-result img{width:84px;height:84px;transform:rotateZ(42deg)}
+@keyframes portal-plate-product{0%,100%{opacity:1;transform:rotateX(58deg) rotateZ(-42deg) translateZ(-52px)}50%{opacity:1;transform:rotateX(58deg) rotateZ(-42deg) translateZ(-40px)}}
+@keyframes portal-plate-design{0%,14%{opacity:0;transform:rotateX(58deg) rotateZ(-42deg) translateZ(170px)}32%,82%{opacity:1;transform:rotateX(58deg) rotateZ(-42deg) translateZ(0)}94%,100%{opacity:0;transform:rotateX(58deg) rotateZ(-42deg) translateZ(0)}}
+@keyframes portal-plate-result{0%,38%{opacity:0;transform:rotateX(58deg) rotateZ(-42deg) translateZ(52px) scale(.8)}54%,82%{opacity:1;transform:rotateX(58deg) rotateZ(-42deg) translateZ(52px) scale(1)}94%,100%{opacity:0;transform:rotateX(58deg) rotateZ(-42deg) translateZ(52px) scale(1)}}
+.portal-equation{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px 14px;margin:6px 0 0;padding:0;font-size:13px;letter-spacing:.4px;color:#8fa287}
+.portal-equation li{opacity:.35;animation:9s ease infinite both}
+.portal-equation li:nth-child(1){animation-name:portal-eq-product}
+.portal-equation li:nth-child(2),.portal-equation li:nth-child(3){animation-name:portal-eq-design}
+.portal-equation li:nth-child(4),.portal-equation li:nth-child(5){animation-name:portal-eq-result}
+.portal-equation li:nth-child(5){font-weight:600}
+@keyframes portal-eq-product{0%{opacity:.35}10%,82%{opacity:1;color:#edf4df}94%,100%{opacity:.35}}
+@keyframes portal-eq-design{0%,18%{opacity:.35}30%,82%{opacity:1;color:#edf4df}94%,100%{opacity:.35}}
+@keyframes portal-eq-result{0%,40%{opacity:.35}54%,82%{opacity:1;color:#d6ff41}94%,100%{opacity:.35}}
+@media(prefers-reduced-motion:reduce){.portal-plate,.portal-equation li{animation:none;opacity:1}.portal-equation li:nth-child(5){color:#d6ff41}}

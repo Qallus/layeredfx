@@ -3,7 +3,7 @@ import {checkOrigin,errorResponse} from '@/lib/operations/server';
 import {readBody} from '@/lib/operations/security.mjs';
 import {OperationError} from '@/lib/operations/engine.mjs';
 import {currentPortal,portalClient,portalCookies,portalConfig,verifiedPortal} from '@/lib/portal/server';
-import {accountTypes,initialPortal,isPartner,portalText} from '@/lib/portal/model';
+import {accountTypes,businessAccountTypes,initialPortal,isPartner,MAX_SOCIAL_LINKS,portalText,portalUrl} from '@/lib/portal/model';
 function passwordText(value:unknown){if(typeof value!=='string'||value.length>1024)throw new OperationError('Enter a valid password.',400);return value;}
 function newPassword(value:unknown){const password=passwordText(value);if(password.length<12)throw new OperationError('Use a password of at least 12 characters.',400);return password;}
 const attempts=new Map<string,{count:number;at:number}>();
@@ -50,10 +50,23 @@ export async function POST(request:Request,{params}:{params:Promise<{action:stri
   return Response.json({message:`If an account exists for ${email}, we sent a link to reset your password. Check your inbox and spam folder.`});
  }
  if(action==='register'){
-  const name=portalText(body.name,150),password=passwordText(body.password),kind=body.kind;if(!name||password.length<12||!accountTypes.includes(kind))throw new OperationError('Complete your details and use a password of at least 12 characters.',400);
-  const{data,error}=await client.auth.signUp({email,password,options:{emailRedirectTo:new URL('/login',siteUrl()).href}});
+  const kind=body.kind;if(!accountTypes.includes(kind))throw new OperationError('Choose an account type.',400);
+  const clean=(value:unknown,max:number)=>{if(value===undefined||value===null)return '';if(typeof value!=='string'||value.length>max)throw new OperationError('Check your details and try again.',400);return value.trim();};
+  const firstName=clean(body.firstName,75),lastName=clean(body.lastName,75),phone=clean(body.phone,40),password=newPassword(body.password);
+  if(!firstName||!lastName)throw new OperationError('Enter your first and last name.',400);
+  if(!/^\+?[\d ().-]{7,40}$/.test(phone))throw new OperationError('Enter a valid phone number.',400);
+  const business=businessAccountTypes.includes(kind),company=business?clean(body.company,200):'';
+  if(business&&!company)throw new OperationError('Enter your business name.',400);
+  let website='',socials:string[]=[];
+  try{
+   website=business?portalUrl(body.website):'';
+   socials=kind==='affiliate'&&Array.isArray(body.socials)?body.socials.slice(0,MAX_SOCIAL_LINKS).map(portalUrl).filter(Boolean):[];
+  }catch(e){throw new OperationError(e instanceof Error?e.message:'Enter a valid link.',400);}
+  const name=`${firstName} ${lastName}`;
+  // first_name is available to the Supabase confirmation email template as {{ .Data.first_name }}.
+  const{data,error}=await client.auth.signUp({email,password,options:{emailRedirectTo:new URL('/login',siteUrl()).href,data:{first_name:firstName,last_name:lastName,full_name:name}}});
   if(error)throw new OperationError('Registration could not be completed. Please try again.',400);
-  if(data.user&&data.user.identities?.length){const{error:dbError}=await portalClient(true).from('lfx_portal_accounts').upsert({user_id:data.user.id,org_id:portalConfig().org,email,kind,status:isPartner(kind)?'pending':'active',revision:0,state:initialPortal(name)},{onConflict:'org_id,user_id',ignoreDuplicates:true});if(dbError)throw new OperationError('Account created but portal setup is incomplete. Contact LayeredFX before retrying.',503);}
+  if(data.user&&data.user.identities?.length){const{error:dbError}=await portalClient(true).from('lfx_portal_accounts').upsert({user_id:data.user.id,org_id:portalConfig().org,email,kind,status:isPartner(kind)?'pending':'active',revision:0,state:initialPortal(name,{company,phone,website,socials})},{onConflict:'org_id,user_id',ignoreDuplicates:true});if(dbError)throw new OperationError('Account created but portal setup is incomplete. Contact LayeredFX before retrying.',503);}
   return Response.json({message:'Check your email to verify your account, then sign in. Partner access requires team approval.'});
  }
  if(action!=='login')throw new OperationError('Unknown action.',404);

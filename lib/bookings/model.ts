@@ -100,6 +100,17 @@ export function staffUpdate(booking: Booking, body: Record<string, unknown>, mem
   return {...booking, status: status as BookingStatus, internal_notes: internalNotes, assigned_staff_id: assigned, revision: booking.revision + 1, updated_at: at, history: withHistory(booking.history, {at, actor: 'staff', action: 'updated', detail: `${actorName}: ${changes.join(', ')}`})};
 }
 
+/** Appointment fields copied onto a lead when a booking is added to Leads or Pipeline. */
+export type OperationsBooking = {id: string; title: string; startTime: string; endTime: string; status: string; location: string; firstName: string; lastName: string; email: string; phone: string; company: string; notes: string; createdAt: string};
+export type BookingLike = {id: string; title: string; start_time: string; end_time: string; status: string; location_type: string; customer_first_name: string | null; customer_last_name: string | null; customer_email: string | null; customer_phone: string | null; company_name: string | null; customer_notes: string | null; created_at?: string};
+export function operationsBooking(booking: BookingLike): OperationsBooking {
+  return {
+    id: booking.id, title: booking.title, startTime: booking.start_time, endTime: booking.end_time, status: booking.status, location: human(booking.location_type),
+    firstName: booking.customer_first_name || '', lastName: booking.customer_last_name || '', email: booking.customer_email || '', phone: booking.customer_phone || '',
+    company: booking.company_name || '', notes: booking.customer_notes || '', createdAt: booking.created_at || '',
+  };
+}
+
 /** What a customer may see: no internal notes, staff assignment or audit history. */
 export function customerView(booking: Booking, now = Date.now()): CustomerBooking {
   const {internal_notes: _notes, assigned_staff_id: _assigned, history: _history, ...visible} = booking;

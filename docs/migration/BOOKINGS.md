@@ -35,6 +35,18 @@ Supabase Auth settings (Dashboard → Authentication → URL Configuration), req
 - Browser (Edge, local demo mode): booking flow to confirmation; booking listed and confirmed in `/admin/bookings`; read-only portal card; change and cancel; portal Settings; login/register/forgot/reset pages; booking templates with Duplicate in the dashboard; confirmation email rendering.
 - Not yet verified live: sending through Resend, Supabase recovery emails, and booking reads/writes against the hosted database through the running app.
 
+## Dashboard additions (2026-09-15)
+
+- **Sidebar badge**: Bookings shows the number of upcoming, not-canceled appointments (`GET /api/ctrlp/admin/bookings?summary=1`), refreshed on navigation.
+- **Calendar**: Day, Week, Month and Year views with previous / Today / next navigation in Arizona time. Clicking a day in Week, Month or Year opens that day.
+- **Add to Leads / Add to Pipeline** (appointment panel): `booking.import` and `booking.pipeline` operations commands. The server replaces the booking with the stored record, creates or reuses the contact and lead (source `Booking`) and, for Pipeline, the opportunity. The appointment summary and customer notes are kept on the contact and opportunity. Repeating either action reuses the same records. As with other conversions, adding to Pipeline converts the lead and the contact becomes a prospect.
+- **User management**: portal accounts from `lfx_portal_accounts` are listed alongside team members (Homeowner and Business → `customer`, General contractor → `reseller`, Affiliate → `referral`, Vendor → `vendor`). Loaded through the staff-only `/api/portal/staff`; not available in local demo mode.
+
+## Registration and account emails (2026-09-15)
+
+- `/register` is two steps: account type, then details. All accounts: first and last name, phone, email, password and confirmation. Business, General contractor and Vendor also give a business name (required) and website (optional). Affiliates can add up to six social media links. The website and links are validated as http(s) URLs and stored on the portal profile, where they can be edited later. First and last name are saved to Supabase Auth user metadata.
+- Branded Supabase Auth templates are in `supabase/templates/` (confirm signup and reset password) with the app icon PNG at `/brand/layeredfx_app_icon_email.png`. They must be pasted into the Supabase dashboard; see `supabase/templates/README.md`.
+
 ## Limits
 
 - Availability, buffers, blocked time and double-booking prevention are not enforced; the team manages conflicts.

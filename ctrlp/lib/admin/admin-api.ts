@@ -3,6 +3,7 @@
 import type { ArtworkFile,Product,Proof } from "@/ctrlp/lib/admin/types";
 import type { AppRole } from "@/ctrlp/lib/rbac/roles";
 import { sourceDashboardData,sourceFetch,sourceProfile } from "@/lib/dashboard/source-runtime";
+import { portalAdminUser,type PortalAccount } from "@/lib/portal/model";
 
 import { getSupabaseBrowserClient } from "@/ctrlp/lib/supabase/browser";
 function requireClient() {
@@ -12,7 +13,26 @@ function requireClient() {
     return db;
 }
 export async function getCurrentAdminProfile() { return sourceProfile(); }
-export async function loadAdminDashboardData() { return sourceDashboardData(); }
+// LayeredFX: portal customers and partners live in lfx_portal_accounts, so they are added from the staff-only portal API.
+// Local demo mode has no signed-in staff member, so the request fails quietly and only operations people/contacts show.
+export async function loadAdminDashboardData() {
+    const data = sourceDashboardData();
+    try {
+        const response = await fetch("/api/portal/staff", { cache: "no-store", credentials: "same-origin" });
+        if (!response.ok)
+            return data;
+        const accounts = await response.json() as PortalAccount[];
+        const portalUsers = Array.isArray(accounts) ? accounts.map(portalAdminUser) : [];
+        const portalEmails = new Set(portalUsers.map((user) => user.email.toLowerCase()));
+        const team = new Set(sourceProfile().id ? data.users.filter((user) => user.role !== "customer").map((user) => user.id) : []);
+        // A CRM contact with the same email as a portal account is the same person; show the portal account instead.
+        const users = data.users.filter((user) => team.has(user.id) || !portalEmails.has(String(user.email || "").toLowerCase()));
+        return { ...data, users: [...users, ...portalUsers.filter((user) => !users.some((existing) => String(existing.email || "").toLowerCase() === user.email.toLowerCase()))] } as typeof data;
+    }
+    catch {
+        return data;
+    }
+}
 export async function saveAdminShipment(input: {
     shipmentId?: string;
     orderId: string;

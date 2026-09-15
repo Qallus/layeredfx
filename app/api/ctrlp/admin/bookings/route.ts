@@ -26,9 +26,17 @@ function notIntegrated() {
   return Response.json({error: message, message, configurationRequired: true}, {status: 503, headers});
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     await staff();
+    // ?summary=1 feeds the sidebar badge without sending every booking.
+    if (new URL(request.url).searchParams.get('summary') === '1') {
+      const now = Date.now(), bookings = await listBookings();
+      return Response.json({
+        upcoming: bookings.filter(item => !['canceled', 'completed', 'no_show'].includes(item.status) && Date.parse(item.start_time) >= now).length,
+        pending: bookings.filter(item => item.status === 'pending').length,
+      }, {headers});
+    }
     const [bookings, notifications, members] = await Promise.all([listBookings(), listNotifications(), mode() === 'demo' ? Promise.resolve([]) : people()]);
     return Response.json({
       appointments: bookings.map(adminAppointment),

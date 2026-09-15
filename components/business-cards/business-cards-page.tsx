@@ -74,25 +74,22 @@ function CardQr({card, size}: {card: BusinessCard; size: 'lg' | 'sm'}) {
 }
 
 function CardGrid({cards, h, showOwner}: {cards: BusinessCard[]; h: CardHandlers; showOwner: boolean}) {
-  return <div className="bc-cards">{cards.map(card => {
+  return <div className="bc-cards-wrap"><div className="bc-cards">{cards.map(card => {
     const url = publicCardUrl(h.siteUrl, card.slug);
     return <article key={card.id} className="ops-panel bc-card">
       <CardAvatar card={card} size="lg"/>
       <div className="bc-card-body">
-        <div className="bc-card-heading">
-          {/* Inline size: the site's global heading styles otherwise enlarge this title. */}
-          <h2 className="m-0 truncate font-semibold" style={{fontSize: 18, lineHeight: 1.35, letterSpacing: 0}} title={cardName(card)}>{cardName(card)}</h2>
-          <span className={statusClass(card.status)}>{STATUS_LABEL[card.status]}</span>
-        </div>
-        {(card.job_title || card.company_name) && <p className="m-0 truncate text-sm">{[card.job_title, card.company_name].filter(Boolean).join(' · ')}</p>}
-        <p className="ops-muted m-0 truncate">{url.replace(/^https?:\/\//, '')}</p>
+        {/* Inline size: the site's global heading styles otherwise enlarge this title. */}
+        <h2 className="m-0 max-w-full truncate font-medium" style={{fontSize: 20, lineHeight: 1.3, letterSpacing: 0}} title={cardName(card)}>{cardName(card)}</h2>
+        <span className={statusClass(card.status)}>{STATUS_LABEL[card.status]}</span>
+        <p className="ops-muted m-0 max-w-full truncate">{url.replace(/^https?:\/\//, '')}</p>
         {showOwner && <p className="ops-muted m-0">Owner: {card.owner_name || 'Unassigned'}</p>}
         <p className="ops-muted m-0">{counters(card)}</p>
-        <div className="mt-3"><CardActions card={card} h={h}/></div>
       </div>
+      <div className="bc-card-actions"><CardActions card={card} h={h}/></div>
       <CardQr card={card} size="lg"/>
     </article>;
-  })}</div>;
+  })}</div></div>;
 }
 
 function CardList({cards, h, showOwner}: {cards: BusinessCard[]; h: CardHandlers; showOwner: boolean}) {

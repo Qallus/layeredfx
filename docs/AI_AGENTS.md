@@ -1,0 +1,122 @@
+# AI agents setup
+
+LayeredFX plans three agent services, each hosted as its own Coolify app:
+
+| Agent | Service | Address |
+|---|---|---|
+| Eve (main agent) | Hermes Agent by Nous Research, using OpenAI models | https://agent.layeredfx.com |
+| Agent teams | Paperclip | https://team.layeredfx.com |
+| Voice agent | xAI Voice Agent API | Hosted by xAI, no subdomain |
+
+**Dashboard › Agents** holds each agent's setup, channels, skills, training documents and assignments. Everything is saved through the operations engine, the same way as all other dashboard data.
+
+**Current status:** the dashboard doesn't run agents yet. The LayeredFX connections to Hermes, Paperclip and xAI still need to be built. Until then:
+- Assignments wait in a queue and aren't sent to any agent.
+- No agent sends messages from LayeredFX.
+- **Setup** only shows which variables are set. It never shows their values or tests a connection.
+
+## 1. LayeredFX app (Coolify › LayeredFX › Environment Variables)
+
+All of these stay on the server. Never give them a `NEXT_PUBLIC_` prefix.
+
+```
+LFX_HERMES_URL=https://agent.layeredfx.com
+LFX_HERMES_API_KEY=
+LFX_HERMES_MODEL=hermes-agent
+LFX_PAPERCLIP_URL=https://team.layeredfx.com
+LFX_PAPERCLIP_API_KEY=
+LFX_PAPERCLIP_COMPANY_ID=
+LFX_PAPERCLIP_AGENT_ID=
+LFX_XAI_API_KEY=
+LFX_XAI_VOICE_MODEL=grok-voice-latest
+LFX_XAI_VOICE=eve
+```
+
+- **`LFX_HERMES_API_KEY`:** the same value as `API_SERVER_KEY` in the Hermes app.
+- **`LFX_PAPERCLIP_API_KEY`:** a Paperclip agent API key. Create it in Paperclip while signed in as an operator.
+- **`LFX_PAPERCLIP_AGENT_ID`:** optional. It's the default Paperclip agent for new tasks.
+- **`LFX_XAI_VOICE`:** one of the voices listed in the xAI docs, for example `eve`, `ara`, `leo`, `rex` or `sal`.
+
+Redeploy after changing variables.
+
+## 2. Hermes Agent app (agent.layeredfx.com)
+
+- **Image:** `nousresearch/hermes-agent:latest`
+- **Start command:** `gateway run`
+- **Persistent volume:** `/opt/data`. It holds `config.yaml`, sessions, skills and memory.
+- **Domain:** route `agent.layeredfx.com` to port **8642**, the OpenAI-compatible API.
+- **Dashboard:** keep it (port 9119) off, or behind its basic-auth login.
+
+```
+OPENAI_API_KEY=
+API_SERVER_ENABLED=true
+API_SERVER_KEY=
+API_SERVER_HOST=0.0.0.0
+API_SERVER_PORT=8642
+HERMES_DASHBOARD_BASIC_AUTH_USERNAME=
+HERMES_DASHBOARD_BASIC_AUTH_PASSWORD=
+GATEWAY_ALLOW_ALL_USERS=false
+```
+
+Hermes picks its model in `/opt/data/config.yaml`:
+
+```yaml
+model:
+  provider: openai-api
+  default: YOUR_OPENAI_MODEL
+```
+
+**Calling the API:** send `Authorization: Bearer <API_SERVER_KEY>`.
+- Chat: `POST /v1/chat/completions` and `POST /v1/responses`
+- Health check: `GET /health`
+
+To first create `config.yaml`, run `setup` once in the container with the volume attached.
+
+**Messaging channels:** Hermes can also connect to Telegram, Slack, SMS, email and other channels through its own gateway variables. Leave those off until you decide which channels Eve should use, and use LayeredFX's own Twilio and email accounts, never Channel Cast's.
+
+## 3. Paperclip app (team.layeredfx.com)
+
+- **Build:** from https://github.com/paperclipai/paperclip. I found no official pre-built image.
+- **Domain:** route `team.layeredfx.com` to port **3100**.
+- **Storage:** give Paperclip's data a persistent volume. Use Postgres through `DATABASE_URL`, or the repo's compose file that includes Postgres.
+
+```
+PAPERCLIP_PUBLIC_URL=https://team.layeredfx.com
+PAPERCLIP_DEPLOYMENT_MODE=authenticated
+PAPERCLIP_DEPLOYMENT_EXPOSURE=public
+PAPERCLIP_ALLOWED_HOSTNAMES=team.layeredfx.com
+HOST=0.0.0.0
+BETTER_AUTH_SECRET=
+PAPERCLIP_TOOL_ACTION_SIGNING_SECRET=
+DATABASE_URL=
+OPENAI_API_KEY=
+PAPERCLIP_TELEMETRY_DISABLED=1
+```
+
+**API:** the base is `https://team.layeredfx.com/api`, with `Authorization: Bearer <agent API key>`.
+- Tasks are issues: `POST /api/companies/{companyId}/issues`, with `title`, `description` and `assigneeAgentId`.
+
+**Known issue:** creating an issue can return HTTP 500 even when the issue was saved. The LayeredFX connection must check whether it exists before retrying.
+
+**Hermes inside Paperclip:** Paperclip's built-in `hermes_local` adapter runs the Hermes command line on the same server. Because Hermes and Paperclip run as separate Coolify apps, connect them through their HTTP APIs instead.
+
+## 4. xAI Voice Agent API
+
+- **Endpoint:** `wss://api.x.ai/v1/realtime?model=grok-voice-latest`
+- **Auth:** `Authorization: Bearer <XAI_API_KEY>`. Keep the key on the server.
+- **Browser voice:** the server requests a short-lived token from `POST https://api.x.ai/v1/realtime/client_secrets`.
+- **Phone calls:** use an xAI SIP number, for example through a Twilio Elastic SIP trunk pointing at `sip:{number}@sip.voice.x.ai;transport=tls`.
+- **Pricing:** xAI lists speech-to-speech at $0.08 per minute. Check the current price before going live.
+
+## 5. Security checklist
+
+- Generate long random values for `API_SERVER_KEY`, `BETTER_AUTH_SECRET` and `PAPERCLIP_TOOL_ACTION_SIGNING_SECRET`.
+- Never reuse Channel Cast or ControlP keys, accounts or databases.
+- Agent skills can only prepare drafts or wait for approval. Anything a customer would see needs a person to approve it.
+- Don't put passwords, API keys or customer payment details in training documents.
+
+## Sources
+
+- Hermes Agent: https://github.com/NousResearch/hermes-agent and https://hermes-agent.nousresearch.com/docs/user-guide/features/api-server
+- Paperclip: https://github.com/paperclipai/paperclip and https://docs.paperclip.ing/reference/adapters/hermes/
+- xAI Voice: https://docs.x.ai/docs/guides/voice/agent

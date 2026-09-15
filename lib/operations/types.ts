@@ -288,7 +288,58 @@ export interface TeamMember {
     createdAt: string;
     updatedAt: string;
 }
+export type AgentId = 'eve' | 'paperclip' | 'voice';
+export type AgentChannel = 'dashboard' | 'sms' | 'email' | 'phone' | 'web_chat';
+export type SkillMode = 'off' | 'draft' | 'approval';
+/** Stored agent setup. Connection secrets never live here; they are server env vars. */
+export interface AgentSettings {
+    name?: string;
+    role?: string;
+    enabled?: boolean;
+    instructions?: string;
+    endpoint?: string;
+    greeting?: string;
+    voiceName?: string;
+    escalateTo?: string;
+    channels?: Partial<Record<AgentChannel, boolean>>;
+    skills?: Record<string, SkillMode>;
+    updatedAt?: string;
+    updatedBy?: string;
+}
+export interface AgentDoc {
+    id: string;
+    title: string;
+    kind: 'note' | 'link';
+    url: string;
+    body: string;
+    agents: AgentId[];
+    category: string;
+    status: 'draft' | 'active' | 'archived';
+    createdAt: string;
+    updatedAt: string;
+    updatedBy: string;
+}
+export type AssignmentStatus = 'queued' | 'in_progress' | 'needs_review' | 'done' | 'canceled';
+export interface AgentAssignment {
+    id: string;
+    title: string;
+    agent: AgentId;
+    details: string;
+    priority: 'low' | 'medium' | 'high';
+    dueDate: string;
+    dealId: string;
+    contactId: string;
+    status: AssignmentStatus;
+    createdBy: string;
+    createdByName: string;
+    createdAt: string;
+    updatedAt: string;
+    log: {at: string; actorId: string; actorName: string; text: string}[];
+}
 export interface OperationState {
+    agents?: Partial<Record<AgentId, AgentSettings>>;
+    agentDocs?: AgentDoc[];
+    agentAssignments?: AgentAssignment[];
     team?: TeamMember[];
     memberProfiles?: Record<string, MemberProfile>;
     contactActivities?: {id:string;contactId:string;kind:string;body:string;actorId:string;occurredAt:string}[];

@@ -3,7 +3,7 @@
 // Setup, skills, training documents and assignments are saved through applyCommand. Nothing on this page runs an
 // agent, calls a model or sends a message; the Setup tab only reports which server variables are set.
 import {useEffect,useMemo,useState} from 'react';
-import {ArrowUpRight,BookOpen,Bot,Check,CircleDashed,ClipboardList,Copy,KeyRound,MessageSquare,Mic,Pencil,Plus,Sparkles,Trash2,Users} from 'lucide-react';
+import {ArrowUpRight,BookOpen,Bot,Check,CircleDashed,ClipboardList,Copy,KeyRound,MessageSquare,Mic,Pencil,Plus,Send,Sparkles,Trash2,Users} from 'lucide-react';
 import {AGENT_CHANNELS,AGENT_SKILLS,ASSIGNMENT_STATUSES,agentsFor,type AgentView} from '@/lib/operations/agents.mjs';
 import type {AgentAssignment,AgentChannel,AgentDoc,AgentId,AssignmentStatus,Command,SkillMode} from '@/lib/operations/types';
 import {AGENT_ENV,type AgentConnection} from '@/lib/agents/connections';
@@ -61,7 +61,7 @@ export function AgentsPage(){
   <PageTitle eyebrow="LAYEREDFX / SYSTEM" title="AI Agents" description="Eve, Paperclip agent teams and the voice agent: channels, skills, training documents and assignments.">
    {canAssign&&<Button onClick={()=>setTab('Assignments')}><Plus size={16}/>Assign work</Button>}
   </PageTitle>
-  <p className="ops-info ag-notice">Agents don’t run from this dashboard yet. Setup, skills, training documents and assignments are saved here, ready for the Hermes, Paperclip and xAI connections. Nothing is sent to an agent, and no agent sends messages from LayeredFX.</p>
+  <p className="ops-info ag-notice">Assignments reach Eve and Paperclip once their keys are set, and Setup can test each connection. The voice agent is not connected yet, agents never start work on their own, and nothing reaches a customer unless a person sends it.</p>
   {!admin&&<p className="ops-info">Only administrators can change agent setup, skills and training documents.</p>}
   <div className="ops-toolbar ag-tabs"><Views values={TABS} value={tab} onChange={setTab}/></div>
   {tab==='Overview'&&<Overview agents={agents} connections={connections} error={error} docs={docs} assignments={assignments} onOpen={openTab}/>}
@@ -69,7 +69,7 @@ export function AgentsPage(){
   {tab==='Skills'&&<>{picker}<SkillsTab key={agent.id} agent={agent} admin={admin} busy={busy} dispatch={dispatch}/></>}
   {tab==='Training docs'&&<DocsTab docs={docs} agents={agents} admin={admin} busy={busy} dispatch={dispatch}/>}
   {tab==='Assignments'&&<AssignmentsTab agents={agents} defaultAgent={agent.id} assignments={assignments} deals={state.deals.filter(d=>!d.archivedAt).map(d=>({id:d.id,name:d.name}))} actorId={actor.id} admin={admin} canAssign={canAssign} busy={busy} dispatch={dispatch}/>}
-  {tab==='Setup'&&<SetupTab connections={connections} error={error}/>}
+  {tab==='Setup'&&<SetupTab connections={connections} error={error} admin={admin} demo={mode==='demo'}/>}
  </>;
 }
 
@@ -225,7 +225,7 @@ function AssignmentsTab({agents,defaultAgent,assignments,deals,actorId,admin,can
      <Field label="Opportunity"><BrandedSelect aria-label="Opportunity" value={draft.dealId} onChange={e=>setDraft({...draft,dealId:e.target.value})}><option value="">None</option>{deals.map(d=><option key={d.id} value={d.id}>{d.name}</option>)}</BrandedSelect></Field>
     </div>
     <Field label="Details"><textarea rows={4} maxLength={4000} value={draft.details} placeholder="Context, links and what a good result looks like" onChange={e=>setDraft({...draft,details:e.target.value})}/></Field>
-    <p className="ops-muted">Saved to the queue below. It isn’t sent to {nameOf(draft.agent)} until the connection is built.</p>
+    <p className="ops-muted">Saved to the queue below, then delivered when you choose Send on the assignment.</p>
     <div className="ag-form-actions"><Button type="submit" disabled={busy||!draft.title.trim()}><Plus size={16}/>Add to queue</Button></div>
    </form>
   </Panel>}
@@ -238,15 +238,33 @@ function AssignmentsTab({agents,defaultAgent,assignments,deals,actorId,admin,can
 }
 
 function AssignmentRow({item,agentName,dealName,canEdit,busy,dispatch}:{item:AgentAssignment;agentName:string;dealName:string;canEdit:boolean;busy:boolean;dispatch:Dispatch}){
+ const {mode,reload}=useOperations();
  const [note,setNote]=useState('');
+ const [sending,setSending]=useState(false);const [sendError,setSendError]=useState('');
+ const delivery=item.delivery;
+ const sendable=item.agent!=='voice'&&delivery?.state!=='sent'&&!['done','canceled'].includes(item.status);
+ async function sendToAgent(){
+  setSending(true);setSendError('');
+  try{
+   const response=await fetch('/api/agents/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id})});
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(data.message||'The assignment was not sent.');
+  }catch(e){setSendError(e instanceof Error?e.message:'The assignment was not sent.');}
+  finally{setSending(false);await reload();}
+ }
  return <li className="ag-assignment">
   <div className="ag-assignment-main">
    <div className="ag-assignment-title"><b>{item.title}</b><span className={`ag-chip is-cap is-${item.priority}`}>{item.priority}</span><span className="ag-chip">{STATUS_LABEL[item.status]}</span></div>
    <p className="ops-muted">{agentName} · {item.dueDate?`Due ${dateLabel(item.dueDate)}`:'No due date'}{dealName?` · ${dealName}`:''} · Assigned by {item.createdByName}</p>
    {item.details&&<p className="ag-details">{item.details}</p>}
+   {delivery&&<p className={delivery.state==='sent'?'ag-delivery is-sent':'ag-delivery is-failed'}>{delivery.state==='sent'
+    ?<>Sent to {delivery.service==='paperclip'?'Paperclip':'Eve'}{delivery.externalId?` · ${delivery.externalId}`:''}{delivery.externalUrl?<> · <a href={delivery.externalUrl} target="_blank" rel="noreferrer">Open</a></>:null}</>
+    :<>Send failed · {delivery.lastError}</>}</p>}
+   {sendError&&<p role="alert" className="ops-error">{sendError}</p>}
    <details className="ag-log"><summary>History ({item.log.length})</summary><ul>{item.log.map((entry,i)=><li key={i}><time dateTime={entry.at}>{dateLabel(entry.at)}</time> {entry.actorName}: {entry.text}</li>)}</ul></details>
   </div>
   {canEdit&&<div className="ag-assignment-side">
+   {sendable&&<Button size="sm" disabled={busy||sending||mode==='demo'} onClick={()=>void sendToAgent()}><Send size={14}/>{sending?'Sending…':delivery?.state==='failed'?'Retry send':`Send to ${agentName}`}</Button>}
    <BrandedSelect aria-label={`Status of ${item.title}`} value={item.status} disabled={busy} onChange={e=>void dispatch({type:'agent.assignment.update',id:item.id,status:e.target.value})}>{ASSIGNMENT_STATUSES.map(s=><option key={s} value={s}>{STATUS_LABEL[s]}</option>)}</BrandedSelect>
    <form className="ag-note" onSubmit={async e=>{e.preventDefault();if(!note.trim())return;if(await dispatch({type:'agent.assignment.update',id:item.id,note}))setNote('');}}>
     <BrandedInput aria-label={`Note for ${item.title}`} value={note} maxLength={1000} placeholder="Add a note" onChange={e=>setNote(e.target.value)}/>
@@ -259,7 +277,7 @@ function AssignmentRow({item,agentName,dealName,canEdit,busy,dispatch}:{item:Age
 
 // Copy-paste blocks for Coolify. Values are placeholders; comments are left out because each line becomes a variable.
 export const COOLIFY_ENV={
- layeredfx:['LFX_HERMES_URL=https://agent.layeredfx.com','LFX_HERMES_API_KEY=','LFX_HERMES_MODEL=hermes-agent','LFX_PAPERCLIP_URL=https://team.layeredfx.com','LFX_PAPERCLIP_API_KEY=','LFX_PAPERCLIP_COMPANY_ID=','LFX_PAPERCLIP_AGENT_ID=','LFX_XAI_API_KEY=','LFX_XAI_VOICE_MODEL=grok-voice-latest','LFX_XAI_VOICE=eve'].join('\n'),
+ layeredfx:['LFX_HERMES_URL=https://agent.layeredfx.com','LFX_HERMES_API_KEY=','LFX_HERMES_MODEL=eve','LFX_PAPERCLIP_URL=https://team.layeredfx.com','LFX_PAPERCLIP_API_KEY=','LFX_PAPERCLIP_COMPANY_ID=','LFX_PAPERCLIP_AGENT_ID=','LFX_XAI_API_KEY=','LFX_XAI_VOICE_MODEL=grok-voice-latest','LFX_XAI_VOICE=eve'].join('\n'),
  hermes:['OPENAI_API_KEY=','API_SERVER_ENABLED=true','API_SERVER_KEY=','API_SERVER_HOST=0.0.0.0','API_SERVER_PORT=8642','HERMES_DASHBOARD_BASIC_AUTH_USERNAME=','HERMES_DASHBOARD_BASIC_AUTH_PASSWORD=','GATEWAY_ALLOW_ALL_USERS=false'].join('\n'),
  hermesConfig:['model:','  provider: openai-api','  default: YOUR_OPENAI_MODEL'].join('\n'),
  paperclip:['PAPERCLIP_PUBLIC_URL=https://team.layeredfx.com','PAPERCLIP_DEPLOYMENT_MODE=authenticated','PAPERCLIP_DEPLOYMENT_EXPOSURE=public','PAPERCLIP_ALLOWED_HOSTNAMES=team.layeredfx.com','HOST=0.0.0.0','BETTER_AUTH_SECRET=','PAPERCLIP_TOOL_ACTION_SIGNING_SECRET=','DATABASE_URL=','OPENAI_API_KEY=','PAPERCLIP_TELEMETRY_DISABLED=1'].join('\n'),
@@ -276,7 +294,30 @@ function CopyBlock({title,description,text}:{title:string;description:string;tex
 
 const SERVICE_LABEL:Record<AgentId,string>={eve:'Eve · Hermes Agent',paperclip:'Paperclip teams',voice:'Voice agent · xAI'};
 
-function SetupTab({connections,error}:{connections:AgentConnection[]|null;error:string}){
+type TestResult={ok:boolean;checks:{name:string;ok:boolean;detail:string}[];message:string;at:string};
+function SetupTab({connections,error,admin,demo}:{connections:AgentConnection[]|null;error:string;admin:boolean;demo:boolean}){
+ const [results,setResults]=useState<Record<string,TestResult>>({});const [testing,setTesting]=useState('');
+ async function runTest(id:AgentId){
+  setTesting(id);
+  const at=new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+  try{
+   const response=await fetch('/api/agents/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service:id==='eve'?'eve':'paperclip'})});
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(data.message||'The test did not run.');
+   setResults(current=>({...current,[id]:{ok:Boolean(data.ok),checks:Array.isArray(data.checks)?data.checks:[],message:String(data.message||''),at}}));
+  }catch(e){setResults(current=>({...current,[id]:{ok:false,checks:[],message:e instanceof Error?e.message:'The test did not run.',at}}));}
+  finally{setTesting('');}
+ }
+ const testBlock=(id:AgentId)=>{
+  const result=results[id];
+  if(id==='voice')return <p className="ops-muted ag-test-note">The voice agent runs on xAI and is not connected to the dashboard yet.</p>;
+  return <div className="ag-test">
+   {admin&&<Button size="sm" variant="outline" disabled={demo||testing===id} onClick={()=>void runTest(id)}>{testing===id?'Testing…':'Test connection'}</Button>}
+   {demo&&admin&&<span className="ops-muted">Connection tests run on the deployed site.</span>}
+   {result&&<span className={result.ok?'ag-test-ok':'ag-test-failed'}>{result.ok?'Working':'Failed'} · {result.message} · checked {result.at}</span>}
+   {result&&result.checks.length>0&&<ul className="ag-checks">{result.checks.map(check=><li key={check.name}><span>{check.name}</span><span className={check.ok?'is-set':'is-missing'}>{check.detail}</span></li>)}</ul>}
+  </div>;
+ };
  return <>
   <Panel title="LayeredFX connection status">
    <p className="ops-muted">Checks whether the LayeredFX app has each variable. It never shows values, and a set key isn’t a tested connection.</p>
@@ -284,7 +325,7 @@ function SetupTab({connections,error}:{connections:AgentConnection[]|null;error:
    <div className="ag-grid">{(Object.keys(AGENT_ENV) as AgentId[]).map(id=>{const c=connections?.find(x=>x.id===id);const spec=AGENT_ENV[id];
     return <div key={id} className="ag-vars"><div className="ag-vars-head"><b>{SERVICE_LABEL[id]}</b><ConnectionBadge connection={c} error={error}/></div>
      <ul>{[...spec.required.map(name=>({name,required:true})),...spec.optional.map(name=>({name,required:false}))].map(v=>{const missing=c?(v.required?c.missing:c.optionalMissing).includes(v.name):null;
-      return <li key={v.name}><code>{v.name}</code><span className={missing===null?'is-unknown':missing?(v.required?'is-missing':'is-optional'):'is-set'}>{missing===null?'—':missing?(v.required?'Missing':'Optional'):'Set'}</span></li>;})}</ul></div>;})}</div>
+      return <li key={v.name}><code>{v.name}</code><span className={missing===null?'is-unknown':missing?(v.required?'is-missing':'is-optional'):'is-set'}>{missing===null?'—':missing?(v.required?'Missing':'Optional'):'Set'}</span></li>;})}</ul>{testBlock(id)}</div>;})}</div>
   </Panel>
   <div className="ag-columns">
    <CopyBlock title="LayeredFX app" description="Coolify › LayeredFX › Environment Variables. Fill in the keys, then redeploy. LFX_HERMES_API_KEY is the same value as API_SERVER_KEY in the Hermes app." text={COOLIFY_ENV.layeredfx}/>

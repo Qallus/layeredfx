@@ -29,6 +29,7 @@ export async function POST(request: Request) { try {
     if(body.command.type==='submission.import'||body.command.type==='submission.pipeline'){if(actor.role==='viewer')throw new OperationError('Staff access required.',403);body.command.submission=metadata(await getIntake(String(body.command.submissionId||'')));}
     if(body.command.type==='booking.import'||body.command.type==='booking.pipeline'){if(actor.role==='viewer')throw new OperationError('Staff access required.',403);const stored=await getBooking(String(body.command.bookingId||''));if(!stored)throw new OperationError('Appointment not found.',404);body.command.booking=operationsBooking(stored);}
     if(body.command.type==='cardlead.import'||body.command.type==='cardlead.pipeline'){requireCardWriter(actor);const stored=await cardRepository().getLead(String(body.command.cardLeadId||''));if(!stored||(actor.role!=='admin'&&stored.owner_id!==actor.id))throw new OperationError('Card lead not found.',404);body.command.cardLead=operationsCardLead(stored);body.command.owner=stored.owner_id||actor.id;}
+    if(body.command.type==='agent.assignment.result')throw new OperationError('Agent send results are recorded by the agent service, not the client.',400);
     const original = await readState();
     verifyRevision(original.revision, body.revision);
     const result = applyCommand(original, body.command, actor);

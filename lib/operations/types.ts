@@ -320,6 +320,17 @@ export interface AgentDoc {
     updatedBy: string;
 }
 export type AssignmentStatus = 'queued' | 'in_progress' | 'needs_review' | 'done' | 'canceled';
+/** Recorded by the server after an assignment is sent to an agent service; never written by a client. */
+export interface AgentDelivery {
+    state: 'sent' | 'failed';
+    service: 'hermes' | 'paperclip';
+    externalId: string;
+    externalUrl: string;
+    attempts: number;
+    lastAttemptAt: string;
+    lastError: string;
+    requestId: string;
+}
 export interface AgentAssignment {
     id: string;
     title: string;
@@ -335,6 +346,7 @@ export interface AgentAssignment {
     createdAt: string;
     updatedAt: string;
     log: {at: string; actorId: string; actorName: string; text: string}[];
+    delivery?: AgentDelivery;
 }
 export interface OperationState {
     agents?: Partial<Record<AgentId, AgentSettings>>;

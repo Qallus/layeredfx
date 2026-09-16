@@ -10,10 +10,11 @@ LayeredFX plans three agent services, each hosted as its own Coolify app:
 
 **Dashboard › Agents** holds each agent's setup, channels, skills, training documents and assignments. Everything is saved through the operations engine, the same way as all other dashboard data.
 
-**Current status:** the dashboard doesn't run agents yet. The LayeredFX connections to Hermes, Paperclip and xAI still need to be built. Until then:
-- Assignments wait in a queue and aren't sent to any agent.
-- No agent sends messages from LayeredFX.
-- **Setup** only shows which variables are set. It never shows their values or tests a connection.
+**Current status:**
+- **Working once the keys are set:** sending an assignment to Eve or to a Paperclip agent team from Dashboard › Agents, and testing each connection from the Setup tab.
+- **Not connected:** the xAI voice agent, and anything inbound — agents cannot start work on their own or reply into LayeredFX.
+- Nothing reaches a customer unless a person sends it. Skills stay limited to drafts or approval.
+- **Setup** never shows a variable's value; a test only reports whether the service answered.
 
 ## 1. LayeredFX app (Coolify › LayeredFX › Environment Variables)
 
@@ -22,7 +23,7 @@ All of these stay on the server. Never give them a `NEXT_PUBLIC_` prefix.
 ```
 LFX_HERMES_URL=https://agent.layeredfx.com
 LFX_HERMES_API_KEY=
-LFX_HERMES_MODEL=hermes-agent
+LFX_HERMES_MODEL=eve
 LFX_PAPERCLIP_URL=https://team.layeredfx.com
 LFX_PAPERCLIP_API_KEY=
 LFX_PAPERCLIP_COMPANY_ID=
@@ -33,6 +34,7 @@ LFX_XAI_VOICE=eve
 ```
 
 - **`LFX_HERMES_API_KEY`:** the same value as `API_SERVER_KEY` in the Hermes app.
+- **`LFX_HERMES_MODEL`:** Eve's Hermes **profile name**. Hermes reports profile names as model names, so this is `eve`, not `hermes-agent`.
 - **`LFX_PAPERCLIP_API_KEY`:** a Paperclip agent API key. Create it in Paperclip while signed in as an operator.
 - **`LFX_PAPERCLIP_AGENT_ID`:** optional. It's the default Paperclip agent for new tasks.
 - **`LFX_XAI_VOICE`:** one of the voices listed in the xAI docs, for example `eve`, `ara`, `leo`, `rex` or `sal`.
@@ -43,7 +45,8 @@ Redeploy after changing variables.
 
 - **Image:** `nousresearch/hermes-agent:latest`
 - **Start command:** `gateway run`
-- **Persistent volume:** `/opt/data`. It holds `config.yaml`, sessions, skills and memory.
+- **Host:** the Coolify VPS at **31.97.12.201**. The `agent` and `team` A records already point there.
+- **Persistent volume:** `/opt/data` (`HERMES_HOME`) — config, profiles, sessions, skills and memory. Never point two containers at the same data directory.
 - **Domain:** route `agent.layeredfx.com` to port **8642**, the OpenAI-compatible API.
 - **Dashboard:** keep it (port 9119) off, or behind its basic-auth login.
 
@@ -72,13 +75,26 @@ model:
 
 To first create `config.yaml`, run `setup` once in the container with the volume attached.
 
+**Give Eve her own profile.** A profile is a separate Hermes home (`/opt/data/profiles/eve/`) with its own `config.yaml`, `.env`, `SOUL.md` persona, memory, sessions and skills — that is what makes her Eve rather than a generic assistant. Set the model inside that profile. Because Hermes advertises the profile name as the model name, LayeredFX sends `"model":"eve"`.
+
+**Verify before moving on:**
+```
+curl https://agent.layeredfx.com/health
+curl -H "Authorization: Bearer $API_SERVER_KEY" https://agent.layeredfx.com/v1/models
+curl -H "Authorization: Bearer $API_SERVER_KEY" -H "Content-Type: application/json" \
+  -d '{"model":"eve","messages":[{"role":"user","content":"Reply with OK"}]}' \
+  https://agent.layeredfx.com/v1/chat/completions
+```
+
 **Messaging channels:** Hermes can also connect to Telegram, Slack, SMS, email and other channels through its own gateway variables. Leave those off until you decide which channels Eve should use, and use LayeredFX's own Twilio and email accounts, never Channel Cast's.
 
 ## 3. Paperclip app (team.layeredfx.com)
 
 - **Build:** from https://github.com/paperclipai/paperclip. I found no official pre-built image.
 - **Domain:** route `team.layeredfx.com` to port **3100**.
-- **Storage:** give Paperclip's data a persistent volume. Use Postgres through `DATABASE_URL`, or the repo's compose file that includes Postgres.
+- **Storage:** give `PAPERCLIP_HOME` a persistent volume — it holds the database, secrets and artifacts. Prefer a separate Coolify Postgres through `DATABASE_URL` so backups and upgrades are independent of the app container.
+- **Requirements:** Node 24.11+, at least 1 vCPU and 2 GB RAM.
+- **First run:** the owner account is claimed through a **one-time URL printed in the container logs**. Open the app's logs in Coolify right after the first boot, use that link, then create the LayeredFX company, an agent, and the agent API key.
 
 ```
 PAPERCLIP_PUBLIC_URL=https://team.layeredfx.com

@@ -105,3 +105,40 @@ test('Coolify env blocks, .env.example and the setup doc cover every agent varia
   }
   assert.doesNotMatch(example,/NEXT_PUBLIC_[A-Z_]*(XAI|HERMES|PAPERCLIP)/);
 });
+
+test('a send result records delivery, moves the assignment on, and keeps failures re-sendable', () => {
+  let r = run(fixture(), {type: 'agent.assign', patch: {title: 'Draft replies', agent: 'paperclip'}}, STAFF);
+  const id = r.resultId;
+  // A failed send leaves the assignment queued.
+  r = run(r.state, {type: 'agent.assignment.result', id, outcome: 'failed', service: 'paperclip', detail: 'Paperclip did not confirm the request.', requestId: 'lfx-1-1'}, STAFF);
+  let item = r.state.agentAssignments[0];
+  assert.equal(item.status, 'queued');
+  assert.equal(item.delivery.state, 'failed');
+  assert.equal(item.delivery.attempts, 1);
+  assert.match(item.delivery.lastError, /did not confirm/);
+  assert.match(item.log.at(-1).text, /^Send failed/);
+  // A successful send records the external task and starts the work.
+  r = run(r.state, {type: 'agent.assignment.result', id, outcome: 'sent', service: 'paperclip', externalId: 'PC-9', externalUrl: 'https://team.layeredfx.com/issues/PC-9', requestId: 'lfx-1-2'}, STAFF);
+  item = r.state.agentAssignments[0];
+  assert.equal(item.status, 'in_progress');
+  assert.equal(item.delivery.state, 'sent');
+  assert.equal(item.delivery.attempts, 2);
+  assert.equal(item.delivery.lastError, '');
+  assert.match(item.log.at(-1).text, /Sent to paperclip . PC-9/);
+});
+
+test('send results reject unsafe values and other members', () => {
+  const started = run(fixture(), {type: 'agent.assign', patch: {title: 'Draft replies', agent: 'eve'}}, STAFF);
+  const id = started.resultId;
+  rejected(() => run(started.state, {type: 'agent.assignment.result', id, outcome: 'maybe', service: 'hermes'}, STAFF), 400, /send outcome/);
+  rejected(() => run(started.state, {type: 'agent.assignment.result', id, outcome: 'sent', service: 'slack'}, STAFF), 400, /agent service/);
+  rejected(() => run(started.state, {type: 'agent.assignment.result', id, outcome: 'sent', service: 'hermes', externalUrl: 'http://team.layeredfx.com/x'}, STAFF), 400, /https/);
+  rejected(() => run(started.state, {type: 'agent.assignment.result', id, outcome: 'sent', service: 'hermes'}, OTHER), 403);
+  rejected(() => run(started.state, {type: 'agent.assignment.result', id: 'assign_missing', outcome: 'sent', service: 'hermes'}, STAFF), 404);
+});
+
+test('clients cannot record a send result through the operations route', () => {
+  const source = readFileSync(new URL('../app/api/operations/route.ts', import.meta.url), 'utf8');
+  assert.match(source, /agent\.assignment\.result/);
+  assert.match(source, /recorded by the agent service/);
+});

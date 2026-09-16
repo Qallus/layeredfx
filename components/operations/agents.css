@@ -87,3 +87,14 @@
 .ops .ag-checklist{margin:0;padding-left:18px;display:grid;gap:8px;font-size:13px}
 .ops .ag-columns+.ops-panel{margin-top:16px}
 @media (max-width:900px){.ops .ag-assign-layout{grid-template-columns:minmax(0,1fr)}}
+/* Assignment delivery and the Setup connection test. */
+.ops .ag-delivery{margin:6px 0 0;font-size:12px;font-weight:600}
+.ops .ag-delivery.is-sent{color:#1f9d64}
+.ops .ag-delivery.is-failed{color:#d63b30}
+.ops .ag-delivery a{color:inherit;text-decoration:underline}
+.ops .ag-test{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;font-size:12px}
+.ops .ag-test-note{margin:10px 0 0;font-size:12px}
+.ops .ag-test-ok{color:#1f9d64;font-weight:600}
+.ops .ag-test-failed{color:#d63b30;font-weight:600}
+.ops .ag-checks{width:100%;margin:0;padding:0;list-style:none;font-size:12px}
+.ops .ag-checks li{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-top:1px solid var(--ops-line)}

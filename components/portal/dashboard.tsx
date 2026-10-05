@@ -4,10 +4,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {LayoutDashboard,CalendarDays,CalendarPlus,Package,HardHat,StickyNote,Images,MessageCircle,UserRound,ArrowUpRight,Moon,Sun,LogOut,Plus,Handshake,Truck,Settings} from 'lucide-react';
 import {brand} from '@/lib/brand';
-import {initialPortal,isPartner,portalCatalog,portalCommand,type PortalAccount,type PortalMedia} from '@/lib/portal/model';
+import {initialPortal,isPartner,portalCatalog,portalCommand,type PortalAccount} from '@/lib/portal/model';
 import type {CustomerBooking} from '@/lib/bookings/model';
 import {BrandedInput} from '@/components/operations/branded-fields';
-import {localMedia} from '@/lib/portal/local-media';
+import {PortalMediaSection} from './media';
 import {PortalBookings} from './bookings';
 import {PortalSettings} from './settings';
 import {SocialLinks} from './social-links';
@@ -43,8 +43,7 @@ export function PortalDashboard({initial,demo,section='overview'}:{initial:Porta
   {account.kind==='affiliate'&&<SocialLinks initial={account.state.profile.socials||[]}/>}
   <p>Email: {account.email}</p><p>Account type: {account.kind}. Contact the team to request account changes.</p><button className="portal-primary" disabled={busy}>Save profile</button></form></section>}
  {section==='settings'&&<PortalSettings demo={demo} email={account.email}/>}
- {section==='media'&&active&&<section className="portal-card"><h2>Your project, in pictures.</h2><p>Upload JPEG, PNG, WebP, MP4 or WebM files up to 20 MB. Media is private to your account and the LayeredFX team.</p><label className="portal-upload">{busy?'Uploading…':'Add photos or video'}<input type="file" disabled={busy} accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" onChange={async e=>{const file=e.target.files?.[0];if(!file)return;e.target.value='';setBusy(true);setError('');try{if(!['image/jpeg','image/png','image/webp','video/mp4','video/webm'].includes(file.type))throw Error('Choose JPEG, PNG, WebP, MP4 or WebM.');if(account.state.media.length>=100)throw Error('Media limit reached.');if(file.size>20*1024*1024)throw Error('Choose a file under 20 MB.');let next:PortalAccount;if(demo){const id=crypto.randomUUID();await localMedia(id,file);next=structuredClone(account);next.state.media.push({id,name:file.name,type:file.type,path:id,size:file.size});next.revision++;localStorage.setItem(key,JSON.stringify(next));}else{const res=await fetch('/api/portal/media',{method:'POST',headers:{'Content-Type':file.type,'x-file-name':encodeURIComponent(file.name),'x-portal-revision':String(account.revision)},body:file});next=await res.json();if(!res.ok)throw Error((next as unknown as {message:string}).message);}setAccount(next);}catch(e){setError(e instanceof Error?e.message:'Upload failed.');}finally{setBusy(false);}}}/></label><div className="portal-media-grid">{account.state.media.map(file=><Media key={file.id} file={file} demo={demo}/>)}</div></section>}
+ {section==='media'&&active&&<PortalMediaSection account={account} setAccount={setAccount} demo={demo} storageKey={key}/>}
  </main><footer className="portal-footer">LayeredFX · Beautiful work, thoughtfully organized.</footer></div></div>;
 }
-function Media({file,demo}:{file:PortalMedia;demo:boolean}){const[url,setUrl]=useState(''),[error,setError]=useState('');useEffect(()=>{let active=true,object='';(async()=>{try{if(demo){const blob=await localMedia(file.id);if(!blob)throw Error('This file is no longer on this device.');object=URL.createObjectURL(blob);if(active)setUrl(object);}else{const res=await fetch(`/api/portal/media?id=${file.id}`);const data=await res.json();if(!res.ok)throw Error(data.message);if(active)setUrl(data.url);}}catch(e){if(active)setError(e instanceof Error?e.message:'Media unavailable.');}})();return()=>{active=false;if(object)URL.revokeObjectURL(object);};},[file.id,demo]);return <article>{url&&(file.type.startsWith('video/')?<video controls src={url}/>:<Image src={url} alt={file.name} width={640} height={480} unoptimized/>)}<p>{file.name}</p>{error&&<small>{error}</small>}</article>;}
 export function demoAccount(kind:PortalAccount['kind']):PortalAccount{return{user_id:'portal-demo',org_id:'local',email:'preview@example.test',kind,status:'active',revision:0,state:initialPortal(isPartner(kind)?'Sample Partner':'Sample Customer')};}

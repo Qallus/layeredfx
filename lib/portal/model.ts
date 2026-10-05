@@ -64,3 +64,18 @@ export const portalCatalog=[
  {name:'Site consultation',description:'Review surfaces, measurements and project requirements.',kind:'service'},
  {name:'Painting & specialty finishes',description:'Explore painting, Roman clay and faux concrete finishes.',kind:'service'},
 ] as const;
+
+// Media rules shared by the portal upload control and the server route, so the browser reports the same
+// limits the API enforces instead of failing after a long upload.
+export const MEDIA_TYPES=['image/jpeg','image/png','image/webp','video/mp4','video/webm'];
+export const MEDIA_LIMIT=100;
+export const MEDIA_MAX_BYTES=20*1024*1024;
+export const MEDIA_ACCEPT=MEDIA_TYPES.join(',');
+/** Returns an empty string when the file may be uploaded, otherwise the reason to show. */
+export function mediaError(file:{type:string;size:number},count:number):string{
+ if(count>=MEDIA_LIMIT)return `You can keep up to ${MEDIA_LIMIT} files. Ask the team to remove some before adding more.`;
+ if(!MEDIA_TYPES.includes(file.type))return 'Use JPEG, PNG, WebP, MP4 or WebM.';
+ if(!file.size)return 'That file is empty.';
+ if(file.size>MEDIA_MAX_BYTES)return 'Each file must be under 20 MB.';
+ return '';
+}

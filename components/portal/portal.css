@@ -194,3 +194,20 @@ body:has(.portal.dark){--field-bg:#19202e;--field-ink:#eef1f5;--field-line:#4753
 .portal-compose,.portal-profile{max-width:880px}
 /* Keep the fixed sidebar (a parent overflow setting prevents sticky positioning); only reflow the metric cards. */
 @media(min-width:761px){.portal-metrics{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}}
+/* Photos & videos: branded upload control and gallery, light and dark. */
+.portal-dropzone{display:grid;justify-items:center;gap:10px;padding:30px 24px;text-align:center;border:2px dashed var(--portal-line);border-radius:14px;background:var(--portal-bg);transition:border-color .15s ease,background .15s ease}
+.portal-dropzone.is-dragging{border-color:#aedb22;background:#f5ffcc}
+.portal.dark .portal-dropzone.is-dragging{background:#2a3346}
+.portal-dropzone p{margin:0;font-size:14px}
+.portal-dropzone small{color:var(--portal-muted);font-size:12px}
+.portal-dropzone-icon{display:grid;place-items:center;width:46px;height:46px;border-radius:12px;background:#19202e;color:#d6ff41}
+.portal-dropzone input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.portal-upload-list{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:6px}
+.portal-upload-list li{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;border:1px solid var(--portal-line);border-radius:10px;font-size:12px;background:var(--portal-card)}
+.portal-upload-list .is-done{color:#1f9d64;font-weight:600}
+.portal-upload-list .is-failed{color:#d63b30;font-weight:600}
+.portal-upload-list .is-working{color:var(--portal-muted);font-weight:600}
+.portal-media-count{margin:18px 0 0;font-size:12px;color:var(--portal-muted)}
+.portal-media-grid figure{margin:0;display:grid;gap:6px}
+.portal-media-grid figcaption{font-size:12px;color:var(--portal-muted);overflow-wrap:anywhere}
+.portal-media-empty{margin-top:18px;padding:26px;text-align:center;border:1px dashed var(--portal-line);border-radius:12px;color:var(--portal-muted);font-size:13px}

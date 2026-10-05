@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {initialPortal,portalCommand} from '../lib/portal/model.ts';
 const account=(kind='residential',status='active')=>({user_id:'customer-a',org_id:'layeredfx',email:'a@example.test',kind,status,revision:0,state:initialPortal('Customer A')});
 const request={type:'item',kind:'booking',title:'Site visit',body:'Review kitchen surfaces.',date:'2026-10-10'};
@@ -12,3 +13,27 @@ test('client cannot replace media, state or owner fields via commands',()=>{asse
 test('invalid calendar date and oversized messages rejected',()=>{assert.throws(()=>portalCommand(account(),{...request,date:'2026-02-31'}),/valid date/);assert.throws(()=>portalCommand(account(),{...request,body:'x'.repeat(4001)}),/oversized/);});
 test('suspended accounts cannot change profiles',()=>{assert.throws(()=>portalCommand(account('commercial','suspended'),{type:'profile',profile:{name:'A',company:'',phone:'',address:''}}));});
 test('customers cancel only their pending requests and retain history',()=>{const a=portalCommand(account(),request),id=a.state.items[0].id;const next=portalCommand(a,{type:'status',id,status:'cancelled'});assert.equal(next.state.items[0].status,'cancelled');assert.equal(next.state.items[0].body,request.body);assert.throws(()=>portalCommand(next,{type:'status',id,status:'cancelled'}));});
+
+const {mediaError,MEDIA_LIMIT,MEDIA_MAX_BYTES,MEDIA_TYPES}=await import('../lib/portal/model.ts');
+const photo=(over={})=>({type:'image/jpeg',size:2_000_000,...over});
+test('portal media rules match what the upload route enforces',()=>{
+ assert.equal(mediaError(photo(),0),'');
+ assert.equal(mediaError(photo({type:'video/mp4'}),99),'');
+ assert.match(mediaError(photo({type:'image/gif'}),0),/JPEG, PNG, WebP, MP4 or WebM/);
+ assert.match(mediaError(photo({type:'application/pdf'}),0),/JPEG/);
+ assert.match(mediaError(photo({size:MEDIA_MAX_BYTES+1}),0),/under 20 MB/);
+ assert.match(mediaError(photo({size:0}),0),/empty/);
+ assert.match(mediaError(photo(),MEDIA_LIMIT),new RegExp(String(MEDIA_LIMIT)));
+ // The limit is checked before the file type, so a full library gives the clearer reason.
+ assert.match(mediaError(photo({type:'image/gif'}),MEDIA_LIMIT),/up to 100 files/);
+ assert.deepEqual(MEDIA_TYPES,['image/jpeg','image/png','image/webp','video/mp4','video/webm']);
+});
+
+test('the portal upload control allows several files at once',()=>{
+ const source=readFileSync(new URL('../components/portal/media.tsx',import.meta.url),'utf8');
+ assert.match(source,/multiple/);
+ assert.match(source,/x-portal-revision/);
+ // Uploads are sequential: each one uses the revision the server returned for the previous file.
+ assert.match(source,/for \(let i = 0; i < files\.length; i\+\+\)/);
+ assert.doesNotMatch(source,/Promise\.all\(/);
+});

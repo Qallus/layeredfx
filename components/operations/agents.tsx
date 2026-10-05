@@ -301,7 +301,7 @@ function SetupTab({connections,error,admin,demo}:{connections:AgentConnection[]|
   setTesting(id);
   const at=new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
   try{
-   const response=await fetch('/api/agents/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service:id==='eve'?'eve':'paperclip'})});
+   const response=await fetch('/api/agents/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service:id})});
    const data=await response.json().catch(()=>({}));
    if(!response.ok)throw new Error(data.message||'The test did not run.');
    setResults(current=>({...current,[id]:{ok:Boolean(data.ok),checks:Array.isArray(data.checks)?data.checks:[],message:String(data.message||''),at}}));

@@ -142,3 +142,11 @@ test('clients cannot record a send result through the operations route', () => {
   assert.match(source, /agent\.assignment\.result/);
   assert.match(source, /recorded by the agent service/);
 });
+
+test('the Setup tab tests the agent that was clicked, not a hardcoded service', () => {
+  const page = readFileSync(new URL('../components/operations/agents.tsx', import.meta.url), 'utf8');
+  assert.match(page, /\/api\/agents\/verify/);
+  // A hardcoded mapping here silently tested the wrong service when a fourth agent was added.
+  assert.match(page, /body:JSON\.stringify\(\{service:id\}\)/);
+  assert.doesNotMatch(page, /service:id==='eve'\?'eve':'paperclip'/);
+});

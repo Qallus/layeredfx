@@ -23,6 +23,8 @@ export async function writeState(state,revision){fixture.writes.push(revision);f
 export async function hermesChat(input){fixture.sends.push({service:'hermes',input});if(fixture.fail)throw fixture.fail;return {id:'resp_1',text:'Here is a draft reply.',model:'eve'};}
 export async function paperclipCreateIssue(input){fixture.sends.push({service:'paperclip',input});if(fixture.fail)throw fixture.fail;return {id:'PC-12',url:'https://team.layeredfx.com/issues/PC-12',confirmed:true};}
 export async function paperclipAgents(){return [{id:'a1',name:'Writer'}];}
+export async function grokChat(input){fixture.sends.push({service:'grok',input});if(fixture.fail)throw fixture.fail;return {id:'grok_1',text:'Grok draft reply.',model:'grok-4.7'};}
+export async function grokHealth(){return fixture.checks;}
 export async function hermesHealth(){return fixture.checks;}
 export async function paperclipHealth(){return fixture.checks;}
 export function agentThrottle(){}
@@ -92,6 +94,26 @@ test('an Eve reply is kept in the assignment history', async () => {
   const item = assignment();
   assert.equal(item.delivery.service, 'hermes');
   assert.match(item.log.at(-1).text, /Here is a draft reply\./);
+});
+
+test('a Grok assignment goes to the xAI API and its answer is kept', async () => {
+  const id = seed('grok');
+  const response = await send('send', {id});
+  assert.equal(response.status, 200);
+  assert.match((await response.json()).message, /Grok replied/);
+  assert.equal(fixture.sends[0].service, 'grok');
+  assert.match(fixture.sends[0].input.system, /LayeredFX/);
+  const item = assignment();
+  assert.equal(item.delivery.service, 'grok');
+  assert.equal(item.delivery.state, 'sent');
+  assert.match(item.log.at(-1).text, /^Grok: Grok draft reply\./);
+});
+
+test('Grok connections can be tested like the others', async () => {
+  seed('grok');
+  const response = await send('verify', {service: 'grok'});
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).ok, true);
 });
 
 test('a provider failure is recorded and reported without losing the queued work', async () => {

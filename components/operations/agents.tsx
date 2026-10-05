@@ -15,7 +15,7 @@ import './agents.css';
 
 type Dispatch=(c:Command)=>Promise<string|null>;
 const TABS=['Overview','Communication','Skills','Training docs','Assignments','Setup'];
-const AGENT_ICON={eve:Bot,paperclip:Users,voice:Mic};
+const AGENT_ICON={eve:Bot,paperclip:Users,grok:Sparkles,voice:Mic};
 const CHANNEL_INFO:Record<AgentChannel,{label:string;detail:string}>={
  dashboard:{label:'Dashboard',detail:'Assignments and chat inside LayeredFX.'},
  sms:{label:'SMS',detail:'Through the LayeredFX Twilio number.'},
@@ -84,7 +84,7 @@ function Overview({agents,connections,error,docs,assignments,onOpen}:{agents:Age
     <div className="ag-card-head"><span className="ag-icon" aria-hidden><Icon size={22}/></span><div className="ag-card-name">
      <div className="ag-card-title"><h2>{a.name}</h2>{a.id==='eve'&&<span className="ag-chip is-volt">Main agent</span>}</div><p>{a.role}</p></div></div>
     <div className="ag-meta"><span className="ag-chip">{a.platform}</span><ConnectionBadge connection={connections?.find(c=>c.id===a.id)} error={error}/><span className={`ag-chip${a.enabled?'':' is-muted'}`}>{a.enabled?'In use':'Not in use'}</span></div>
-    {a.endpoint?<a className="ag-link" href={a.endpoint} target="_blank" rel="noreferrer">{a.endpoint.replace(/^https:\/\//,'')}<ArrowUpRight size={14} aria-hidden/></a>:<span className="ag-link is-plain">Runs through the xAI Voice API</span>}
+    {a.endpoint?<a className="ag-link" href={a.endpoint} target="_blank" rel="noreferrer">{a.endpoint.replace(/^https:\/\//,'')}<ArrowUpRight size={14} aria-hidden/></a>:<span className="ag-link is-plain">{a.id==='grok'?'Runs on the xAI API':'Runs through the xAI Voice API'}</span>}
     <dl className="ag-counts"><div><dt>Skills on</dt><dd>{skills}</dd></div><div><dt>Training docs</dt><dd>{docCount}</dd></div><div><dt>Open work</dt><dd>{openCount}</dd></div></dl>
     <div className="ag-card-actions">
      <Button size="sm" variant="outline" onClick={()=>onOpen(a.id,'Communication')}><MessageSquare size={14}/>Channels</Button>
@@ -150,7 +150,7 @@ function SkillsTab({agent,admin,busy,dispatch}:{agent:AgentView;admin:boolean;bu
 }
 
 type DocDraft={title:string;category:string;kind:'note'|'link';url:string;body:string;agents:AgentId[];status:AgentDoc['status']};
-const emptyDoc=():DocDraft=>({title:'',category:'',kind:'note',url:'',body:'',agents:['eve','paperclip','voice'],status:'active'});
+const emptyDoc=():DocDraft=>({title:'',category:'',kind:'note',url:'',body:'',agents:['eve','paperclip','grok','voice'],status:'active'});
 const SUGGESTED_DOCS:{title:string;category:string;body?:()=>string}[]=[
  {title:'Business profile',category:'Company',body:()=>[business.name,`Phone: ${business.phone.display}`,`Text: ${business.sms.display}`,`Email: ${business.email}`,`Office: ${businessAddressLine}`,`Hours: ${businessHoursLine}`,'',business.description].join('\n')},
  {title:'Services and pricing guide',category:'Sales'},
@@ -277,7 +277,7 @@ function AssignmentRow({item,agentName,dealName,canEdit,busy,dispatch}:{item:Age
 
 // Copy-paste blocks for Coolify. Values are placeholders; comments are left out because each line becomes a variable.
 export const COOLIFY_ENV={
- layeredfx:['LFX_HERMES_URL=https://agent.layeredfx.com','LFX_HERMES_API_KEY=','LFX_HERMES_MODEL=eve','LFX_PAPERCLIP_URL=https://team.layeredfx.com','LFX_PAPERCLIP_API_KEY=','LFX_PAPERCLIP_COMPANY_ID=','LFX_PAPERCLIP_AGENT_ID=','LFX_XAI_API_KEY=','LFX_XAI_VOICE_MODEL=grok-voice-latest','LFX_XAI_VOICE=eve'].join('\n'),
+ layeredfx:['LFX_HERMES_URL=https://agent.layeredfx.com','LFX_HERMES_API_KEY=','LFX_HERMES_MODEL=eve','LFX_PAPERCLIP_URL=https://team.layeredfx.com','LFX_PAPERCLIP_API_KEY=','LFX_PAPERCLIP_COMPANY_ID=','LFX_PAPERCLIP_AGENT_ID=','LFX_XAI_API_KEY=','LFX_XAI_MODEL=grok-4.7','LFX_XAI_VOICE_MODEL=grok-voice-latest','LFX_XAI_VOICE=eve'].join('\n'),
  hermes:['OPENAI_API_KEY=','API_SERVER_ENABLED=true','API_SERVER_KEY=','API_SERVER_HOST=0.0.0.0','API_SERVER_PORT=8642','HERMES_DASHBOARD_BASIC_AUTH_USERNAME=','HERMES_DASHBOARD_BASIC_AUTH_PASSWORD=','GATEWAY_ALLOW_ALL_USERS=false'].join('\n'),
  hermesConfig:['model:','  provider: openai-api','  default: YOUR_OPENAI_MODEL'].join('\n'),
  paperclip:['PAPERCLIP_PUBLIC_URL=https://team.layeredfx.com','PAPERCLIP_DEPLOYMENT_MODE=authenticated','PAPERCLIP_DEPLOYMENT_EXPOSURE=public','PAPERCLIP_ALLOWED_HOSTNAMES=team.layeredfx.com','HOST=0.0.0.0','BETTER_AUTH_SECRET=','PAPERCLIP_TOOL_ACTION_SIGNING_SECRET=','DATABASE_URL=','OPENAI_API_KEY=','PAPERCLIP_TELEMETRY_DISABLED=1'].join('\n'),
@@ -292,7 +292,7 @@ function CopyBlock({title,description,text}:{title:string;description:string;tex
  </div>;
 }
 
-const SERVICE_LABEL:Record<AgentId,string>={eve:'Eve · Hermes Agent',paperclip:'Paperclip teams',voice:'Voice agent · xAI'};
+const SERVICE_LABEL:Record<AgentId,string>={eve:'Eve · Hermes Agent',paperclip:'Paperclip teams',grok:'Grok · xAI',voice:'Voice agent · xAI'};
 
 type TestResult={ok:boolean;checks:{name:string;ok:boolean;detail:string}[];message:string;at:string};
 function SetupTab({connections,error,admin,demo}:{connections:AgentConnection[]|null;error:string;admin:boolean;demo:boolean}){

@@ -29,6 +29,7 @@ LFX_PAPERCLIP_API_KEY=
 LFX_PAPERCLIP_COMPANY_ID=
 LFX_PAPERCLIP_AGENT_ID=
 LFX_XAI_API_KEY=
+LFX_XAI_MODEL=grok-4.7
 LFX_XAI_VOICE_MODEL=grok-voice-latest
 LFX_XAI_VOICE=eve
 ```
@@ -37,6 +38,7 @@ LFX_XAI_VOICE=eve
 - **`LFX_HERMES_MODEL`:** Eve's Hermes **profile name**. Hermes reports profile names as model names, so this is `eve`, not `hermes-agent`.
 - **`LFX_PAPERCLIP_API_KEY`:** a Paperclip agent API key. Create it in Paperclip while signed in as an operator.
 - **`LFX_PAPERCLIP_AGENT_ID`:** optional. It's the default Paperclip agent for new tasks.
+- **`LFX_XAI_MODEL`:** the Grok chat model used for dashboard tasks. `grok-4.7` is xAI's current general recommendation; check <https://docs.x.ai/developers/models> before changing it.
 - **`LFX_XAI_VOICE`:** one of the voices listed in the xAI docs, for example `eve`, `ara`, `leo`, `rex` or `sal`.
 
 Redeploy after changing variables.
@@ -116,7 +118,22 @@ PAPERCLIP_TELEMETRY_DISABLED=1
 
 **Hermes inside Paperclip:** Paperclip's built-in `hermes_local` adapter runs the Hermes command line on the same server. Because Hermes and Paperclip run as separate Coolify apps, connect them through their HTTP APIs instead.
 
-## 4. xAI Voice Agent API
+## 4. Grok (xAI chat)
+
+Grok needs no deployment — it is xAI's hosted API, reached with the same `LFX_XAI_API_KEY` as the voice agent.
+
+- **Endpoint:** `POST https://api.x.ai/v1/chat/completions`, OpenAI-compatible.
+- **Auth:** `Authorization: Bearer $LFX_XAI_API_KEY`.
+- **Model:** `LFX_XAI_MODEL`, default `grok-4.7`.
+- In the dashboard it appears as its own agent: assign work to Grok and press **Send**, the same as Eve. Its reply lands in the assignment history.
+
+```bash
+curl -H "Authorization: Bearer $LFX_XAI_API_KEY" -H "Content-Type: application/json" \
+  -d '{"model":"grok-4.7","messages":[{"role":"user","content":"Reply with OK"}]}' \
+  https://api.x.ai/v1/chat/completions
+```
+
+## 5. xAI Voice Agent API
 
 - **Endpoint:** `wss://api.x.ai/v1/realtime?model=grok-voice-latest`
 - **Auth:** `Authorization: Bearer <XAI_API_KEY>`. Keep the key on the server.

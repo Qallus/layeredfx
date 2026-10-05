@@ -159,6 +159,45 @@ export async function paperclipHealth(): Promise<Check[]> {
   return [{name: 'Company', ok: true, detail: `${rows.length} ${rows.length === 1 ? 'agent' : 'agents'} visible.`}];
 }
 
+// ── Grok (xAI) ──────────────────────────────────────────────────────────────────
+
+export function grokConfig() {
+  const key = (process.env.LFX_XAI_API_KEY || '').trim();
+  if (!key) throw new OperationError('Grok is not connected yet. Add the xAI API key to the LayeredFX environment.', 503);
+  return {base: 'https://api.x.ai', key, model: (process.env.LFX_XAI_MODEL || '').trim() || 'grok-4.7'};
+}
+export const grokReady = () => Boolean((process.env.LFX_XAI_API_KEY || '').trim());
+
+/** The xAI API is OpenAI-compatible, so this is the same request shape as Hermes. */
+export async function grokChat(input: {system: string; prompt: string}): Promise<HermesReply> {
+  const {base, key, model} = grokConfig();
+  const result = await call(base, '/v1/chat/completions', key, {
+    method: 'POST', timeout: 30000,
+    body: JSON.stringify({model, stream: false, messages: [{role: 'system', content: input.system}, {role: 'user', content: input.prompt}]}),
+  });
+  if (!result.ok) throw providerError('Grok', result, 30000);
+  const data = (result.data || {}) as {id?: unknown; model?: unknown; choices?: {message?: {content?: unknown}}[]};
+  const content = data.choices?.[0]?.message?.content;
+  const text = typeof content === 'string' ? content.trim().slice(0, REPLY_LIMIT) : '';
+  if (!text) throw new OperationError('Grok answered without any content. Nothing was recorded.', 502);
+  return {id: typeof data.id === 'string' ? data.id : '', text, model: typeof data.model === 'string' ? data.model : model};
+}
+
+export async function grokHealth(): Promise<Check[]> {
+  let config: ReturnType<typeof grokConfig>;
+  try { config = grokConfig(); } catch (e) { return [{name: 'Configuration', ok: false, detail: e instanceof OperationError ? e.message : 'Not configured.'}]; }
+  const models = await call(config.base, '/v1/models', config.key, {method: 'GET', timeout: 8000});
+  const names = models.ok ? modelNames(models.data) : [];
+  return [
+    {name: 'xAI API', ok: models.ok, detail: models.ok ? 'xAI answered.' : failureDetail(models, 8000)},
+    // An empty list is not treated as a failure: the model is still sent as configured.
+    {name: `Model "${config.model}"`, ok: models.ok && (names.length === 0 || names.includes(config.model)),
+      detail: !models.ok ? failureDetail(models, 8000)
+        : names.includes(config.model) ? 'Available.'
+        : names.length ? `Not listed. Reported: ${names.slice(0, 6).join(', ')}` : 'No models reported; the configured model is used as is.'},
+  ];
+}
+
 // ── Shared guards ───────────────────────────────────────────────────────────────
 
 const attempts = new Map<string, {start: number; count: number}>();

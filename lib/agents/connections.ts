@@ -1,5 +1,5 @@
 // Server-only readiness checks for the AI agent services. Reports which variables are set, never their values.
-export type AgentServiceId = 'eve' | 'paperclip' | 'voice';
+export type AgentServiceId = 'eve' | 'paperclip' | 'grok' | 'voice';
 export type AgentConnection = {id: AgentServiceId; configured: boolean; missing: string[]; optionalMissing: string[]; address: string};
 
 export const AGENT_ENV: Record<AgentServiceId, {required: string[]; optional: string[]; addressVar?: string}> = {
@@ -7,6 +7,8 @@ export const AGENT_ENV: Record<AgentServiceId, {required: string[]; optional: st
   eve: {required: ['LFX_HERMES_URL', 'LFX_HERMES_API_KEY'], optional: ['LFX_HERMES_MODEL'], addressVar: 'LFX_HERMES_URL'},
   // Paperclip API: Bearer agent API key; tasks are issues under /api/companies/{companyId}.
   paperclip: {required: ['LFX_PAPERCLIP_URL', 'LFX_PAPERCLIP_API_KEY', 'LFX_PAPERCLIP_COMPANY_ID'], optional: ['LFX_PAPERCLIP_AGENT_ID'], addressVar: 'LFX_PAPERCLIP_URL'},
+  // Grok on the xAI API (OpenAI-compatible chat completions), sharing the xAI key with the voice agent.
+  grok: {required: ['LFX_XAI_API_KEY'], optional: ['LFX_XAI_MODEL']},
   // xAI Voice Agent API (wss://api.x.ai/v1/realtime). The key must never reach the browser.
   voice: {required: ['LFX_XAI_API_KEY'], optional: ['LFX_XAI_VOICE_MODEL', 'LFX_XAI_VOICE']},
 };

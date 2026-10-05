@@ -288,7 +288,7 @@ export interface TeamMember {
     createdAt: string;
     updatedAt: string;
 }
-export type AgentId = 'eve' | 'paperclip' | 'voice';
+export type AgentId = 'eve' | 'paperclip' | 'grok' | 'voice';
 export type AgentChannel = 'dashboard' | 'sms' | 'email' | 'phone' | 'web_chat';
 export type SkillMode = 'off' | 'draft' | 'approval';
 /** Stored agent setup. Connection secrets never live here; they are server env vars. */
@@ -323,7 +323,7 @@ export type AssignmentStatus = 'queued' | 'in_progress' | 'needs_review' | 'done
 /** Recorded by the server after an assignment is sent to an agent service; never written by a client. */
 export interface AgentDelivery {
     state: 'sent' | 'failed';
-    service: 'hermes' | 'paperclip';
+    service: 'hermes' | 'paperclip' | 'grok';
     externalId: string;
     externalUrl: string;
     attempts: number;

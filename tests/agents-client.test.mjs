@@ -95,3 +95,35 @@ test('Paperclip health reports how many agents the company key can see', async (
   assert.match(checks[0].detail, /2 agents/);
   assert.deepEqual((await client.paperclipAgents()).map(a => a.name), ['Writer', 'Researcher']);
 });
+
+test('Grok refuses without the xAI key and never reaches the API', async () => {
+  configure({LFX_XAI_API_KEY: null});
+  assert.equal(await status(() => client.grokChat({system: 's', prompt: 'p'})), 503);
+  assert.equal(calls.length, 0);
+  assert.equal(client.grokReady(), false);
+  assert.equal((await client.grokHealth())[0].ok, false);
+});
+
+test('Grok uses the xAI chat API and the configured model', async () => {
+  configure({LFX_XAI_API_KEY: 'xai-secret-key', LFX_XAI_MODEL: 'grok-4.7'});
+  handler = () => json({id: 'cmpl_7', model: 'grok-4.7', choices: [{message: {content: '  Here is the draft.  '}}]});
+  const reply = await client.grokChat({system: 'system', prompt: 'prompt'});
+  assert.equal(reply.id, 'cmpl_7');
+  assert.equal(reply.text, 'Here is the draft.');
+  assert.equal(calls[0].url, 'https://api.x.ai/v1/chat/completions');
+  assert.equal(JSON.parse(calls[0].init.body).model, 'grok-4.7');
+  assert.equal(JSON.stringify(reply).includes('xai-secret-key'), false);
+});
+
+test('Grok falls back to a default model and reports a rejected key', async () => {
+  configure({LFX_XAI_API_KEY: 'xai-secret-key', LFX_XAI_MODEL: null});
+  handler = () => json({id: 'c1', choices: [{message: {content: 'ok'}}]});
+  await client.grokChat({system: 's', prompt: 'p'});
+  assert.match(JSON.parse(calls[0].init.body).model, /^grok-/);
+  handler = () => new Response('{"error":"bad token xai-secret-key"}', {status: 401});
+  const checks = await client.grokHealth();
+  assert.equal(checks[0].ok, false);
+  assert.match(checks[0].detail, /401/);
+  assert.equal(JSON.stringify(checks).includes('xai-secret-key'), false);
+  configure({LFX_XAI_MODEL: 'grok-4.7'});
+});

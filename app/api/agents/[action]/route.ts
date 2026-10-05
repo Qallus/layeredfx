@@ -4,13 +4,14 @@
 import {applyCommand, OperationError, visibleState} from '@/lib/operations/engine.mjs';
 import {readBody} from '@/lib/operations/security.mjs';
 import {checkOrigin, currentActor, errorResponse, mode, readState, writeState} from '@/lib/operations/server';
-import {agentFailure, agentThrottle, hermesChat, hermesHealth, paperclipAgents, paperclipCreateIssue, paperclipHealth} from '@/lib/agents/client';
+import {agentFailure, agentThrottle, grokChat, grokHealth, hermesChat, hermesHealth, paperclipAgents, paperclipCreateIssue, paperclipHealth} from '@/lib/agents/client';
 import type {Actor, AgentAssignment, Command, OperationState} from '@/lib/operations/types';
 
 export const dynamic = 'force-dynamic';
 const headers = {'Cache-Control': 'private, no-store', Vary: 'Cookie'};
 type Context = {params: Promise<{action: string}>};
 const EVE_SYSTEM = 'You are Eve, the LayeredFX operations assistant. Reply with a short, practical draft or plan for the task. A LayeredFX team member reviews everything before anything reaches a customer.';
+const GROK_SYSTEM = 'You are Grok working for LayeredFX, an architectural wrap, decorative finish, window film and paint company in Scottsdale, Arizona. Reply with a short, practical draft or plan for the task. A LayeredFX team member reviews everything before anything reaches a customer.';
 
 /** Applies one command at a time against a fresh read, keeping the compare-and-swap revision check. */
 async function apply(actor: Actor, commands: Command[]): Promise<OperationState> {
@@ -41,9 +42,9 @@ function brief(state: OperationState, assignment: AgentAssignment) {
 
 async function verify(actor: Actor, body: Record<string, unknown>) {
   if (actor.role !== 'admin') throw new OperationError('Only administrators can test agent connections.', 403);
-  const service = body.service === 'eve' || body.service === 'paperclip' ? body.service : '';
+  const service = body.service === 'eve' || body.service === 'paperclip' || body.service === 'grok' ? body.service : '';
   if (!service) throw new OperationError('Choose a service to test.', 400);
-  const checks = service === 'eve' ? await hermesHealth() : await paperclipHealth();
+  const checks = service === 'eve' ? await hermesHealth() : service === 'grok' ? await grokHealth() : await paperclipHealth();
   if (service === 'paperclip' && checks.every(check => check.ok)) {
     // Confirms the key can actually read the company, not just that the address answers.
     const agents = await paperclipAgents().catch(() => null);
@@ -63,7 +64,7 @@ async function send(actor: Actor, body: Record<string, unknown>) {
   if (['done', 'canceled'].includes(assignment.status)) throw new OperationError('This assignment is closed. Reopen it before sending.', 400);
   if (assignment.delivery?.state === 'sent') throw new OperationError('This assignment was already sent. Create a new assignment instead.', 409);
 
-  const service = assignment.agent === 'paperclip' ? 'paperclip' : 'hermes';
+  const service = assignment.agent === 'paperclip' ? 'paperclip' : assignment.agent === 'grok' ? 'grok' : 'hermes';
   const requestId = `lfx-${assignment.id}-${(assignment.delivery?.attempts || 0) + 1}`;
   const description = brief(state, assignment);
   let externalId = '', externalUrl = '', reply = '', confirmed = true, message = '';
@@ -75,6 +76,10 @@ async function send(actor: Actor, body: Record<string, unknown>) {
       message = issue.confirmed
         ? `Sent to Paperclip. Task ${issue.id} created.`
         : 'Paperclip saved the task but did not confirm it. Check team.layeredfx.com before sending it again.';
+    } else if (service === 'grok') {
+      const answer = await grokChat({system: GROK_SYSTEM, prompt: `${assignment.title}\n\n${description}`});
+      externalId = answer.id; reply = answer.text;
+      message = 'Grok replied. The answer is in the assignment history.';
     } else {
       const answer = await hermesChat({system: EVE_SYSTEM, prompt: `${assignment.title}\n\n${description}`});
       externalId = answer.id; reply = answer.text;
@@ -88,7 +93,7 @@ async function send(actor: Actor, body: Record<string, unknown>) {
   }
 
   const commands: Command[] = [{type: 'agent.assignment.result', id: assignment.id, outcome: 'sent', service, externalId, externalUrl, requestId}];
-  if (reply) commands.push({type: 'agent.assignment.update', id: assignment.id, note: `Eve: ${reply.slice(0, 900)}`});
+  if (reply) commands.push({type: 'agent.assignment.update', id: assignment.id, note: `${service === 'grok' ? 'Grok' : 'Eve'}: ${reply.slice(0, 900)}`});
   const next = await apply(actor, commands);
   return Response.json({state: visibleState(next, actor), assignmentId: assignment.id, externalId, confirmed, message}, {headers});
 }

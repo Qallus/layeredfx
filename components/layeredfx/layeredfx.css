@@ -367,3 +367,45 @@ dialog.lfx-dialog-content:not([open]) { display:none; }
  .lfx .lfx-inspiration-image { height:320px; }
 }
 @media (max-width:390px) { .lfx { --lfx-gutter:17px; } .lfx .lfx-inspiration-image { height:290px; } }
+
+/* Homepage hero: cards are dealt into a centre stack, burst out to the edges, then the copy rises in.
+   Each card's resting transform is its final position, so reduced motion simply drops the animations. */
+.lfx-hero-burst { position:relative; display:grid; place-items:center; height:clamp(640px, calc(100svh - 120px), 940px); overflow:hidden; background:var(--lfx-paper); }
+/* --u sizes cards by width, but never taller than the stage allows, so wide or short screens keep the centre clear. */
+.lfx-burst-stage { position:absolute; inset:0; container-type:size; pointer-events:none; }
+.lfx-burst-card { --u:min(1cqw, 1.8cqh); }
+.lfx-burst-card { --stack:24; --tw:var(--fw); --tx:var(--x); --ty:var(--y); position:absolute; left:50%; top:50%; width:calc(var(--tw) * var(--u)); aspect-ratio:var(--a); z-index:var(--i); will-change:transform;
+  transform:translate(-50%,-50%) translate(calc(var(--tx) * 1cqw), calc(var(--ty) * 1cqh));
+  animation:lfx-burst 2.1s cubic-bezier(.65,0,.2,1) 2.6s both; }
+.lfx-burst-face { position:absolute; inset:0; overflow:hidden; border-radius:max(6px, calc(var(--tw) * var(--u) * .07)); background:var(--lfx-line);
+  animation:lfx-deal .5s ease-out calc(var(--i) * 170ms + 150ms) both; }
+.lfx-burst-face img { object-fit:cover; }
+@keyframes lfx-deal { from { opacity:0; } }
+/* While stacked every card is scaled so its long side is --stack% of the stage width, centred on the same point. */
+@keyframes lfx-burst { from { transform:translate(-50%,-50%) scale(calc(var(--stack) * min(var(--a), 1) / var(--tw))); } }
+.lfx-burst-copy { container-type:inline-size; position:relative; z-index:20; display:flex; flex-direction:column; align-items:center; width:min(960px, 58vw, calc(100% - 48px)); text-align:center; }
+.lfx-burst-copy::before { content:""; position:absolute; inset:-14% -22%; z-index:-1; background:radial-gradient(closest-side, var(--lfx-paper) 58%, transparent); animation:lfx-glow .9s ease-out 3.4s both; }
+@keyframes lfx-glow { from { opacity:0; } }
+.lfx-burst-copy .lfx-eyebrow { justify-content:center; }
+.lfx-burst-copy h1 { font-size:min(clamp(40px, 4.8vw, 76px), calc(100cqi / (var(--chars, 22) * .5))); line-height:1.02; letter-spacing:-2.5px; margin:22px 0 20px; }
+.lfx-burst-copy>p { max-width:460px; font-size:15px; line-height:1.8; color:var(--lfx-muted); }
+.lfx-burst-copy .lfx-hero-ctas { justify-content:center; }
+.lfx-burst-studio { margin-top:22px; color:var(--lfx-muted); }
+.lfx-burst-copy>* { animation:lfx-rise .7s cubic-bezier(.22,.61,.36,1) both; }
+.lfx-burst-copy>:nth-child(1) { animation-delay:3.7s; }
+.lfx-burst-copy>:nth-child(2) { animation-delay:3.82s; }
+.lfx-burst-copy>:nth-child(3) { animation-delay:3.94s; }
+.lfx-burst-copy>:nth-child(4) { animation-delay:4.06s; }
+.lfx-burst-copy>:nth-child(5) { animation-delay:4.18s; }
+@keyframes lfx-rise { from { opacity:0; transform:translateY(1.25rem); filter:blur(2px); } }
+.lfx-burst-label { position:absolute; right:18px; bottom:14px; z-index:20; font-size:8px; letter-spacing:.5px; color:var(--lfx-muted); background:color-mix(in srgb, var(--lfx-paper) 75%, transparent); padding:4px 7px; border-radius:3px; }
+@media (min-width:701px) and (max-height:860px) { .lfx-burst-copy h1 { margin:16px 0 14px; } .lfx-burst-copy .lfx-hero-ctas { margin-top:22px; } .lfx-burst-studio { margin-top:14px; } }
+@media (max-width:700px) {
+  .lfx-hero-burst { height:clamp(660px, calc(100svh - 80px), 840px); }
+  .lfx-burst-card { --stack:62; --tw:var(--mfw); --tx:var(--mx); --ty:var(--my); }
+  .lfx-burst-copy { width:calc(100% - 32px); }
+  .lfx-burst-copy h1 { font-size:clamp(30px, 8.6vw, 40px); letter-spacing:-1.2px; margin:18px 0 14px; text-wrap:balance; }
+  .lfx-burst-copy .lfx-eyebrow { gap:9px; letter-spacing:1.2px; }
+  .lfx-burst-copy>p { font-size:13px; max-width:320px; }
+}
+@media (prefers-reduced-motion:reduce) { .lfx-burst-card, .lfx-burst-face, .lfx-burst-copy>*, .lfx-burst-copy::before { animation:none; } }

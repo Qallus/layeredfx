@@ -18,3 +18,4 @@ export function needsNextStep(deal:Deal,date?:string):boolean;
 export function stageDays(deal:Deal,now?:Date):number;
 export function stats(deals:Deal[]):{openCount:number;openValue:number;weighted:number;wonValue:number;winRate:number};
 export function plainText(nodes:unknown):string;
+export function contentCheck(nodes:unknown):unknown[];

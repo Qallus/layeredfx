@@ -1,1 +1,2 @@
-export {NewJobPage as default} from '@/components/admin/jobs';
+import {redirect} from 'next/navigation';
+export default function Page(){redirect('/admin/jobs?new=1');}

@@ -11,7 +11,7 @@ export interface StageItem {
     label: string;
     required: boolean;
     auto?: string | null;
-    stage?: Stage;
+    stage?: Stage | JobStage;
 }
 export interface StageGuide {
     label: string;
@@ -19,6 +19,43 @@ export interface StageGuide {
     goal: string;
     actions: string[];
     items: StageItem[];
+}
+export type JobStage = 'handoff' | 'site_measure' | 'design_samples' | 'materials_ordered' | 'scheduled' | 'prep' | 'install' | 'punch_qa' | 'complete' | 'on_hold' | 'cancelled';
+export interface JobStageGuide {
+    label: string;
+    goal: string;
+    actions: string[];
+    items: StageItem[];
+}
+/** An installation job. Stage changes only happen through the job.stage command. */
+export interface Job {
+    id: string;
+    number: string;
+    name: string;
+    contactId: string;
+    opportunityId: string | null;
+    projectId: string | null;
+    owner: string;
+    crew: string[];
+    address: string;
+    services: string[];
+    value: number;
+    startDate: string;
+    targetDate: string;
+    notes: string;
+    stage: JobStage;
+    stageEnteredAt: string;
+    stageHistory: { stage: JobStage; from?: JobStage; at: string; by: string; note?: string; overrideReason?: string }[];
+    checklist: Record<string, boolean>;
+    extraItems: (StageItem & { stage?: JobStage | Stage })[];
+    nextStep: { action: string; dueDate: string; assignee: string } | null;
+    holdReason: string;
+    cancelReason: string;
+    createdAt: string;
+    updatedAt: string;
+    completedAt: string | null;
+    reopenedAt?: string;
+    archivedAt: string | null;
 }
 export interface Contact {
     id: string;
@@ -353,6 +390,9 @@ export interface OperationState {
     agentDocs?: AgentDoc[];
     agentAssignments?: AgentAssignment[];
     team?: TeamMember[];
+    jobs?: Job[];
+    jobStageConfig?: Partial<Record<JobStage, JobStageGuide>>;
+    jobActivities?: {id:string;jobId:string;kind:string;body:string;actor:string;actorId:string;occurredAt:string}[];
     memberProfiles?: Record<string, MemberProfile>;
     contactActivities?: {id:string;contactId:string;kind:string;body:string;actorId:string;occurredAt:string}[];
     directMessages?: {id:string;senderId:string;recipientId:string;body:string;createdAt:string}[];

@@ -1,4 +1,4 @@
-import type {Stage,StageGuide,TaskStatus} from './types';
+import type {JobStage,JobStageGuide,Stage,StageGuide,TaskStatus} from './types';
 export const PATH:Stage[];
 export const STAGES:Stage[];
 export const OPEN:Stage[];
@@ -10,3 +10,8 @@ export const PRIORITIES:('low'|'medium'|'high'|'urgent')[];
 export const LOST_REASONS:string[];
 export const DOC_TEMPLATES:{id:string;name:string;category:string;description:string;lines:string[]}[];
 export const PLAN_TEMPLATES:{id:string;name:string;description:string;groups:string[];tasks:[string,string,number,string[]][]}[];
+export const JOB_PATH:JobStage[];
+export const JOB_STAGES:JobStage[];
+export const JOB_OPEN:JobStage[];
+export const JOB_LABELS:Record<JobStage,string>;
+export const DEFAULT_JOB_STAGES:Record<JobStage,JobStageGuide>;

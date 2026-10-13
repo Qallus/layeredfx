@@ -18,13 +18,9 @@ try{
   await page.getByRole('dialog').waitFor();checks.push({name:route+' form',visible:true});await page.keyboard.press('Escape');
  }
  await page.goto('http://127.0.0.1:3000/admin/jobs');
- for(const name of ['List','Table','Card','Kanban','Calendar']){await page.getByRole('button',{name,exact:true}).click();checks.push({name:'CMI Jobs '+name,visible:true});}
- await page.goto('http://127.0.0.1:3000/admin/jobs/new');
- for(const name of ['Clients','Internal Users','Subs / Vendors','Advanced Settings','Insurance / Risk','Job Details']){await page.getByRole('button',{name,exact:true}).click();checks.push({name:'New Job '+name,visible:true});}
- await page.locator('input').first().fill('Local review job');
- await page.getByRole('button',{name:'Save as Draft',exact:true}).click();
- await page.getByText('This action requires the LayeredFX database integration. No changes were saved or sent.',{exact:true}).waitFor();
- checks.push({name:'Job save reports unavailable integration, retains form',passed:await page.locator('input').first().inputValue()==='Local review job'});
+ for(const name of ['board','list','table','cards','calendar']){await page.getByRole('button',{name,exact:true}).click();checks.push({name:'Jobs '+name,visible:true});}
+ await page.getByRole('button',{name:'New job'}).click();await page.getByRole('dialog').waitFor();
+ checks.push({name:'New job form opens',visible:await page.getByLabel('Job name').isVisible()});await page.keyboard.press('Escape');
  await page.goto('http://127.0.0.1:3000/admin/jobs/map');await page.locator('.leaflet-container').waitFor();
  checks.push({name:'CMI Jobs map mounts',passed:true});
 }finally{writeFileSync('docs/reviews/logs/dashboard-interactions.json',JSON.stringify({checks,errors},null,2));await browser.close();}

@@ -5,7 +5,7 @@ import {applyCommand,demoState,visibleState} from '@/lib/operations/engine.mjs';
 import type {Actor,Command,OperationState} from '@/lib/operations/types';
 const KEY='layeredfx:operations:v2';
 let refreshing:Promise<boolean>|null=null;
-async function liveFetch(input:string,init?:RequestInit){let res=await fetch(input,init);if(res.status===401){refreshing ||= fetch('/api/operations/auth/refresh',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(r=>r.ok).finally(()=>{refreshing=null;});if(await refreshing)res=await fetch(input,init);}return res;}
+export async function liveFetch(input:string,init?:RequestInit){let res=await fetch(input,init);if(res.status===401){refreshing ||= fetch('/api/operations/auth/refresh',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(r=>r.ok).finally(()=>{refreshing=null;});if(await refreshing)res=await fetch(input,init);}return res;}
 
 type Context={state:OperationState;actor:Actor;mode:'demo'|'supabase';busy:boolean;error:string;notice:string;dispatch:(c:Command)=>Promise<string|null>;reload:()=>Promise<void>;clearError:()=>void};
 const Store=createContext<Context|null>(null);

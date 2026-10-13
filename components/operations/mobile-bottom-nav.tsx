@@ -3,10 +3,11 @@
 import {useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
-import {LayoutDashboard,Phone,MessageSquare,Contact,UserPlus,ChartNoAxesCombined,BriefcaseBusiness,IdCard,Camera,Mic,ChevronDown,ChevronUp} from 'lucide-react';
+import {LayoutDashboard,Phone,MessageSquare,Contact,UserPlus,ChartNoAxesCombined,BriefcaseBusiness,IdCard,Camera,Mic,NotebookPen,ChevronDown,ChevronUp} from 'lucide-react';
 import {openQuickTool} from './quick-events';
 import {useOperations} from './provider';
 import {Button,Field,Modal} from './shared';
+import {DailyLogDialog} from './daily-logs';
 import {brand} from '@/lib/brand';
 import Image from 'next/image';
 
@@ -18,6 +19,7 @@ const items=[
  {label:'Leads',icon:UserPlus,action:'leads'},
  {label:'Pipeline',icon:ChartNoAxesCombined,href:'/admin/pipeline'},
  {label:'Jobs',icon:BriefcaseBusiness,href:'/admin/jobs'},
+ {label:'Daily Logs',icon:NotebookPen,action:'logs'},
  {label:'Digital Business Card',icon:IdCard,action:'card'},
  {label:'Camera',icon:Camera,action:'camera'},
  {label:'Record',icon:Mic,action:'record'},
@@ -32,6 +34,7 @@ export function MobileBottomNav(){
  <nav id="mobile-shortcuts" aria-label="Mobile shortcuts" hidden={hidden}><div className="ops-dock-scroll">{items.map(item=>{const Icon=item.icon;const content=<><Icon size={21}/><span>{item.label}</span></>;return 'href' in item?<Link key={item.label} href={item.href} aria-label={item.label} aria-current={(item.href==='/admin'?path===item.href:path.startsWith(item.href))?'page':undefined}>{content}</Link>:<button key={item.label} aria-label={item.label} onClick={()=>{if(item.action==='dialpad'||item.action==='sms'||item.action==='record'){setPanel('');openQuickTool(item.action);}else setPanel(item.action);}}>{content}</button>;})}</div></nav>
  </div>
  <Modal open={panel==='leads'} onClose={()=>setPanel('')} title="Leads" description="Review leads and open the lead workspace."><MobileLeads onClose={()=>setPanel('')}/></Modal>
+ {panel==='logs'&&<DailyLogDialog open onClose={()=>setPanel('')}/>}
  <Modal open={panel==='card'} onClose={()=>setPanel('')} title="Digital Business Card" description="Create a contact card to download or share. Saved on this browser.">{panel==='card'&&<BusinessCard onClose={()=>setPanel('')}/>}</Modal>
  <Modal open={panel==='camera'} onClose={()=>setPanel('')} title="Camera" description="Capture a photo or video. Media stays on this device unless you download or share it.">{panel==='camera'&&<CameraCapture/>}</Modal>
  </>;

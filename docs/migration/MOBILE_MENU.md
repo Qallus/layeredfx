@@ -2,9 +2,10 @@
 
 The dashboard bottom dock appears at viewport widths up to 1100px. It supports horizontal touch scrolling, keyboard focus, active route labels and a persistent Hide/Menu toggle (`lfx:bottom-nav:hidden`). Bottom safe-area padding and FAB/panel offsets keep controls above the dock. Desktop sidebar behavior is unchanged.
 
-Order: Dashboard, Call, SMS, Contacts, Leads, Pipeline, Jobs, Digital Business Card, Camera, Record.
+Order: Dashboard, Call, SMS, Contacts, Leads, Pipeline, Jobs, Daily Logs, Digital Business Card, Camera, Record.
 
 - Call/SMS/Record open the existing persistent quick-tool panels. Closing a panel does not interrupt an active call or recording. Provider configuration requirements remain unchanged.
+- Daily Logs opens a type chooser (Notes, Voice Recorder, Photos). Each form has a Job select and saves to `/api/jobs/logs`: notes use the Plate editor; voice notes record with MediaRecorder (or accept an audio file) and transcribe on the device with Whisper (`Xenova/whisper-base.en`, about 80 MB downloaded once from the Hugging Face hub, runtime from jsDelivr); photos use `capture="environment"` or multi-select, are resized to a 2400 px JPEG and upload together (up to 20). Logs are stored in `lfx_job_logs` and the private `lfx-job-log-media` bucket (`supabase/migrations/20261012_layeredfx_job_logs.sql`, applied 2026-10-12) or `.local-data` in demo mode. The separate Camera and Record items are unchanged and still keep media on the device.
 - Leads opens a searchable modal using the canonical leads list, with phone actions, linked opportunities and access to the full lead manager.
 - Digital Business Card edits a browser-local card scoped to the signed-in actor, downloads a vCard and invokes native file sharing when supported. Unsupported sharing falls back to download. This does not create a public hosted card, QR landing page or server-synced profile. It is not a migration of Channel Cast's complete business card builder.
 - Camera offers separate photo and video inputs with `capture="environment"`; the phone/browser determines its native capture or file-picker UI. Selected media is previewed locally and can be downloaded or cleared; no media is uploaded. Inputs accept image/video files under 100 MB. Object URLs are released when replaced or closed. Physical Android/iOS camera behavior remains to be verified on device.

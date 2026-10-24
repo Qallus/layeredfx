@@ -9,7 +9,9 @@ const see = (location: string) => new Response(null, {status: 303, headers: {Loc
 const page = (message: string, status: number) => new Response(message, {status, headers: {'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store'}});
 
 export async function POST(request: Request) {
-  try { checkOrigin(request); } catch { return page('This request origin is not allowed.', 403); }
+  // Sec-Fetch-Site is set by the browser and cannot be forged by a page; it covers browsers or extensions that
+  // send `Origin: null` for this form.
+  try { checkOrigin(request); } catch { if (request.headers.get('sec-fetch-site') !== 'same-origin') return page('This request origin is not allowed.', 403); }
   const form = await request.formData();
   const params = Object.fromEntries([...form.entries()].filter(([, v]) => typeof v === 'string')) as Record<string, string>;
   const origin = await pageOrigin();

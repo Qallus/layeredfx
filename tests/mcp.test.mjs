@@ -159,3 +159,13 @@ test('tool failures are returned as tool errors with readable messages', async (
   assert.equal(overview.data.contacts.leads, 1);
   assert.equal(visibleState(fixture.state, VIEWER).contacts.length, 1);
 });
+
+test('consent page headers: never framed, and the Allow form keeps its Origin', () => {
+  const config = readFileSync(new URL('../next.config.ts', import.meta.url), 'utf8');
+  const block = config.slice(config.indexOf("source: '/oauth/:path*'"));
+  assert.match(block, /frame-ancestors 'none'/);
+  // Under no-referrer browsers send `Origin: null` with the form POST, which the same-origin check refuses.
+  assert.doesNotMatch(block, /'no-referrer'/);
+  const handler = readFileSync(new URL('../app/api/oauth/authorize/route.ts', import.meta.url), 'utf8');
+  assert.match(handler, /sec-fetch-site'\) !== 'same-origin'/);
+});

@@ -1,0 +1,13 @@
+/* Connect-an-app consent screen (app/oauth/authorize). Brand palette only (docs/BRAND_COLORS.md). */
+.lfx-oauth{min-height:100dvh;display:grid;place-items:center;padding:24px 16px;background:#f4f6f9;font-family:Arial,Helvetica,sans-serif;color:#2a3346;line-height:1.5}
+.lfx-oauth-card{width:100%;max-width:520px;background:#fff;border:1px solid #e2e6ee;border-radius:14px;padding:32px;box-shadow:0 10px 30px rgba(25,32,46,.08)}
+.lfx-oauth-card h1{font-size:24px;line-height:1.25;margin:8px 0 12px;color:#19202e}
+.lfx-oauth-card ul{margin:12px 0 16px;padding-left:20px}
+.lfx-oauth-card li{margin:4px 0}
+.lfx-oauth-kicker{margin:0;font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:#47536b}
+.lfx-oauth-muted{font-size:13px;color:#5b667c}
+.lfx-oauth-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.lfx-oauth-actions button{font:inherit;font-weight:600;padding:11px 20px;border-radius:8px;border:1px solid #c9cfdb;background:#fff;color:#19202e;cursor:pointer}
+.lfx-oauth-actions button.is-primary{background:#d6ff41;border-color:#aedb22}
+.lfx-oauth-actions button:focus-visible{outline:3px solid #19202e;outline-offset:2px}
+@media (prefers-color-scheme:dark){.lfx-oauth{background:#0f141d;color:#d5dae4}.lfx-oauth-card{background:#19202e;border-color:#2b3445}.lfx-oauth-card h1{color:#fff}.lfx-oauth-kicker,.lfx-oauth-muted{color:#9aa4b8}.lfx-oauth-actions button{background:#232b3b;border-color:#3a4558;color:#fff}.lfx-oauth-actions button.is-primary{background:#d6ff41;color:#19202e}}

@@ -11,18 +11,21 @@ import {EstimateProvider} from '@/components/layeredfx/estimate-context';
 import {AuthStoryAnimation} from '@/components/portal/auth-animations';
 import '@/components/portal/portal.css';
 
+// Only same-site paths (e.g. the connect-an-app consent screen) can be returned to after sign-in.
+function nextPath(){try{const next=new URLSearchParams(location.search).get('next')||'';return /^\/(admin|oauth)(\/|\?|$)/.test(next)&&!next.startsWith('//')?next:'/admin';}catch{return '/admin';}}
+
 export function LoginScreen(){
  const [email,setEmail]=useState(''),[password,setPassword]=useState(''),[show,setShow]=useState(false);
  const [error,setError]=useState(''),[busy,setBusy]=useState(false);
  // An existing team session goes straight to the dashboard.
- useEffect(()=>{let active=true;fetch('/api/operations/auth/refresh',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(r=>{if(r.ok&&active)location.assign('/admin');}).catch(()=>{});return()=>{active=false;};},[]);
+ useEffect(()=>{let active=true;fetch('/api/operations/auth/refresh',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(r=>{if(r.ok&&active)location.assign(nextPath());}).catch(()=>{});return()=>{active=false;};},[]);
  async function submit(){
   setBusy(true);setError('');
   try{
    const res=await fetch('/api/operations/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
    const data=await res.json().catch(()=>({}));
    if(!res.ok)throw new Error(data.message||'Sign-in failed.');
-   location.assign('/admin');
+   location.assign(nextPath());
   }catch(e){setError(e instanceof Error?e.message:'Sign-in failed.');}
   finally{setBusy(false);}
  }

@@ -12,9 +12,11 @@ function config() { if (!configured())
     throw new OperationError('LayeredFX operations is not configured. Follow docs/channel-cast/SETUP.md.', 503); const url = new URL(process.env.LFX_SUPABASE_URL!); if (url.protocol !== 'https:' && process.env.NODE_ENV === 'production')
     throw new OperationError('Use HTTPS for the LayeredFX database connection.', 503); const org = process.env.LFX_OPERATIONS_ORG_ID!; if (!isUuid(org))
     throw new OperationError('LFX_OPERATIONS_ORG_ID must be a UUID.', 503); return { url: url.origin, anon: process.env.LFX_SUPABASE_ANON_KEY!, service: process.env.LFX_SUPABASE_SERVICE_ROLE_KEY!, org }; }
+export const orgId = () => config().org;
 export function checkOrigin(request: Request) { const primary = new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://layeredfx.com').origin; const allowed = [primary, ...(process.env.LFX_ALLOWED_ORIGINS || '').split(',').filter(Boolean).map(x => new URL(x.trim()).origin)]; if (process.env.NODE_ENV === 'development')
     allowed.push('http://localhost:3000', 'http://127.0.0.1:3000'); assertSameOrigin(request.headers.get('origin'), allowed); }
-async function db(path: string, init: RequestInit = {}) { const c = config(); const res = await fetch(`${c.url}/rest/v1/${path}`, { ...init, headers: { apikey: c.service, Authorization: `Bearer ${c.service}`, 'Content-Type': 'application/json', ...init.headers }, cache: 'no-store', signal: AbortSignal.timeout(12000) }); if (!res.ok)
+/** Service-role REST access for other server-only modules (MCP OAuth storage). Never import from client code. */
+export async function db(path: string, init: RequestInit = {}) { const c = config(); const res = await fetch(`${c.url}/rest/v1/${path}`, { ...init, headers: { apikey: c.service, Authorization: `Bearer ${c.service}`, 'Content-Type': 'application/json', ...init.headers }, cache: 'no-store', signal: AbortSignal.timeout(12000) }); if (!res.ok)
     throw new OperationError('LayeredFX database request failed. Verify the migration and server configuration.', 503); return res; }
 export async function people() { const c = config(); const res = await db(`lfx_ops_members?org_id=eq.${c.org}&active=eq.true&select=user_id,display_name,email,role`); const rows = await res.json() as {
     user_id: string;

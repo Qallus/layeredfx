@@ -169,16 +169,18 @@ export function grokConfig() {
 export const grokReady = () => Boolean((process.env.LFX_XAI_API_KEY || '').trim());
 
 /** The xAI API is OpenAI-compatible, so this is the same request shape as Hermes. */
-export async function grokChat(input: {system: string; prompt: string}): Promise<HermesReply> {
+/** `limit` and `timeout` let structured callers (Lead Finder) receive a longer reply; drafts keep the defaults. */
+export async function grokChat(input: {system: string; prompt: string; limit?: number; timeout?: number}): Promise<HermesReply> {
   const {base, key, model} = grokConfig();
+  const timeout = input.timeout ?? 30000;
   const result = await call(base, '/v1/chat/completions', key, {
-    method: 'POST', timeout: 30000,
+    method: 'POST', timeout,
     body: JSON.stringify({model, stream: false, messages: [{role: 'system', content: input.system}, {role: 'user', content: input.prompt}]}),
   });
-  if (!result.ok) throw providerError('Grok', result, 30000);
+  if (!result.ok) throw providerError('Grok', result, timeout);
   const data = (result.data || {}) as {id?: unknown; model?: unknown; choices?: {message?: {content?: unknown}}[]};
   const content = data.choices?.[0]?.message?.content;
-  const text = typeof content === 'string' ? content.trim().slice(0, REPLY_LIMIT) : '';
+  const text = typeof content === 'string' ? content.trim().slice(0, input.limit ?? REPLY_LIMIT) : '';
   if (!text) throw new OperationError('Grok answered without any content. Nothing was recorded.', 502);
   return {id: typeof data.id === 'string' ? data.id : '', text, model: typeof data.model === 'string' ? data.model : model};
 }

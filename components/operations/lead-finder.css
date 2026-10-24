@@ -1,0 +1,33 @@
+/* Lead Finder page. Brand palette only (docs/BRAND_COLORS.md); surfaces follow the dashboard light/dark tokens. */
+.ops .lf-notice{margin:0 0 16px;font-size:13px}
+.ops .lf-form{display:grid;gap:14px}
+.ops .lf-form textarea{width:100%;font-family:inherit}
+.ops .lf-toggle{display:flex;gap:10px;align-items:flex-start;font-size:13px}
+.ops .lf-toggle small{display:block;color:var(--ops-muted);margin-top:2px}
+.ops .lf-actions,.ops .lf-import{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.ops .lf-import{margin-bottom:14px}
+.ops .lf-runs{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:6px}
+.ops .lf-runs li{display:flex;justify-content:space-between;gap:12px;padding:8px 12px;border:1px solid var(--ops-line);border-radius:8px;font-size:13px}
+.ops .lf-run-url{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ops .lf-runs small{flex-shrink:0;color:var(--ops-muted)}
+.ops .lf-runs li[data-status=done] small{color:#63790d;font-weight:600}
+.ops .lf-runs li[data-status=failed] small{color:#b42318;white-space:normal;text-align:right}
+.ops .lf-table tr.is-blocked td{color:var(--ops-muted)}
+.ops .lf-table td{overflow-wrap:anywhere}
+/* Contact enrichment review (components/operations/enrich-contacts.tsx); also used in the contact detail view. */
+.ops-modal .enrich-list{display:grid;gap:10px;max-height:52vh;overflow:auto;margin:12px 0}
+.ops-modal .enrich-list article{border:1px solid var(--ops-line);border-radius:10px;padding:12px 14px;display:grid;gap:10px}
+.ops-modal .enrich-list header{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px}
+.ops-modal .enrich-list header small{color:var(--ops-muted)}
+.ops-modal .enrich-list article[data-status=failed] header small{color:#b42318}
+.ops-modal .enrich-list article[data-status=saved] header small{color:#63790d;font-weight:600}
+.ops-modal .enrich-list article[data-status=skipped]{opacity:.65}
+.ops-modal .enrich-table td{font-size:12px;overflow-wrap:anywhere}
+.ops-modal .enrich-replace{display:block;color:#b54708;font-size:11px}
+.enrich-extras{display:grid;grid-template-columns:max-content 1fr;gap:4px 12px;margin:0;font-size:12px}
+.enrich-extras dt{color:var(--ops-muted);font-weight:600}
+.enrich-extras dd{margin:0;overflow-wrap:anywhere}
+.enrich-extras dd a{margin-right:10px;text-transform:capitalize}
+.ops-modal .lf-toggle{display:flex;gap:10px;align-items:flex-start;font-size:13px}
+.ops-modal .lf-toggle small{display:block;color:var(--ops-muted);margin-top:2px}
+.ops-modal .lf-actions{display:flex;flex-wrap:wrap;gap:10px}

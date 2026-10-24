@@ -1,4 +1,4 @@
--- NOT YET APPLIED. Apply to the LayeredFX Supabase project only, after review.
+-- Applied to LayeredFX Supabase on 2026-10-23 via the SQL editor (run by the account owner).
 -- Claude (MCP) connections: OAuth clients registered by Claude, and the codes/access/refresh tokens issued when a
 -- LayeredFX member approves one. Only SHA-256 hashes of secrets are stored. Server-only access through the
 -- service role; RLS is enabled with no client policies.

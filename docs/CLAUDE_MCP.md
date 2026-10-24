@@ -14,7 +14,7 @@ Claude (claude.ai · Desktop · mobile · Claude Code · scheduled routines)
 
 ## 1. Go live (one time)
 
-1. Apply `supabase/migrations/20261023_layeredfx_mcp_oauth.sql` to the **LayeredFX** Supabase project.
+1. Apply `supabase/migrations/20261023_layeredfx_mcp_oauth.sql` to the **LayeredFX** Supabase project (done 2026-10-23).
 2. Deploy. `NEXT_PUBLIC_SITE_URL` must be the public address (`https://layeredfx.com`); it is the OAuth issuer.
 3. Optional: `LFX_XAI_API_KEY` enables AI extraction for `find_leads` and `enrich_contact`.
 

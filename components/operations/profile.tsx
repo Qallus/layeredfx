@@ -3,10 +3,10 @@
 // with Password & security and this session alongside. Saved to the operations store (profile.save) so it follows
 // the member across devices; the sign-in email and role come from the LayeredFX account.
 import {useEffect,useRef,useState} from 'react';
-import {Building2,Check,Clock,ImagePlus,KeyRound,LogOut,Mail,MapPin,Monitor,Moon,Pencil,Phone,Sun,UserRound,X,type LucideIcon} from 'lucide-react';
+import {Building2,Check,Clock,ImagePlus,KeyRound,LogOut,Mail,MapPin,Monitor,Moon,Pencil,Phone,Plug,Sun,UserRound,X,type LucideIcon} from 'lucide-react';
 import type {MemberProfile} from '@/lib/operations/types';
 import {BrandedInput,BrandedSelect} from './branded-fields';
-import {useOperations} from './provider';
+import {liveFetch,useOperations} from './provider';
 import {Button,Field,Modal} from './shared';
 
 // Keep in sync with TIMEZONES in lib/operations/engine.mjs.
@@ -107,12 +107,27 @@ export function ProfilePage(){
      </div>
      {mode==='supabase'?<Button type="button" variant="outline" onClick={()=>void signOut()}><LogOut size={15}/>Sign out</Button>:<p className="ops-muted">Local preview. Sign-in sessions are not used in this mode.</p>}
     </Card>
+    <ConnectedApps/>
    </div>
   </div>
   {passwordOpen&&<PasswordModal onClose={()=>setPasswordOpen(false)}/>}
  </div>;
 }
 
+/** Claude (MCP) connections approved by this member. Disconnecting revokes every token the connection holds. */
+function ConnectedApps(){
+ const [rows,setRows]=useState<{family:string;clientName:string;connectedAt:string;lastRefreshed:string}[]|null>(null),[error,setError]=useState('');
+ const load=()=>liveFetch('/api/oauth/connections',{cache:'no-store'}).then(async res=>{const data=await res.json();if(!res.ok)throw new Error(data.message||'Could not load connections.');setRows(data.connections);}).catch(e=>setError(e instanceof Error?e.message:'Could not load connections.'));
+ useEffect(()=>{void load();},[]);
+ async function disconnect(id:string){setError('');const res=await liveFetch(`/api/oauth/connections?id=${encodeURIComponent(id)}`,{method:'DELETE'});if(!res.ok){setError((await res.json().catch(()=>({}))).message||'Not disconnected.');return;}await load();}
+ return <Card title="Connected apps" description="Claude apps you have allowed to use LayeredFX as you.">
+  {error&&<p className="ops-error" role="alert">{error}</p>}
+  {rows===null?<p className="ops-muted">Loading…</p>:!rows.length?<p className="ops-muted">None yet. Add LayeredFX as a connector in Claude to connect.</p>:rows.map(r=><div className="ops-profile-row" key={r.family}>
+   <div className="ops-profile-value"><Plug size={16} aria-hidden/><div><b>{r.clientName}</b><small>Connected {new Date(r.connectedAt).toLocaleDateString()} · active {new Date(r.lastRefreshed).toLocaleDateString()}</small></div></div>
+   <Button type="button" size="sm" variant="outline" onClick={()=>void disconnect(r.family)}>Disconnect</Button>
+  </div>)}
+ </Card>;
+}
 function Card({title,description,children}:{title:string;description:string;children:React.ReactNode}){
  return <section className="ops-profile-card"><header><h2>{title}</h2><p>{description}</p></header><div>{children}</div></section>;
 }

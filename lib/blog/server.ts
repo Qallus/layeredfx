@@ -21,10 +21,10 @@ export async function readBlog():Promise<BlogState>{
  const rows=await (await database('&select=revision,items')).json();return withBookingTemplates(rows[0]||initial());
 }
 export async function publicPosts(){if(mode()!=='demo'&&!configured())return published(launchContent());return published((await readBlog()).items);}
-export async function saveBlog(method:string,body:Record<string,unknown>){
+export async function saveBlog(method:string,body:Record<string,unknown>,options:{authorId?:string}={}){
  let lock:Awaited<ReturnType<typeof open>>|undefined;
  if(mode()==='demo'){await mkdir(path.dirname(file()),{recursive:true});try{lock=await open(file()+'.lock','wx');}catch{throw new OperationError('Another save is in progress. Try again.',409);}}
- try{const current=await readBlog(),result=mutateBlog(current,method,body);
+ try{const current=await readBlog(),result=mutateBlog(current,method,body,options);
   if(mode()==='demo'){const temp=file()+'.tmp';await writeFile(temp,JSON.stringify(result.state),'utf8');await rename(temp,file());}
   else{
    if(current.revision===0){await database('&on_conflict=org_id',{method:'POST',headers:{Prefer:'resolution=ignore-duplicates'},body:JSON.stringify({org_id:process.env.LFX_OPERATIONS_ORG_ID,revision:0,items:[]})});}

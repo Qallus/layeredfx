@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {createRequire} from 'node:module';
+import {pathToFileURL} from 'node:url';
 import ts from 'typescript';
 import {applyCommand, emptyState, visibleState} from '../lib/operations/engine.mjs';
 import {allowedRedirect, authorizeRequest, hashSecret, newSecret, registration, verifyPkce} from '../lib/mcp/oauth.mjs';
@@ -50,9 +52,15 @@ test('authorization requests: unknown clients and mismatched redirects stop befo
 // Tools and protocol, running the real engine with only state storage and the web service replaced.
 const dataUrl = code => `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`;
 const lib = path => new URL(`../lib/${path}`, import.meta.url).href;
+const require = createRequire(import.meta.url);
+const blogModel = dataUrl(ts.transpileModule(readFileSync(new URL('../lib/blog/model.ts', import.meta.url), 'utf8'), {compilerOptions: {module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022}}).outputText
+  .replaceAll('sanitize-html', pathToFileURL(require.resolve('sanitize-html')).href).replaceAll('@/lib/operations/engine.mjs', lib('operations/engine.mjs')));
 const boundary = dataUrl(`
 import {applyCommand,visibleState,OperationError} from '${lib('operations/engine.mjs')}';
-export const fixture={state:null,web:[]};
+import {mutateBlog} from '${blogModel}';
+export const fixture={state:null,web:[],blog:{revision:0,items:[]}};
+export async function readBlog(){return fixture.blog;}
+export async function saveBlog(method,body,options){const r=mutateBlog(fixture.blog,method,body,options);fixture.blog=r.state;return {item:r.item,revision:r.state.revision};}
 export async function loadState(actor){return visibleState(fixture.state,actor);}
 export async function applyAs(actor,command){const r=applyCommand(fixture.state,command,actor,'2026-10-23T17:00:00.000Z');fixture.state=r.state;return {state:visibleState(r.state,actor),resultId:r.resultId};}
 export function grokReady(){return false;}
@@ -60,7 +68,7 @@ export async function findLeads(actor,input){fixture.web.push(['find',input]);re
 export async function enrichSite(actor,contact,ai){fixture.web.push(['enrich',contact.name]);return {site:'https://acme.com/',pages:['https://acme.com/','https://acme.com/contact'],method:'built-in',profile:{company:'Acme Wraps LLC',title:'',email:'info@acme.com',phone:'480-555-0100',website:'https://acme.com/',address:'',city:'Mesa',state:'AZ',zip:'',description:'Wall wraps.',services:'',socials:{instagram:'https://instagram.com/acme'},people:[]}};}
 `);
 const transpile = path => ts.transpileModule(readFileSync(new URL(path, import.meta.url), 'utf8'), {compilerOptions: {module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022}}).outputText
-  .replaceAll("import 'server-only';", '').replaceAll("'./state'", `'${boundary}'`).replaceAll('@/lib/scraper/service', boundary)
+  .replaceAll("import 'server-only';", '').replaceAll("'./state'", `'${boundary}'`).replaceAll('@/lib/scraper/service', boundary).replaceAll('@/lib/blog/server', boundary)
   .replaceAll('@/lib/operations/engine.mjs', lib('operations/engine.mjs')).replaceAll('@/lib/operations/defaults.mjs', lib('operations/defaults.mjs'))
   .replaceAll('@/lib/operations/contacts.mjs', lib('operations/contacts.mjs')).replaceAll('@/lib/operations/jobs.mjs', lib('operations/jobs.mjs')).replaceAll('@/lib/scraper/extract.mjs', lib('scraper/extract.mjs'));
 const {fixture} = await import(boundary);
@@ -71,7 +79,7 @@ const ADMIN = {id: 'admin', name: 'Admin', role: 'admin'}, STAFF = {id: 'staff',
 function seed() {
   let s = Object.assign(emptyState(), {people: [ADMIN, STAFF, VIEWER]});
   s = applyCommand(s, {type: 'contact.save', patch: {name: 'Pat Doe', company: 'Acme', email: 'pat@acme.com', phone: '', type: 'lead'}}, STAFF).state;
-  fixture.state = s; fixture.web = [];
+  fixture.state = s; fixture.web = []; fixture.blog = {revision: 0, items: []};
 }
 let nextId = 1;
 const call = async (actor, name, args = {}) => {
@@ -96,7 +104,7 @@ test('initialize negotiates the protocol version and announces tools only', asyn
 test('viewers get read tools only; no tool can send messages', async () => {
   const names = actor => toolsFor(actor).map(t => t.name);
   assert.deepEqual(names(VIEWER), ['get_overview', 'search_contacts', 'get_contact', 'list_opportunities', 'get_opportunity', 'list_pipeline_stages', 'list_jobs']);
-  assert.equal(names(STAFF).length, 16);
+  assert.equal(names(STAFF).length, 20);
   assert.ok(!names(ADMIN).some(n => /send|sms|email|call_/.test(n)));
   const list = await handleMessage({jsonrpc: '2.0', id: 9, method: 'tools/list'}, VIEWER, toolsFor(VIEWER));
   assert.ok(list.result.tools.every(t => t.annotations.readOnlyHint));
@@ -149,6 +157,34 @@ test('enrichment proposes by default and fill_blanks never replaces existing val
   assert.deepEqual([saved.company, saved.email, saved.phone, saved.city], ['Acme', 'pat@acme.com', '480-555-0100', 'Mesa']);
   assert.equal(saved.details.social_instagram, 'https://instagram.com/acme');
   assert.match(fixture.state.contactActivities.at(-1).body, /^Enriched by Claude from https:\/\/acme\.com\//);
+});
+
+test('blog: staff draft and edit posts; nothing publishes, and published posts are refused', async () => {
+  const made = await call(STAFF, 'create_post_draft', {title: 'Kitchen Cabinet Wraps 101', content: '<p>How wraps work.</p><script>alert(1)</script>', tags: ['kitchen'], status: 'published', published_at: '2026-01-01T00:00:00Z'});
+  assert.equal(fixture.blog.items[0].published_at, null, 'a status or date passed by the caller is ignored');
+  assert.equal(made.data.post.status, 'draft');
+  assert.equal(made.data.post.slug, 'kitchen-cabinet-wraps-101');
+  assert.equal(made.data.post.author, 'Sam Staff (via Claude)');
+  const full = await call(STAFF, 'get_post', {slug: 'kitchen-cabinet-wraps-101'});
+  assert.doesNotMatch(full.data.post.content, /script/);
+  const edited = await call(STAFF, 'update_post_draft', {id: made.data.post.id, excerpt: 'A short guide.'});
+  assert.deepEqual(edited.data.changed, ['excerpt']);
+  assert.equal(edited.data.post.status, 'draft');
+  assert.equal((await call(STAFF, 'get_post', {id: made.data.post.id})).data.post.content, full.data.post.content, 'unchanged fields are kept');
+  assert.equal((await call(STAFF, 'create_post_draft', {title: 'Other', slug: 'kitchen-cabinet-wraps-101', content: '<p>x</p>'})).isError, true);
+  fixture.blog.items[0] = {...fixture.blog.items[0], status: 'published', published_at: '2026-10-01T00:00:00Z'};
+  const refused = await call(STAFF, 'update_post_draft', {id: made.data.post.id, title: 'Changed'});
+  assert.equal(refused.isError, true);
+  assert.match(refused.text, /published/);
+  assert.equal(fixture.blog.items[0].title, 'Kitchen Cabinet Wraps 101');
+  const listed = await call(STAFF, 'list_posts', {status: 'published'});
+  assert.equal(listed.data.total, 1);
+  assert.ok(!toolsFor(VIEWER).some(t => /post/.test(t.name)), 'viewers cannot read unpublished posts');
+  const stale = fixture.blog.revision;
+  fixture.blog = {...fixture.blog, revision: stale + 1};
+  const before = fixture.blog;
+  await call(STAFF, 'update_post_draft', {id: 'missing', title: 'x'});
+  assert.equal(fixture.blog, before, 'a failed call changes nothing');
 });
 
 test('tool failures are returned as tool errors with readable messages', async () => {

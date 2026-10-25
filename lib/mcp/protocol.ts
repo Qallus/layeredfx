@@ -11,6 +11,7 @@ export const INSTRUCTIONS = [
   'These tools read and update its operations dashboard as the signed-in team member, under their permissions.',
   'Start with get_overview. Use find_leads then import_leads to add leads, and enrich_contact to complete records.',
   'Stage moves follow the LayeredFX pipeline rules; if a move is refused, report the missing steps instead of working around them.',
+  'Blog posts can be listed, read, drafted and edited as drafts; only an administrator publishes them in the dashboard.',
   'Nothing here sends email, SMS or calls to customers. Prepare customer messages as drafts (for example Gmail drafts) for a team member to review and send, and log what was done with the activity tools.',
 ].join(' ');
 
@@ -32,7 +33,7 @@ export async function handleMessage(message: Message, actor: Actor, tools: Tool[
     case 'ping': return reply(id, {});
     case 'tools/list':
       return reply(id, {tools: tools.map(t => ({name: t.name, title: t.title, description: t.description, inputSchema: t.inputSchema,
-        annotations: {title: t.title, readOnlyHint: t.access === 'read' || t.name === 'find_leads', destructiveHint: false, idempotentHint: t.access === 'read', openWorldHint: t.access === 'web'}}))});
+        annotations: {title: t.title, readOnlyHint: t.access === 'read' || t.access === 'staff-read' || t.name === 'find_leads', destructiveHint: false, idempotentHint: t.access === 'read' || t.access === 'staff-read', openWorldHint: t.access === 'web'}}))});
     case 'tools/call': {
       const tool = tools.find(t => t.name === params.name);
       if (!tool) return error(id, -32602, `Unknown tool: ${String(params.name).slice(0, 100)}`);

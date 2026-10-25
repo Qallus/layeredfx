@@ -9,14 +9,16 @@ import {jobLabel} from '@/lib/operations/jobs.mjs';
 import {enrichmentChanges, enrichmentDetails, normalizeLead} from '@/lib/scraper/extract.mjs';
 import {enrichSite, findLeads, grokReady} from '@/lib/scraper/service';
 import {applyAs, loadState} from './state';
+import {readBlog, saveBlog} from '@/lib/blog/server';
 import type {Actor, Contact, Deal, OperationState, Stage} from '@/lib/operations/types';
+import type {ContentItem} from '@/ctrlp/lib/admin/types';
 
 type Args = Record<string, unknown>;
 type Schema = {type: 'object'; properties: Record<string, unknown>; required?: string[]; additionalProperties?: boolean};
 export type Tool = {
   name: string; title: string; description: string; inputSchema: Schema;
-  /** read: any member; write: staff and admins; web: staff and admins, reads outside websites. */
-  access: 'read' | 'write' | 'web';
+  /** read: any member; staff-read: staff and admins, read-only (unpublished content); write: staff and admins; web: staff and admins, reads outside websites. */
+  access: 'read' | 'staff-read' | 'write' | 'web';
   run: (actor: Actor, args: Args) => Promise<unknown>;
 };
 
@@ -46,6 +48,29 @@ const ACTIVITY_KINDS = ['note', 'call', 'sms', 'email', 'meeting'];
 const DEAL_ACTIVITY_KINDS = ['note', 'call', 'email', 'sms', 'meeting', 'task'];
 const CONTACT_FIELDS = ['name', 'company', 'title', 'email', 'phone', 'website', 'address', 'city', 'state', 'zip', 'source', 'notes'] as const;
 const LEAD_PROPS = Object.fromEntries(['name', 'company', 'title', 'email', 'phone', 'website', 'address', 'city', 'state', 'zip', 'notes', 'sourceUrl'].map(k => [k, {type: 'string'}]));
+
+
+// Blog ("Inspiration") posts. Claude only works on drafts: nothing here publishes, schedules, archives or deletes.
+// Saves go through the blog model's validation and the store's revision check; a conflict is reported, not retried.
+const POST_STATUSES = ['draft', 'scheduled', 'published', 'archived'];
+const POST_FIELDS = ['title', 'slug', 'content', 'excerpt', 'featured_image_url', 'meta_title', 'meta_description'] as const;
+const POST_PROPS = {
+  title: S('Post title.'), slug: S('URL slug (lowercase words with hyphens). Defaults to one made from the title.'),
+  content: S('Body as HTML: p, h2-h4, strong, em, ul/ol/li, blockquote, a, img. Other markup is removed.'),
+  excerpt: S('One or two sentence summary shown on the listing.'), featured_image_url: S('https:// address or site path such as /images/kitchen.jpg.'),
+  meta_title: S('SEO title.'), meta_description: S('SEO description.'),
+  tags: {type: 'array', items: {type: 'string'}, maxItems: 20}, categories: {type: 'array', items: {type: 'string'}, maxItems: 20},
+};
+const slugify = (title: string) => title.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 120);
+const blogPosts = async () => { const blog = await readBlog(); return {blog, posts: blog.items.filter(p => p.content_type === 'blog_post')}; };
+const postSummary = (p: ContentItem) => ({id: p.id, title: p.title, slug: p.slug, status: p.status, publishedAt: p.published_at, updatedAt: p.updated_at, author: p.author_id || '', excerpt: p.excerpt || '', url: p.slug ? `/inspiration/${p.slug}` : ''});
+const postDetail = (p: ContentItem) => ({...postSummary(p), content: p.content, featuredImageUrl: p.featured_image_url, tags: p.tags, categories: p.categories, metaTitle: p.meta_title, metaDescription: p.meta_description});
+function postChanges(args: Args) {
+  const out: Record<string, unknown> = {};
+  for (const key of POST_FIELDS) if (args[key] !== undefined) out[key] = str(args, key, key === 'content' ? 180000 : 2000);
+  for (const key of ['tags', 'categories']) if (args[key] !== undefined) { if (!Array.isArray(args[key])) fail(`${key} must be a list.`); out[key] = (args[key] as unknown[]).filter(v => typeof v === 'string'); }
+  return out;
+}
 
 export const TOOLS: Tool[] = [
   {name: 'get_overview', title: 'Business overview', access: 'read',
@@ -213,6 +238,44 @@ export const TOOLS: Tool[] = [
       await applyAs(actor, {type: 'contact.save', id: c.id, patch: {...Object.fromEntries(fill.map(x => [x.key, x.found])), details}});
       await applyAs(actor, {type: 'contact.activity', id: c.id, kind: 'note', body: `Enriched by Claude from ${found.site}${fill.length ? `: filled ${fill.map(x => x.key).join(', ')}` : ''}. Website findings saved to details.`});
       return {...found, proposedChanges: changes, applied: true, filled: fill.map(x => x.key), notReplaced: changes.filter(x => !x.fill).map(x => ({field: x.key, current: x.current, found: x.found}))};
+    }},
+  {name: 'list_posts', title: 'List blog posts', access: 'staff-read',
+    description: 'Blog ("Inspiration") posts with status, publish date and author, newest change first. Defaults to all statuses; filter with status, or search titles with query.',
+    inputSchema: {type: 'object', properties: {status: S('Default all.', {enum: ['all', ...POST_STATUSES]}), query: S('Words in the title or slug.'), limit: {type: 'number', description: 'Default 25, max 50.'}}, additionalProperties: false},
+    async run(_actor, args) {
+      const status = str(args, 'status') || 'all', q = str(args, 'query', 200).toLowerCase(), {posts} = await blogPosts();
+      const found = posts.filter(p => (status === 'all' || p.status === status) && (!q || `${p.title} ${p.slug}`.toLowerCase().includes(q)))
+        .sort((a, b) => Date.parse(b.updated_at || '') - Date.parse(a.updated_at || ''));
+      return {total: found.length, posts: found.slice(0, limit(args, 25)).map(postSummary)};
+    }},
+  {name: 'get_post', title: 'Get a blog post', access: 'staff-read',
+    description: 'One blog post with its full HTML content, tags, categories, image and SEO fields. Look up by id or slug.',
+    inputSchema: {type: 'object', properties: {id: S('Post id.'), slug: S('Post slug.')}, additionalProperties: false},
+    async run(_actor, args) {
+      const id = str(args, 'id', 100), slug = str(args, 'slug', 200).toLowerCase();
+      if (!id && !slug) fail('Give an id or a slug.');
+      const {posts} = await blogPosts(), post = posts.find(p => id ? p.id === id : p.slug === slug) || fail('Post not found.', 404);
+      return {post: postDetail(post)};
+    }},
+  {name: 'create_post_draft', title: 'Create a blog post draft', access: 'write',
+    description: 'Create a new blog post as a draft for an administrator to review and publish in Admin → Blog. Always saved as a draft; it is not public. Content must be original and accurate: no invented customers, testimonials, prices or completed projects.',
+    inputSchema: {type: 'object', properties: POST_PROPS, required: ['title', 'content'], additionalProperties: false},
+    async run(actor, args) {
+      const changes = postChanges(args), title = need(args, 'title', 180);
+      const {blog} = await blogPosts();
+      const {item} = await saveBlog('POST', {...changes, title, slug: (changes.slug as string) || slugify(title), content_type: 'blog_post', status: 'draft', published_at: null, revision: blog.revision}, {authorId: `${actor.name} (via Claude)`});
+      return {created: true, post: postSummary(item!), note: 'Saved as a draft. An administrator publishes it from Admin → Blog.'};
+    }},
+  {name: 'update_post_draft', title: 'Update a blog post draft', access: 'write',
+    description: 'Edit a draft blog post. Only the fields you pass change. Published, scheduled and archived posts are refused: ask an administrator to move the post back to draft, or create a new draft instead.',
+    inputSchema: {type: 'object', properties: {id: S('Post id.'), ...POST_PROPS}, required: ['id'], additionalProperties: false},
+    async run(_actor, args) {
+      const id = need(args, 'id', 100), changes = postChanges(args);
+      if (!Object.keys(changes).length) fail('Nothing to change: pass at least one field.');
+      const {blog, posts} = await blogPosts(), post = posts.find(p => p.id === id) || fail('Post not found.', 404);
+      if (post.status !== 'draft') fail(`This post is ${post.status}, so it can't be edited here. Ask an administrator to move it back to draft, or create a new draft.`, 409);
+      const {item} = await saveBlog('PATCH', {...post, ...changes, content_type: 'blog_post', status: 'draft', revision: blog.revision});
+      return {updated: true, changed: Object.keys(changes), post: postSummary(item!)};
     }},
 ];
 
